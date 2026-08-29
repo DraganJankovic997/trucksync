@@ -1,0 +1,69 @@
+name: trucksync
+
+services:
+  backend:
+    build:
+      context: ./trucksync-backend
+      dockerfile: docker/Dockerfile
+    env_file:
+      - ./trucksync-backend/.env
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./trucksync-backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./trucksync-frontend
+      dockerfile: docker/Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-9000}:9000"
+    volumes:
+      - ./trucksync-frontend:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      QUASAR_OPEN: "false"
+    depends_on:
+      - backend
+
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    env_file:
+      - ./trucksync-backend/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USERNAME} -d $${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  backend_vendor:
+  frontend_node_modules:
+  postgres_data:
+  redis_data:

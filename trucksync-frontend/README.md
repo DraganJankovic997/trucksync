@@ -1,38 +1,30 @@
 # TruckSync (trucksync-frontend)
 
-## Install the dependencies
+Quasar/Vue frontend for TruckSync.
+
+## Setup
+
+Use Node `>=22.12`.
 
 ```bash
-pnpm install
-# or: yarn/npm/bun install
+npm ci
 ```
 
-### Start the app in development mode (HMR, error reporting, etc.)
+## Commands
 
 ```bash
-quasar dev
+make dev
+make lint-check
+make lint
+make build
 ```
 
-### Format & Lint the files
+## Docker
+
+From the repository root:
 
 ```bash
-pnpm run lint
-# or: yarn/npm/bun run lint
+make up
+make frontend-lint-check
+make frontend-build
 ```
-
-...or just check formatting & linting:
-
-```bash
-pnpm run lint:check
-# or: yarn/npm/bun run lint:check
-```
-
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-file).

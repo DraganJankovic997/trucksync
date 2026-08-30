@@ -1,11 +1,31 @@
 # TruckSync
 
+TruckSync is a small Laravel + Quasar project.
+
+## Projects
+
+- Backend: `trucksync-backend`
+- Frontend: `trucksync-frontend`
+- Database: PostgreSQL
+- Cache/queue support: Redis
+
+## Commands
+
+```sh
+make up
+make ps
+make lint
+make test
+make build
+make down
+```
+
 ## Docker development
 
 Run the full local stack in containers:
 
 ```sh
-docker compose up --build
+make up
 ```
 
 Services:
@@ -23,10 +43,10 @@ loaded from `trucksync-backend/.env`; keep `DB_HOST=postgres` and
 Useful commands:
 
 ```sh
-docker compose exec backend php artisan test
-docker compose exec frontend npm run lint:check
-docker compose exec frontend npm run build
-docker compose down
+make backend-test
+make frontend-lint-check
+make frontend-build
+make down
 ```
 
 Override app ports with environment variables before running Compose, for

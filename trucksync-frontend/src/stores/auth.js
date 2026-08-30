@@ -1,22 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
-
-const REGISTER_ENDPOINT = '/api/auth/register'
-
-async function readResponseBody(response) {
-  const text = await response.text()
-
-  if (!text) {
-    return null
-  }
-
-  try {
-    return JSON.parse(text)
-  } catch (error) {
-    console.error('Unable to parse API response.', error)
-
-    return null
-  }
-}
+import { api } from '@/boot/axios.js'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -37,37 +20,21 @@ export const useAuthStore = defineStore('auth', {
       this.clearErrors()
 
       try {
-        const response = await fetch(REGISTER_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        })
-
-        const data = await readResponseBody(response)
-
-        if (!response.ok) {
-          this.error = data?.message ?? 'Unable to create account.'
-
-          if (response.status === 422 && data?.errors) {
-            this.validationErrors = data.errors
-          }
-
-          console.error('Registration failed.', {
-            status: response.status,
-            data
-          })
-
-          return null
-        }
+        const { data } = await api.post('/auth/register', payload)
 
         this.user = data?.data?.user ?? null
 
         return data?.data ?? null
       } catch (error) {
-        this.error = 'Unable to reach the registration service.'
+        const response = error.response
+
+        this.error =
+          response?.data?.message ?? 'Unable to reach the registration service.'
+
+        if (response?.status === 422 && response.data?.errors) {
+          this.validationErrors = response.data.errors
+        }
+
         console.error('Registration request failed.', error)
 
         return null

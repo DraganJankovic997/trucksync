@@ -1,29 +1,19 @@
 $field-border: #c8d3df;
-$field-focus: #1976d2;
-$field-icon: #667789;
 
 .form-field {
   width: 100%;
-}
 
-.form-field .q-field__control {
-  min-height: 56px;
-  border-radius: 8px;
-}
+  .q-field__control {
+    min-height: 56px;
+    border-radius: 8px;
+  }
 
-.form-field .q-field__native,
-.form-field .q-field__label {
-  letter-spacing: 0;
-}
+  .q-field__native,
+  .q-field__label {
+    letter-spacing: 0;
+  }
 
-.form-field .q-field__prepend {
-  color: $field-icon;
-}
-
-.form-field.q-field--focused .q-field__prepend {
-  color: $field-focus;
-}
-
-.form-field.q-field--outlined .q-field__control::before {
-  border-color: $field-border;
+  &.q-field--outlined .q-field__control::before {
+    border-color: $field-border;
+  }
 }

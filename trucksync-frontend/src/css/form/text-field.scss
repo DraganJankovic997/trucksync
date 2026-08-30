@@ -1,0 +1,23 @@
+@use '../quasar.variables' as brand;
+
+.form-field {
+  width: 100%;
+
+  .q-field__control {
+    min-height: 56px;
+    border-radius: brand.$brand-radius;
+  }
+
+  .q-field__native,
+  .q-field__label {
+    letter-spacing: 0;
+  }
+
+  &.q-field--outlined .q-field__control::before {
+    border-color: brand.$brand-field-border;
+  }
+
+  &.q-field--outlined.q-field--focused .q-field__control::after {
+    border-color: brand.$brand-field-focus;
+  }
+}

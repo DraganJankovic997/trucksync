@@ -1,5 +1,13 @@
 # Backend Agent Guide
 
+## Important
+
+- MUST create a contract/interface for every service in `app/Contracts`.
+- MUST bind each service contract to its implementation in a service provider.
+- MUST inject service contracts, not concrete service classes, into controllers and other consumers.
+- MUST use explicit, readable service method parameters instead of passing generic `array $data` payloads.
+- MUST validate request data before calling services, then pass the validated values explicitly.
+
 ## Scope
 
 - Laravel backend lives in this directory.
@@ -39,11 +47,11 @@
 
 ## Services
 
-- Define a contract/interface for each service and type against the contract where practical.
+- Define a contract/interface for each service and type against the contract.
 - Keep service method signatures and return types strongly typed.
-- Services should work with original Eloquent models and validated arrays, not DTOs.
+- Services should work with original Eloquent models and explicit validated method arguments, not DTOs or generic data arrays.
 - Do not introduce DTOs for service input/output or service-to-service communication.
-- If a service creates a model, pass only already-validated data needed for that model creation.
+- If a service creates a model, pass only already-validated values needed for that model creation.
 - Validate and normalize input rigorously before querying or creating records so service flows can trust required fields and avoid defensive null checks.
 - Throw custom business exceptions for expected business faults.
 - Do not return HTTP responses from services.

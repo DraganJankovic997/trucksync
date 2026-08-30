@@ -1,6 +1,6 @@
 // https://github.com/michael-ciniawsky/postcss-load-config
 
-import autoprefixer from 'autoprefixer'
+import autoprefixer from 'autoprefixer';
 // import rtlcss from 'postcss-rtlcss'
 // import { Mode } from 'postcss-rtlcss/options'
 
@@ -27,4 +27,4 @@ export default {
     // 3. uncomment the following line (and its import statement above):
     // rtlcss({ mode: Mode.Override })
   ]
-}
+};

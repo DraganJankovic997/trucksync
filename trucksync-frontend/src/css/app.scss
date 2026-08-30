@@ -1,1 +1,8 @@
-// app global css
+@use './quasar.variables' as brand;
+@use './form/text-field';
+@use './pages/register';
+
+body {
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+}

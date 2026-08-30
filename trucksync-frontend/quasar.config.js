@@ -1,7 +1,7 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
-import { defineConfig } from '#q-app'
+import { defineConfig } from '#q-app';
 
 export default defineConfig((/* ctx */) => {
   return {
@@ -11,7 +11,7 @@ export default defineConfig((/* ctx */) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: [],
+    boot: ['axios'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],
@@ -40,7 +40,7 @@ export default defineConfig((/* ctx */) => {
       // https://v2.quasar.dev/quasar-cli-vite/page-routing-with-vue-router#filename-based-routing
       // filenameBasedRouting: true,
 
-      vueRouterMode: 'hash' // available values: 'hash', 'history'
+      vueRouterMode: 'history' // available values: 'hash', 'history'
       // vueRouterBase,
 
       // publicPath: '/',
@@ -68,6 +68,12 @@ export default defineConfig((/* ctx */) => {
       // https: true,
       host: '0.0.0.0',
       port: 9000,
+      proxy: {
+        '/api': {
+          target: process.env.API_URL || 'http://localhost:8000',
+          changeOrigin: true
+        }
+      },
       open: process.env.QUASAR_OPEN === 'true' // opens browser window automatically
     },
 
@@ -227,5 +233,5 @@ export default defineConfig((/* ctx */) => {
        */
       extraScripts: []
     }
-  }
-})
+  };
+});

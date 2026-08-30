@@ -1,47 +1,26 @@
 import { defineStore } from 'pinia';
 import { api } from '@/boot/axios.js';
+import { ref } from 'vue';
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    error: null,
-    loading: false,
-    user: null,
-    validationErrors: {}
-  }),
+export const useAuthStore = defineStore('auth', () => {
+  const user = ref(null);
 
-  actions: {
-    clearErrors() {
-      this.error = null;
-      this.validationErrors = {};
-    },
+  async function register(payload) {
+    try {
+      const { data } = await api.post('/auth/register', payload);
 
-    async register(payload) {
-      this.loading = true;
-      this.clearErrors();
+      user.value = data?.data?.user ?? null;
 
-      try {
-        const { data } = await api.post('/auth/register', payload);
-
-        this.user = data?.data?.user ?? null;
-
-        return data?.data ?? null;
-      } catch (error) {
-        const response = error.response;
-
-        this.error =
-          response?.data?.message ??
-          'Unable to reach the registration service.';
-
-        if (response?.status === 422 && response.data?.errors) {
-          this.validationErrors = response.data.errors;
-        }
-
-        console.error('Registration request failed.', error);
-
-        return null;
-      } finally {
-        this.loading = false;
-      }
+      return data?.data ?? null;
+    } catch (requestError) {
+      const response = requestError.response;
+      console.error('Registration request failed.', response);
+      return null;
     }
   }
+
+  return {
+    user,
+    register
+  };
 });

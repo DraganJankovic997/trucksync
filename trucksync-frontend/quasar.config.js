@@ -1,7 +1,7 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
-import { defineConfig } from '#q-app'
+import { defineConfig } from '#q-app';
 
 export default defineConfig((/* ctx */) => {
   return {
@@ -233,5 +233,5 @@ export default defineConfig((/* ctx */) => {
        */
       extraScripts: []
     }
-  }
-})
+  };
+});

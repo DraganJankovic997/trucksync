@@ -20,12 +20,12 @@ defineProps({
     type: Array,
     default: () => []
   }
-})
+});
 
 const model = defineModel({
   type: String,
   default: ''
-})
+});
 </script>
 
 <template>

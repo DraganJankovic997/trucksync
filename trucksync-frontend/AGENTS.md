@@ -25,6 +25,7 @@
 - Keep logic out of components when it belongs in a store or shared utility.
 - Use Vue Router conventions and always consider whether a route should be protected/locked.
 - Put reusable scripts, app setup, and shared integrations in `src/boot`.
+- Enforce the usage of ";" when writing JavaScript code.
 
 ## Folder Conventions
 
@@ -68,9 +69,9 @@
 - Use SCSS for styling.
 - Keep SCSS files in a dedicated styles folder.
 - Organize SCSS by purpose:
-    - page-level SCSS for pages
-    - component-level SCSS for atomic components or when explicitly required
-    - layout SCSS for layout-specific structure and spacing
+  - page-level SCSS for pages
+  - component-level SCSS for atomic components or when explicitly required
+  - layout SCSS for layout-specific structure and spacing
 - Create a dedicated layout SCSS file for layout styling.
 - Do not place CSS in Vue components.
 - Keep colors, fonts, and reusable border values in SCSS variables.
@@ -88,10 +89,10 @@
 
 - Store assets in `src/assets`.
 - Split assets by type:
-    - `src/assets/icons`
-    - `src/assets/images`
-    - `src/assets/fonts`
-    - other type-based folders as needed
+  - `src/assets/icons`
+  - `src/assets/images`
+  - `src/assets/fonts`
+  - other type-based folders as needed
 - Keep asset naming clear and predictable.
 
 ## Quasar Preferences
@@ -118,6 +119,7 @@
 - Keep API error handling consistent and user-friendly.
 
 ## Testing and Verification
+
 - We will not write tests.
 - When frontend behavior changes, verify the affected UI paths manually or through available checks.
 - Run `make lint-check` and `make build` after significant frontend changes when possible.

@@ -1,13 +1,13 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import EmailField from '@/components/form/EmailField.vue'
-import PasswordField from '@/components/form/PasswordField.vue'
-import TextField from '@/components/form/TextField.vue'
-import { useAuthStore } from '@/stores/auth.js'
+import { reactive, ref } from 'vue';
+import EmailField from '@/components/form/EmailField.vue';
+import PasswordField from '@/components/form/PasswordField.vue';
+import TextField from '@/components/form/TextField.vue';
+import { useAuthStore } from '@/stores/auth.js';
 
-const authStore = useAuthStore()
-const formRef = ref(null)
-const createdUser = ref(null)
+const authStore = useAuthStore();
+const formRef = ref(null);
+const createdUser = ref(null);
 
 const form = reactive({
   firstName: '',
@@ -15,16 +15,16 @@ const form = reactive({
   email: '',
   password: '',
   passwordConfirmation: ''
-})
+});
 
 const required = label => value =>
-  Boolean(String(value ?? '').trim()) || `${label} is required`
+  Boolean(String(value ?? '').trim()) || `${label} is required`;
 
 const maxLength = (label, length) => value =>
   String(value ?? '').length <= length ||
-  `${label} must be ${length} characters or fewer`
+  `${label} must be ${length} characters or fewer`;
 
-const nameRules = label => [required(label), maxLength(label, 255)]
+const nameRules = label => [required(label), maxLength(label, 255)];
 
 const emailRules = [
   required('Email'),
@@ -32,32 +32,32 @@ const emailRules = [
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? '')) ||
     'Enter a valid email address',
   maxLength('Email', 255)
-]
+];
 
 const passwordRules = [
   required('Password'),
   value =>
     String(value ?? '').length >= 8 || 'Password must be at least 8 characters'
-]
+];
 
 const confirmPasswordRules = [
   required('Confirm password'),
   value => value === form.password || 'Passwords do not match'
-]
+];
 
 function clearServerState() {
-  authStore.clearErrors()
-  createdUser.value = null
+  authStore.clearErrors();
+  createdUser.value = null;
 }
 
 async function handleSubmit() {
-  const isValid = await formRef.value?.validate()
+  const isValid = await formRef.value?.validate();
 
   if (!isValid) {
-    return
+    return;
   }
 
-  createdUser.value = null
+  createdUser.value = null;
 
   const result = await authStore.register({
     first_name: form.firstName,
@@ -65,10 +65,10 @@ async function handleSubmit() {
     email: form.email,
     password: form.password,
     password_confirmation: form.passwordConfirmation
-  })
+  });
 
   if (result?.user) {
-    createdUser.value = result.user
+    createdUser.value = result.user;
   }
 }
 </script>

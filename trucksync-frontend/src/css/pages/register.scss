@@ -1,0 +1,173 @@
+$register-background: #f4f7fb;
+$register-ink: #17202a;
+$register-muted: #536170;
+$register-panel: #ffffff;
+$register-border: #d8e0e8;
+$register-accent: #1976d2;
+$register-accent-deep: #124f94;
+$register-success: #0d7a4f;
+$register-error: #b42318;
+
+.register-page {
+  min-height: inherit;
+  background:
+    linear-gradient(135deg, rgba(25, 118, 210, 0.08), transparent 42%),
+    $register-background;
+  color: $register-ink;
+}
+
+.register-page__shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 480px);
+  gap: 40px;
+  align-items: center;
+  width: min(100%, 1120px);
+  min-height: calc(100vh - 50px);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.register-page__intro {
+  max-width: 560px;
+}
+
+.register-page__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(25, 118, 210, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  color: $register-accent;
+  font-size: 32px;
+}
+
+.register-page__eyebrow {
+  margin: 0 0 12px;
+  color: $register-accent-deep;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.register-page__intro h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.register-page__copy {
+  max-width: 420px;
+  margin: 18px 0 0;
+  color: $register-muted;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.register-page__form-panel {
+  width: 100%;
+  border: 1px solid $register-border;
+  border-radius: 8px;
+  background: $register-panel;
+  box-shadow: 0 18px 48px rgba(23, 32, 42, 0.12);
+}
+
+.register-form {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+}
+
+.register-form__header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.register-form__name-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.register-form__banner {
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+}
+
+.register-form__banner--error {
+  border-color: rgba(180, 35, 24, 0.22);
+  background: #fff1f0;
+  color: $register-error;
+}
+
+.register-form__banner--success {
+  border-color: rgba(13, 122, 79, 0.2);
+  background: #ecfdf3;
+  color: $register-success;
+}
+
+.register-form__submit {
+  min-height: 46px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .register-page__shell {
+    grid-template-columns: 1fr;
+    align-items: start;
+    min-height: auto;
+    padding: 32px 18px;
+  }
+
+  .register-page__intro {
+    max-width: none;
+  }
+
+  .register-page__intro h1 {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .register-page__shell {
+    padding: 20px 12px 28px;
+  }
+
+  .register-page__mark {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 18px;
+    font-size: 28px;
+  }
+
+  .register-page__intro h1 {
+    font-size: 2rem;
+  }
+
+  .register-page__copy {
+    font-size: 1rem;
+  }
+
+  .register-page__form-panel {
+    box-shadow: 0 12px 32px rgba(23, 32, 42, 0.1);
+  }
+
+  .register-form {
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .register-form__name-grid {
+    grid-template-columns: 1fr;
+  }
+}

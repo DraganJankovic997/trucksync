@@ -22,6 +22,8 @@ services:
     build:
       context: ./trucksync-frontend
       dockerfile: docker/Dockerfile
+    env_file:
+      - ./trucksync-frontend/.env
     ports:
       - "${FRONTEND_PORT:-9000}:9000"
     volumes:

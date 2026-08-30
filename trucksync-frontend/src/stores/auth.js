@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '@/boot/axios.js';
+import { toast } from '@/boot/toast.js';
 import { ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -10,11 +11,14 @@ export const useAuthStore = defineStore('auth', () => {
       const { data } = await api.post('/auth/register', payload);
 
       user.value = data?.data?.user ?? null;
+      toast.success('User created successfully');
 
       return data?.data ?? null;
     } catch (requestError) {
-      const response = requestError.response;
-      console.error('Registration request failed.', response);
+      toast.error('User creation failed');
+
+      console.error('Registration request failed.', requestError.response);
+
       return null;
     }
   }

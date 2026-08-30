@@ -7,7 +7,6 @@ import { useAuthStore } from '@/stores/auth.js';
 
 const authStore = useAuthStore();
 const formRef = ref(null);
-const createdUser = ref(null);
 
 const form = reactive({
   firstName: '',
@@ -45,11 +44,6 @@ const confirmPasswordRules = [
   value => value === form.password || 'Passwords do not match'
 ];
 
-function clearServerState() {
-  authStore.clearErrors();
-  createdUser.value = null;
-}
-
 async function handleSubmit() {
   const isValid = await formRef.value?.validate();
 
@@ -57,19 +51,13 @@ async function handleSubmit() {
     return;
   }
 
-  createdUser.value = null;
-
-  const result = await authStore.register({
+  await authStore.register({
     first_name: form.firstName,
     last_name: form.lastName,
     email: form.email,
     password: form.password,
     password_confirmation: form.passwordConfirmation
   });
-
-  if (result?.user) {
-    createdUser.value = result.user;
-  }
 }
 </script>
 
@@ -89,7 +77,6 @@ async function handleSubmit() {
             placeholder="Jane"
             :rules="nameRules('First name')"
             :maxlength="255"
-            @update:model-value="clearServerState"
           />
 
           <TextField
@@ -99,7 +86,6 @@ async function handleSubmit() {
             placeholder="Cooper"
             :rules="nameRules('Last name')"
             :maxlength="255"
-            @update:model-value="clearServerState"
           />
         </div>
 
@@ -108,7 +94,6 @@ async function handleSubmit() {
           placeholder="jane@example.com"
           :rules="emailRules"
           :maxlength="255"
-          @update:model-value="clearServerState"
         />
 
         <PasswordField
@@ -117,7 +102,6 @@ async function handleSubmit() {
           name="password"
           placeholder="Minimum 8 characters"
           :rules="passwordRules"
-          @update:model-value="clearServerState"
         />
 
         <PasswordField
@@ -126,24 +110,7 @@ async function handleSubmit() {
           name="password_confirmation"
           placeholder="Repeat your password"
           :rules="confirmPasswordRules"
-          @update:model-value="clearServerState"
         />
-
-        <q-banner
-          v-if="authStore.error"
-          class="form-banner form-banner-error"
-          rounded
-        >
-          {{ authStore.error }}
-        </q-banner>
-
-        <q-banner
-          v-if="createdUser"
-          class="form-banner form-banner-success"
-          rounded
-        >
-          Account created for {{ createdUser.email }}.
-        </q-banner>
       </q-card-section>
 
       <q-card-actions class="form-actions">
@@ -155,8 +122,6 @@ async function handleSubmit() {
           label="Create account"
           no-caps
           unelevated
-          :disable="authStore.loading"
-          :loading="authStore.loading"
         />
       </q-card-actions>
     </q-card>

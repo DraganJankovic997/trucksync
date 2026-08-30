@@ -1,11 +1,11 @@
-$field-border: #c8d3df;
+@use '../quasar.variables' as brand;
 
 .form-field {
   width: 100%;
 
   .q-field__control {
     min-height: 56px;
-    border-radius: 8px;
+    border-radius: brand.$brand-radius;
   }
 
   .q-field__native,
@@ -14,6 +14,10 @@ $field-border: #c8d3df;
   }
 
   &.q-field--outlined .q-field__control::before {
-    border-color: $field-border;
+    border-color: brand.$brand-field-border;
+  }
+
+  &.q-field--outlined.q-field--focused .q-field__control::after {
+    border-color: brand.$brand-field-focus;
   }
 }

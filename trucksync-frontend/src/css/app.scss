@@ -1,4 +1,8 @@
+@use './quasar.variables' as brand;
 @use './form/text-field';
-@use './form/email-field';
-@use './form/password-field';
 @use './pages/register';
+
+body {
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+}

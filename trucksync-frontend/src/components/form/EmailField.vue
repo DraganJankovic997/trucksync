@@ -31,7 +31,7 @@ const model = defineModel({
 <template>
   <q-input
     v-model="model"
-    class="form-field form-email-field"
+    class="form-field"
     outlined
     lazy-rules
     type="email"

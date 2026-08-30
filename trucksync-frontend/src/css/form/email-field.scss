@@ -1,7 +1,0 @@
-$email-field-accent: #0f766e;
-
-.form-email-field {
-  &.q-field--focused .q-field__control::after {
-    border-color: $email-field-accent;
-  }
-}

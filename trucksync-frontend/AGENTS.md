@@ -20,8 +20,8 @@
 - Prefer Quasar components, utilities, and styling helpers as much as possible.
 - Keep UI code simple, readable, and consistent with Quasar patterns.
 - Use `script setup` for Vue single-file components.
-- Use JavaScript in Vue components.
-- Use TypeScript for Pinia stores and define proper interfaces for store state, payloads, and API responses.
+- Use JavaScript in Vue components and Pinia stores.
+- Keep store state, payloads, and API response shapes clear and consistent.
 - Keep logic out of components when it belongs in a store or shared utility.
 - Use Vue Router conventions and always consider whether a route should be protected/locked.
 - Put reusable scripts, app setup, and shared integrations in `src/boot`.
@@ -33,7 +33,7 @@
 - Stores: `src/stores`
 - Boot files: `src/boot`
 - Assets: `src/assets`
-- Styles: `src/assets/scss`
+- Styles: `src/css`
 
 ## Component Rules
 
@@ -50,23 +50,23 @@
 
 - Store route pages in `src/pages`.
 - Keep page components thin and compose them from smaller components and stores.
-- Page-level SCSS should live in the SCSS folder and stay page-scoped.
+- Page-level SCSS should live in the dedicated styles folder and stay page-scoped.
 - Keep route-based concerns, like loading initial data, in the page or its dedicated store.
 
 ## Pinia and API Rules
 
 - All API calls must go through Pinia stores.
 - Split stores by domain logic, not by arbitrary UI screens.
-- Use TypeScript in stores.
-- Define interfaces for request payloads, response payloads, state shape, and error handling.
-- Keep store actions strongly typed and reusable.
+- Use JavaScript in stores unless the project is intentionally migrated.
+- Keep request payloads, response payloads, state shape, and error handling clear and predictable.
+- Keep store actions reusable.
 - Centralize API clients and app-wide setup in `src/boot` when appropriate, such as Axios, Pinia plugins, interceptors, or shared configuration.
 - Prefer one source of truth per domain to avoid duplicated request logic.
 
 ## Styling Rules
 
 - Use SCSS for styling.
-- Keep SCSS files in a dedicated folder, `src/assets/scss`.
+- Keep SCSS files in a dedicated styles folder.
 - Organize SCSS by purpose:
     - page-level SCSS for pages
     - component-level SCSS for atomic components or when explicitly required

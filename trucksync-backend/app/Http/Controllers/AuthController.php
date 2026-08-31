@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\AuthServiceContract;
+use App\Exceptions\InvalidCredentialsException;
+use App\Exceptions\UserNotFoundException;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -60,16 +62,25 @@ class AuthController extends Controller
         ]);
 
         try {
-            $user = $this->authService->authenticate(
+            $token = $this->authService->authenticate(
                 $validated['email'],
                 $validated['password'],
             );
 
-            if (! $user) {
-                return $this->unauthenticatedResponse('The provided credentials are invalid.');
-            }
-
-            $token = $this->authService->issueToken($user);
+            return response()->json([
+                'message' => 'Logged in successfully.',
+                'data' => [
+                    'token' => $token,
+                ],
+            ]);
+        } catch (UserNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (InvalidCredentialsException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 401);
         } catch (Throwable $throwable) {
             logger()->error('Unable to log in user.', [
                 'email' => $validated['email'],
@@ -80,40 +91,21 @@ class AuthController extends Controller
                 'message' => 'Unable to log in.',
             ], 500);
         }
-
-        return response()->json([
-            'message' => 'Logged in successfully.',
-            'data' => [
-                'token' => $token,
-            ],
-        ]);
     }
 
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        if (! $user instanceof User) {
-            return $this->unauthenticatedResponse();
-        }
-
         return response()->json([
             'data' => [
-                'user' => $this->userPayload($user),
+                'user' => $this->userPayload($request->user()),
             ],
         ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        if (! $user instanceof User) {
-            return $this->unauthenticatedResponse();
-        }
-
         try {
-            $this->authService->revokeCurrentToken($user);
+            $this->authService->revokeCurrentToken($request->user());
         } catch (Throwable $throwable) {
             logger()->error('Unable to log out user.', [
                 'exception' => $throwable,
@@ -140,12 +132,5 @@ class AuthController extends Controller
             'last_name' => $user->last_name,
             'email' => $user->email,
         ];
-    }
-
-    private function unauthenticatedResponse(string $message = 'Unauthenticated.'): JsonResponse
-    {
-        return response()->json([
-            'message' => $message,
-        ], 401);
     }
 }

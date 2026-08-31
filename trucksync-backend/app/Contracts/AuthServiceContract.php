@@ -13,9 +13,7 @@ interface AuthServiceContract
         string $password,
     ): User;
 
-    public function authenticate(string $email, string $password): ?User;
-
-    public function issueToken(User $user): string;
+    public function authenticate(string $email, string $password): string;
 
     public function revokeCurrentToken(User $user): void;
 }

@@ -51,6 +51,17 @@ it('rejects invalid login credentials', function () {
         ->assertJsonPath('message', 'The provided credentials are invalid.');
 });
 
+it('returns not found when login user does not exist', function () {
+    $response = $this->postJson('/api/auth/login', [
+        'email' => 'missing.driver@example.com',
+        'password' => 'secure-password',
+    ]);
+
+    $response
+        ->assertNotFound()
+        ->assertJsonPath('message', 'User not found.');
+});
+
 it('validates required login fields', function () {
     $response = $this->postJson('/api/auth/login', []);
 

@@ -6,6 +6,7 @@ import {
   createWebHistory
 } from 'vue-router';
 
+import { useAuthStore } from '@/stores/auth.js';
 import routes from './routes.js';
 
 /*
@@ -17,7 +18,7 @@ import routes from './routes.js';
  * with the Router instance.
  */
 
-export default defineRouter((/* { store, ssrContext } */) => {
+export default defineRouter(({ store }) => {
   const createHistory = import.meta.env.QUASAR_SERVER
     ? createMemoryHistory
     : import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history'
@@ -32,6 +33,36 @@ export default defineRouter((/* { store, ssrContext } */) => {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
+  });
+
+  Router.beforeEach(async to => {
+    const authStore = useAuthStore(store);
+
+    if (to.meta.requiresAuth) {
+      if (!authStore.getToken()) {
+        return {
+          name: 'login',
+          query: { redirect: to.fullPath }
+        };
+      }
+
+      if (!authStore.user) {
+        const user = await authStore.me();
+
+        if (!user) {
+          return {
+            name: 'login',
+            query: { redirect: to.fullPath }
+          };
+        }
+      }
+    }
+
+    if (to.meta.guestOnly && authStore.getToken()) {
+      return { name: 'profile' };
+    }
+
+    return true;
   });
 
   return Router;

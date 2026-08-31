@@ -1,5 +1,7 @@
 @use './quasar.variables' as brand;
 @use './form/text-field';
+@use './pages/login';
+@use './pages/profile';
 @use './pages/register';
 
 body {

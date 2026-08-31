@@ -7,7 +7,14 @@ const routes = [
       {
         path: 'login',
         name: 'login',
-        component: () => import('@/pages/LoginPage.vue')
+        component: () => import('@/pages/LoginPage.vue'),
+        meta: { guestOnly: true }
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: () => import('@/pages/ProfilePage.vue'),
+        meta: { requiresAuth: true }
       },
       { path: 'register', component: () => import('@/pages/RegisterPage.vue') },
       {

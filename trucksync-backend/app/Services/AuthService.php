@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Contracts\AuthServiceContract;
+use App\Exceptions\InvalidCredentialsException;
+use App\Exceptions\UserNotFoundException;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthService implements AuthServiceContract
 {
@@ -16,8 +19,35 @@ class AuthService implements AuthServiceContract
         return User::query()->create([
             'first_name' => trim($firstName),
             'last_name' => trim($lastName),
-            'email' => strtolower($email),
+            'email' => strtolower(trim($email)),
             'password' => $password,
         ]);
+    }
+
+    public function authenticate(string $email, string $password): string
+    {
+        $user = User::query()
+            ->where('email', strtolower(trim($email)))
+            ->first();
+
+        if (! $user) {
+            throw new UserNotFoundException;
+        }
+
+        if (! Hash::check($password, $user->password)) {
+            throw new InvalidCredentialsException;
+        }
+
+        return $this->issueToken($user);
+    }
+
+    private function issueToken(User $user): string
+    {
+        return $user->createToken('token')->plainTextToken;
+    }
+
+    public function revokeCurrentToken(User $user): void
+    {
+        $user->currentAccessToken()?->delete();
     }
 }

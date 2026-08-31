@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import EssentialLink from '@/components/EssentialLink.vue';
+import DrawerMenuLink from '@/components/layout/DrawerMenuLink.vue';
 
 const props = defineProps({
   modelValue: {
@@ -39,7 +39,7 @@ const linksList = [
     <q-list>
       <q-item-label header> Essential Links </q-item-label>
 
-      <EssentialLink
+      <DrawerMenuLink
         v-for="link in linksList"
         :key="link.label"
         v-bind="link"

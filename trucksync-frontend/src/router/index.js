@@ -37,8 +37,10 @@ export default defineRouter(({ store }) => {
 
   Router.beforeEach(async to => {
     const authStore = useAuthStore(store);
+    const requiresAuth = to.matched.some(route => route.meta.requiresAuth);
+    const guestOnly = to.matched.some(route => route.meta.guestOnly);
 
-    if (to.meta.requiresAuth) {
+    if (requiresAuth) {
       if (!authStore.getToken()) {
         return {
           name: 'login',
@@ -58,8 +60,8 @@ export default defineRouter(({ store }) => {
       }
     }
 
-    if (to.meta.guestOnly && authStore.getToken()) {
-      return { name: 'profile' };
+    if (guestOnly && authStore.getToken()) {
+      return { name: 'dashboard' };
     }
 
     return true;

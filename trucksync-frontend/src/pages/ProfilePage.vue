@@ -30,15 +30,6 @@ async function handleLogout() {
           <p class="eyebrow">TruckSync</p>
           <h1>Profile</h1>
         </div>
-
-        <q-btn
-          color="primary"
-          icon="logout"
-          label="Log out"
-          no-caps
-          outline
-          @click="handleLogout"
-        />
       </div>
 
       <q-card class="profile-user-card" bordered flat>

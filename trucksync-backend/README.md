@@ -32,6 +32,20 @@ make lint-check
 make lint
 ```
 
+## API Documentation
+
+Swagger UI is available at:
+
+```txt
+/api/documentation
+```
+
+The OpenAPI JSON document is served from:
+
+```txt
+/api/documentation/openapi.json
+```
+
 ## Docker
 
 From the repository root:

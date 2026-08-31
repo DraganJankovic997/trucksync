@@ -5,14 +5,9 @@ const props = defineProps({
     required: true
   },
 
-  caption: {
-    type: String,
-    default: ''
-  },
-
   link: {
-    type: String,
-    default: '#'
+    type: [String, Object],
+    required: true
   },
 
   icon: {
@@ -23,14 +18,13 @@ const props = defineProps({
 </script>
 
 <template>
-  <q-item clickable tag="a" target="_blank" :href="props.link">
+  <q-item clickable :to="props.link">
     <q-item-section v-if="props.icon" avatar>
       <q-icon :name="props.icon" />
     </q-item-section>
 
     <q-item-section>
       <q-item-label>{{ props.label }}</q-item-label>
-      <q-item-label caption>{{ props.caption }}</q-item-label>
     </q-item-section>
   </q-item>
 </template>

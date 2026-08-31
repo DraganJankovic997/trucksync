@@ -3,8 +3,30 @@
 
 import { defineConfig } from '#q-app';
 
+function getApiOrigin() {
+  const apiUrl = import.meta.env.API_URL?.trim().replace(/\/+$/, '');
+
+  if (!apiUrl) {
+    return '';
+  }
+
+  const normalizedApiUrl = /^https?:\/\//i.test(apiUrl)
+    ? apiUrl
+    : `http://${apiUrl}`;
+
+  try {
+    return new URL(normalizedApiUrl).origin;
+  } catch {
+    return '';
+  }
+}
+
 export default defineConfig((/* ctx */) => {
   return {
+    htmlVariables: {
+      apiConnectSrc: getApiOrigin()
+    },
+
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
 
@@ -27,11 +49,15 @@ export default defineConfig((/* ctx */) => {
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       'roboto-font', // optional, you are not bound to it
-      'material-icons' // optional, you are not bound to it
+      'material-icons', // optional, you are not bound to it
+      'material-icons-outlined'
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
+      env: {
+        clientPrefix: 'API_'
+      },
       target: {
         // browser: 'baseline-widely-available',
         // node: 'node22'
@@ -66,14 +92,6 @@ export default defineConfig((/* ctx */) => {
     devServer: {
       // vueDevtools: true,
       // https: true,
-      host: '0.0.0.0',
-      port: 9000,
-      proxy: {
-        '/api': {
-          target: process.env.API_URL || 'http://localhost:8000',
-          changeOrigin: true
-        }
-      },
       open: process.env.QUASAR_OPEN === 'true' // opens browser window automatically
     },
 

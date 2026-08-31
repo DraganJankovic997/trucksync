@@ -2,7 +2,7 @@ import { boot } from 'quasar/wrappers';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${import.meta.env.API_URL}/api`,
   headers: {
     Accept: 'application/json'
   }

@@ -1,37 +1,55 @@
 const routes = [
   {
-    path: '/',
-    component: () => import('@/layouts/MainLayout.vue'),
+    path: "/",
+    component: () => import("@/layouts/AuthenticatedLayout.vue"),
     children: [
-      { path: '', component: () => import('@/pages/IndexPage.vue') },
       {
-        path: 'login',
-        name: 'login',
-        component: () => import('@/pages/LoginPage.vue'),
-        meta: { guestOnly: true }
+        path: "/",
+        name: "dashboard",
+        component: () => import("@/pages/DashboardPage.vue"),
       },
       {
-        path: 'profile',
-        name: 'profile',
-        component: () => import('@/pages/ProfilePage.vue'),
-        meta: { requiresAuth: true }
+        path: "/profile",
+        name: "profile",
+        component: () => import("@/pages/ProfilePage.vue"),
+        meta: { requiresAuth: true },
       },
-      { path: 'register', component: () => import('@/pages/RegisterPage.vue') },
+    ],
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/",
+    component: () => import("@/layouts/UnauthenticatedLayout.vue"),
+    children: [
       {
-        path: '500',
-        name: 'server-error',
-        component: () => import('@/pages/ServerErrorPage.vue')
+        path: "/login",
+        name: "login",
+        component: () => import("@/pages/LoginPage.vue"),
       },
-      { path: 'second', component: () => import('@/pages/SecondPage.vue') }
-    ]
+      {
+        path: "/register",
+        name: "register",
+        component: () => import("@/pages/RegisterPage.vue"),
+      },
+    ],
+    meta: {
+      guestOnly: true,
+    },
+  },
+  {
+    path: "/500",
+    name: "server-error",
+    component: () => import("@/pages/ServerErrorPage.vue"),
   },
 
   // Always leave this as last one,
   // but you can also remove it
   {
-    path: '/:catchAll(.*)*',
-    component: () => import('@/pages/ErrorNotFound.vue')
-  }
+    path: "/:catchAll(.*)*",
+    component: () => import("@/pages/ErrorNotFound.vue"),
+  },
 ];
 
 export default routes;

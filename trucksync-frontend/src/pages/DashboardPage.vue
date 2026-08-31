@@ -11,6 +11,8 @@
         style="width: 200px; height: 200px"
       />
 
+      <h1 class="text-h4 q-mt-md">Dashboard page</h1>
+
       <q-btn
         class="q-mt-md"
         color="primary"

@@ -1,9 +1,14 @@
 import { defineStore } from 'pinia';
 import { api } from '@/boot/axios.js';
+import { i18n } from '@/i18n/instance.js';
 import { toast } from '@/boot/toast.js';
 import { ref } from 'vue';
 
 const TOKEN_STORAGE_KEY = 'token';
+
+function message(key) {
+  return i18n.global.t(`messages.auth.${key}`);
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
@@ -37,11 +42,11 @@ export const useAuthStore = defineStore('auth', () => {
       const { data } = await api.post('/auth/register', payload);
 
       user.value = data?.data?.user ?? null;
-      toast.success('User created successfully');
+      toast.success(message('registerSuccess'));
 
       return data?.data ?? null;
     } catch (requestError) {
-      toast.error('User creation failed');
+      toast.error(message('registerError'));
 
       console.error('Registration request failed.', requestError.response);
 
@@ -60,19 +65,19 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (!authToken) {
         clearSession();
-        toast.error('Login failed');
+        toast.error(message('loginError'));
 
         return null;
       }
 
       user.value = null;
       storeToken(authToken);
-      toast.success('Logged in successfully');
+      toast.success(message('loginSuccess'));
 
       return authToken;
     } catch (requestError) {
       clearSession();
-      toast.error('Login failed');
+      toast.error(message('loginError'));
 
       console.error('Login request failed.', requestError.response);
 
@@ -100,7 +105,7 @@ export const useAuthStore = defineStore('auth', () => {
       return user.value;
     } catch (requestError) {
       clearSession();
-      toast.error('Authentication expired');
+      toast.error(message('sessionExpired'));
 
       console.error(
         'Authenticated user request failed.',
@@ -130,12 +135,12 @@ export const useAuthStore = defineStore('auth', () => {
           }
         }
       );
-      toast.success('Logged out successfully');
+      toast.success(message('logoutSuccess'));
 
       return true;
     } catch (requestError) {
       if (requestError.response?.status !== 401) {
-        toast.error('Logout failed');
+        toast.error(message('logoutError'));
       }
 
       console.error('Logout request failed.', requestError.response);

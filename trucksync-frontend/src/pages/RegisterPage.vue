@@ -1,5 +1,8 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
 import RegisterForm from '@/components/register/RegisterForm.vue';
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -10,15 +13,12 @@ import RegisterForm from '@/components/register/RegisterForm.vue';
           <q-icon name="local_shipping" />
         </div>
 
-        <p class="eyebrow">TruckSync</p>
-        <h1 id="register-page-title">Create account</h1>
-        <p class="copy">
-          Set up your account to start coordinating dispatch work with a clean
-          shared workspace.
-        </p>
+        <p class="eyebrow">{{ t('layout.brand') }}</p>
+        <h1 id="register-page-title">{{ t('register.title') }}</h1>
+        <p class="copy">{{ t('register.description') }}</p>
       </section>
 
-      <section class="form-area" aria-label="Create a new account">
+      <section class="form-area" :aria-label="t('register.formAriaLabel')">
         <RegisterForm />
       </section>
     </div>

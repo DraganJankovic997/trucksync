@@ -1,12 +1,12 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth.js';
 
 const authStore = useAuthStore();
-const router = useRouter();
 const { user } = storeToRefs(authStore);
+const { t } = useI18n();
 
 const printedUser = computed(() => JSON.stringify(user.value, null, 2));
 
@@ -15,11 +15,6 @@ onMounted(() => {
     void authStore.me();
   }
 });
-
-async function handleLogout() {
-  await authStore.logout();
-  await router.push('/login');
-}
 </script>
 
 <template>
@@ -27,8 +22,8 @@ async function handleLogout() {
     <div class="profile-shell">
       <div class="profile-header">
         <div>
-          <p class="eyebrow">TruckSync</p>
-          <h1>Profile</h1>
+          <p class="eyebrow">{{ t('layout.brand') }}</p>
+          <h1>{{ t('profile.title') }}</h1>
         </div>
       </div>
 

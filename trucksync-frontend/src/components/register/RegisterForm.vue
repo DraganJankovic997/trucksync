@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import EmailField from '@/components/form/EmailField.vue';
 import PasswordField from '@/components/form/PasswordField.vue';
 import TextField from '@/components/form/TextField.vue';
@@ -7,6 +8,7 @@ import { useAuthStore } from '@/stores/auth.js';
 
 const authStore = useAuthStore();
 const formRef = ref(null);
+const { t } = useI18n();
 
 const form = reactive({
   firstName: '',
@@ -16,32 +18,37 @@ const form = reactive({
   passwordConfirmation: ''
 });
 
-const required = label => value =>
-  Boolean(String(value ?? '').trim()) || `${label} is required`;
+const required = fieldKey => value =>
+  Boolean(String(value ?? '').trim()) ||
+  t('validation.required', { field: t(fieldKey) });
 
-const maxLength = (label, length) => value =>
+const maxLength = (fieldKey, length) => value =>
   String(value ?? '').length <= length ||
-  `${label} must be ${length} characters or fewer`;
+  t('validation.maxLength', { field: t(fieldKey), length: length });
 
-const nameRules = label => [required(label), maxLength(label, 255)];
+const nameRules = fieldKey => [required(fieldKey), maxLength(fieldKey, 255)];
 
 const emailRules = [
-  required('Email'),
+  required('validation.fields.email'),
   value =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? '')) ||
-    'Enter a valid email address',
-  maxLength('Email', 255)
+    t('validation.email'),
+  maxLength('validation.fields.email', 255)
 ];
 
 const passwordRules = [
-  required('Password'),
+  required('validation.fields.password'),
   value =>
-    String(value ?? '').length >= 8 || 'Password must be at least 8 characters'
+    String(value ?? '').length >= 8 ||
+    t('validation.minLength', {
+      field: t('validation.fields.password'),
+      length: 8
+    })
 ];
 
 const confirmPasswordRules = [
-  required('Confirm password'),
-  value => value === form.password || 'Passwords do not match'
+  required('validation.fields.passwordConfirmation'),
+  value => value === form.password || t('validation.confirmed')
 ];
 
 async function handleSubmit() {
@@ -65,50 +72,51 @@ async function handleSubmit() {
   <q-form ref="formRef" greedy @submit.prevent="handleSubmit">
     <q-card class="register-form" bordered flat>
       <q-card-section class="form-header">
-        <h2>Account details</h2>
+        <h2>{{ t('register.form.title') }}</h2>
       </q-card-section>
 
       <q-card-section class="form-body">
         <div class="name-grid">
           <TextField
             v-model="form.firstName"
-            label="First name"
+            :label="t('register.fields.firstName.label')"
             name="first_name"
-            placeholder="Jane"
-            :rules="nameRules('First name')"
+            :placeholder="t('register.fields.firstName.placeholder')"
+            :rules="nameRules('validation.fields.firstName')"
             :maxlength="255"
           />
 
           <TextField
             v-model="form.lastName"
-            label="Last name"
+            :label="t('register.fields.lastName.label')"
             name="last_name"
-            placeholder="Cooper"
-            :rules="nameRules('Last name')"
+            :placeholder="t('register.fields.lastName.placeholder')"
+            :rules="nameRules('validation.fields.lastName')"
             :maxlength="255"
           />
         </div>
 
         <EmailField
           v-model="form.email"
-          placeholder="jane@example.com"
+          :label="t('register.fields.email.label')"
+          :placeholder="t('register.fields.email.placeholder')"
           :rules="emailRules"
           :maxlength="255"
         />
 
         <PasswordField
           v-model="form.password"
-          label="Password"
+          :label="t('register.fields.password.label')"
           name="password"
-          placeholder="Minimum 8 characters"
+          :placeholder="t('register.fields.password.placeholder')"
           :rules="passwordRules"
         />
 
         <PasswordField
           v-model="form.passwordConfirmation"
-          label="Confirm password"
+          :label="t('register.fields.passwordConfirmation.label')"
           name="password_confirmation"
-          placeholder="Repeat your password"
+          :placeholder="t('register.fields.passwordConfirmation.placeholder')"
           :rules="confirmPasswordRules"
         />
       </q-card-section>
@@ -119,7 +127,7 @@ async function handleSubmit() {
           type="submit"
           color="primary"
           icon="person_add"
-          label="Create account"
+          :label="t('register.submit')"
           no-caps
           unelevated
         />

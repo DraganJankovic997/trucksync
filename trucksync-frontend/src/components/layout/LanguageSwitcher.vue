@@ -1,23 +1,24 @@
 <script setup>
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const { locale } = useI18n({ useScope: 'global' });
+const { locale, t } = useI18n({ useScope: 'global' });
+const supportedLocales = ['en', 'rs'];
 
-const localeOptions = [
-  { value: 'en', label: 'English' },
-  { value: 'rs', label: 'Serbian' },
-];
+const localeOptions = computed(() => [
+  { value: 'en', label: t('layout.language.english') },
+  { value: 'rs', label: t('layout.language.serbian') }
+]);
 
 onMounted(() => {
   const initial = localStorage.getItem('lang');
 
-  if (initial && localeOptions.some((item) => item.value === initial)) {
+  if (supportedLocales.includes(initial)) {
     locale.value = initial;
   }
 });
 
-watch(locale, (newLanguage) => {
+watch(locale, newLanguage => {
   localStorage.setItem('lang', newLanguage);
 });
 </script>

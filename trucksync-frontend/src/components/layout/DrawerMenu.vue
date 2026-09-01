@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import DrawerMenuLink from '@/components/layout/DrawerMenuLink.vue';
 
 const props = defineProps({
@@ -10,6 +11,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
+const { t } = useI18n();
 
 const drawerOpen = computed({
   get() {
@@ -22,12 +24,12 @@ const drawerOpen = computed({
 
 const linksList = [
   {
-    label: 'Dashboard',
+    labelKey: 'layout.navigation.dashboard',
     link: '/dashboard',
     icon: 'dashboard'
   },
   {
-    label: 'Profile',
+    labelKey: 'layout.navigation.profile',
     link: '/profile',
     icon: 'o_person'
   }
@@ -37,12 +39,16 @@ const linksList = [
 <template>
   <q-drawer v-model="drawerOpen" show-if-above bordered>
     <q-list>
-      <q-item-label header> Essential Links </q-item-label>
+      <q-item-label header>
+        {{ t('layout.navigation.header') }}
+      </q-item-label>
 
       <DrawerMenuLink
         v-for="link in linksList"
-        :key="link.label"
-        v-bind="link"
+        :key="link.labelKey"
+        :label="t(link.labelKey)"
+        :link="link.link"
+        :icon="link.icon"
       />
     </q-list>
   </q-drawer>

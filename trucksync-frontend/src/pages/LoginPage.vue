@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import EmailField from '@/components/form/EmailField.vue';
 import PasswordField from '@/components/form/PasswordField.vue';
@@ -9,28 +10,30 @@ const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const formRef = ref(null);
+const { t } = useI18n();
 
 const form = reactive({
   email: '',
   password: ''
 });
 
-const required = label => value =>
-  Boolean(String(value ?? '').trim()) || `${label} is required`;
+const required = fieldKey => value =>
+  Boolean(String(value ?? '').trim()) ||
+  t('validation.required', { field: t(fieldKey) });
 
-const maxLength = (label, length) => value =>
+const maxLength = (fieldKey, length) => value =>
   String(value ?? '').length <= length ||
-  `${label} must be ${length} characters or fewer`;
+  t('validation.maxLength', { field: t(fieldKey), length: length });
 
 const emailRules = [
-  required('Email'),
+  required('validation.fields.email'),
   value =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? '')) ||
-    'Enter a valid email address',
-  maxLength('Email', 255)
+    t('validation.email'),
+  maxLength('validation.fields.email', 255)
 ];
 
-const passwordRules = [required('Password')];
+const passwordRules = [required('validation.fields.password')];
 
 function getRedirectPath() {
   const redirect = route.query.redirect;
@@ -69,31 +72,32 @@ async function handleSubmit() {
           <q-icon name="local_shipping" />
         </div>
 
-        <p class="eyebrow">TruckSync</p>
-        <h1 id="login-page-title">Log in</h1>
-        <p class="copy">Access your dispatch workspace.</p>
+        <p class="eyebrow">{{ t('layout.brand') }}</p>
+        <h1 id="login-page-title">{{ t('login.title') }}</h1>
+        <p class="copy">{{ t('login.description') }}</p>
       </section>
 
-      <section class="form-area" aria-label="Log in to your account">
+      <section class="form-area" :aria-label="t('login.formAriaLabel')">
         <q-form ref="formRef" greedy @submit.prevent="handleSubmit">
           <q-card class="login-form" bordered flat>
             <q-card-section class="form-header">
-              <h2>Account access</h2>
+              <h2>{{ t('login.form.title') }}</h2>
             </q-card-section>
 
             <q-card-section class="form-body">
               <EmailField
                 v-model="form.email"
-                placeholder="jane@example.com"
+                :label="t('login.fields.email.label')"
+                :placeholder="t('login.fields.email.placeholder')"
                 :rules="emailRules"
                 :maxlength="255"
               />
 
               <PasswordField
                 v-model="form.password"
-                label="Password"
+                :label="t('login.fields.password.label')"
                 name="password"
-                placeholder="Enter your password"
+                :placeholder="t('login.fields.password.placeholder')"
                 :rules="passwordRules"
               />
             </q-card-section>
@@ -104,7 +108,7 @@ async function handleSubmit() {
                 type="submit"
                 color="primary"
                 icon="login"
-                label="Log in"
+                :label="t('login.submit')"
                 no-caps
                 unelevated
               />

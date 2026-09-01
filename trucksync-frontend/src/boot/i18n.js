@@ -1,14 +1,5 @@
 import { boot } from 'quasar/wrappers';
-import { createI18n } from 'vue-i18n';
-import messages from 'src/i18n';
-
-const i18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
-  allowComposition: true,
-  legacy: false, // comment this out if not using Composition API
-  messages
-});
+import { i18n } from '../i18n/instance.js';
 
 export default boot(({ app }) => {
   app.use(i18n);

@@ -1,6 +1,21 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
+import { useAuthStore } from '@/stores/auth.js';
+
 const emit = defineEmits(['toggle-left-drawer']);
+const authStore = useAuthStore();
+const router = useRouter();
+const { t } = useI18n();
+
+async function handleLogout() {
+  const didLogout = await authStore.logout();
+
+  if (didLogout) {
+    await router.push('/login');
+  }
+}
 </script>
 
 <template>
@@ -11,17 +26,17 @@ const emit = defineEmits(['toggle-left-drawer']);
         dense
         round
         icon="menu"
-        aria-label="Menu"
+        :aria-label="t('layout.menu')"
         @click="emit('toggle-left-drawer')"
       />
 
-      <q-toolbar-title> TruckSync </q-toolbar-title>
+      <q-toolbar-title> {{ t('layout.brand') }} </q-toolbar-title>
 
+      <LanguageSwitcher />
       <div>
-        <LanguageSwitcher />
         <q-btn
           icon="logout"
-          label="Log out"
+          :label="t('layout.logout')"
           no-caps
           dark
           outline

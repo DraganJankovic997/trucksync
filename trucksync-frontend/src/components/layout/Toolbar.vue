@@ -1,4 +1,5 @@
 <script setup>
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
 const emit = defineEmits(['toggle-left-drawer']);
 </script>
 
@@ -17,6 +18,7 @@ const emit = defineEmits(['toggle-left-drawer']);
       <q-toolbar-title> TruckSync </q-toolbar-title>
 
       <div>
+        <LanguageSwitcher />
         <q-btn
           icon="logout"
           label="Log out"

@@ -6,10 +6,7 @@ import { ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
-
-  function getToken() {
-    return localStorage.getItem('token');
-  }
+  const
 
   async function register(payload) {
     try {
@@ -60,13 +57,6 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function me() {
-    const token = getToken();
-
-    if (!token) {
-      clearSession();
-      return null;
-    }
-
     try {
       const { data } = await api.get('/auth/me');
 
@@ -87,14 +77,6 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
-    const token = getToken();
-
-    if (!token) {
-      clearSession();
-
-      return true;
-    }
-
     try {
       await api.post('/auth/logout');
       toast.success(i18n.global.t('messages.auth.logoutSuccess'));
@@ -120,7 +102,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     clearSession,
-    getToken,
     login,
     logout,
     me,

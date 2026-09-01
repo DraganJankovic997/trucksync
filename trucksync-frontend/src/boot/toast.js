@@ -1,5 +1,5 @@
 import { Notify } from 'quasar';
-import { i18n } from '@/i18n/instance.js';
+import { i18n } from 'src/boot/i18n';
 
 const DEFAULT_SUCCESS_MESSAGE_KEY = 'messages.common.success';
 const DEFAULT_ERROR_MESSAGE_KEY = 'messages.common.error';

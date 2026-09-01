@@ -17,6 +17,14 @@ function redirectTo(router, routeName) {
 }
 
 export default boot(({ app, router }) => {
+  api.interceptors.request.use(config => {
+    if (localStorage.getItem('token')) {
+      config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+    }
+
+    return config;
+  });
+
   api.interceptors.response.use(
     response => response,
     error => {

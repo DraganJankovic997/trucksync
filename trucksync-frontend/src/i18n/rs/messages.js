@@ -11,5 +11,9 @@ export default {
     sessionExpired: 'Autentifikacija je istekla',
     logoutSuccess: 'Uspešno ste odjavljeni',
     logoutError: 'Odjava nije uspela'
+  },
+  profile: {
+    updateSuccess: 'Profil je uspesno azuriran',
+    updateError: 'Azuriranje profila nije uspelo'
   }
 };

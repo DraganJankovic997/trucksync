@@ -11,5 +11,9 @@ export default {
     sessionExpired: 'Authentication expired',
     logoutSuccess: 'Logged out successfully',
     logoutError: 'Logout failed'
+  },
+  profile: {
+    updateSuccess: 'Profile updated successfully',
+    updateError: 'Profile update failed'
   }
 };

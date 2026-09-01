@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('rest_stops', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->string('country');
+            $table->string('city');
             $table->string('address');
+            $table->string('post_code');
             $table->time('works_from');
             $table->time('works_to');
-            $table->boolean('works_saturday')->default(false);
-            $table->boolean('works_sunday')->default(false);
             $table->timestamps();
         });
     }

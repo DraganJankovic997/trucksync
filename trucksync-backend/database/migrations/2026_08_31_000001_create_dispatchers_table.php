@@ -14,7 +14,12 @@ return new class extends Migration
         Schema::create('dispatchers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
-            $table->string('registration_number')->unique();
+            $table->string('company_name')->nullable(false);
+            $table->string('country');
+            $table->string('city');
+            $table->string('address');
+            $table->string('post_code');
+            $table->string('registration_number')->nullable(false);
             $table->timestamps();
         });
     }

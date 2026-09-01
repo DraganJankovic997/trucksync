@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('dispatcher_id')->nullable()->constrained()->nullOnDelete();
             $table->string('license_number')->unique();
-            $table->date('hired_from')->nullable();
+            $table->boolean('is_dispatcher_approved')->default(false);
             $table->timestamps();
         });
     }

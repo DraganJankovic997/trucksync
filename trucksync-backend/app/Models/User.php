@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -22,8 +23,11 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'country',
+        'phone_number',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -47,5 +51,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function driver(): HasOne
+    {
+        return $this->hasOne(Driver::class);
+    }
+
+    public function dispatcher(): HasOne
+    {
+        return $this->hasOne(Dispatcher::class);
+    }
+
+    public function restStop(): HasOne
+    {
+        return $this->hasOne(RestStop::class);
     }
 }

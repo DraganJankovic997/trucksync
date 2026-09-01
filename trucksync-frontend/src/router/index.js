@@ -8,7 +8,7 @@ import {
 
 import { useAuthStore } from '@/stores/auth.js';
 import routes from './routes.js';
-import {storeToRefs} from "pinia";
+import { storeToRefs } from 'pinia';
 
 /*
  * If not building with SSR mode, you can
@@ -39,20 +39,17 @@ export default defineRouter(({ store }) => {
   Router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore(store);
     await authStore.me();
-    const {user} = storeToRefs(authStore);
+    const { user } = storeToRefs(authStore);
 
-    if (to.meta.requiresAuth) {
-      if (!user) {
-        return {
-          name: 'login',
-          query: { redirect: to.fullPath }
-        };
+    if (to.meta.requiresAuth === true) {
+      if (!user.value) {
+        next({ path: '/login', query: { redirect: to.fullPath } });
       }
-    } else if (to.meta.guestOnly) {
-      if (!user) {
-        return { name: 'dashboard' };      }
+    } else if (to.meta.guestOnly === true) {
+      if (user.value) {
+        next({ name: 'dashboard' });
+      }
     }
-    next();
   });
 
   return Router;

@@ -6,7 +6,8 @@ const routes = [
       {
         path: '/',
         name: 'dashboard',
-        component: () => import('@/pages/DashboardPage.vue')
+        component: () => import('@/pages/DashboardPage.vue'),
+        meta: { requiresAuth: true }
       },
       {
         path: '/profile',
@@ -14,10 +15,7 @@ const routes = [
         component: () => import('@/pages/ProfilePage.vue'),
         meta: { requiresAuth: true }
       }
-    ],
-    meta: {
-      requiresAuth: true
-    }
+    ]
   },
   {
     path: '/',
@@ -26,17 +24,16 @@ const routes = [
       {
         path: '/login',
         name: 'login',
-        component: () => import('@/pages/LoginPage.vue')
+        component: () => import('@/pages/LoginPage.vue'),
+        meta: { guestOnly: true }
       },
       {
         path: '/register',
         name: 'register',
-        component: () => import('@/pages/RegisterPage.vue')
+        component: () => import('@/pages/RegisterPage.vue'),
+        meta: { guestOnly: true }
       }
-    ],
-    meta: {
-      guestOnly: true
-    }
+    ]
   },
   {
     path: '/500',

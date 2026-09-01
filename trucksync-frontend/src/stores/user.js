@@ -5,7 +5,6 @@ import { toast } from '@/boot/toast.js';
 
 export const useUserStore = defineStore('user', () => {
   async function update(payload) {
-
     try {
       const { data } = await api.put('/user', payload);
 

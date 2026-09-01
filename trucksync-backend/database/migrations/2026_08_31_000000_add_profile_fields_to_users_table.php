@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('country')->nullable();
             $table->string('phone_number', 30)->nullable();
-            $table->string('role', 30)->nullable()->index();
+            $table->string('profile_type', 30)->nullable()->index();
         });
     }
 

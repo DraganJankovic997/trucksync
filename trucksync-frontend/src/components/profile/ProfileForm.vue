@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import CountrySelectField from '@/components/form/CountrySelectField.vue';
 import EmailField from '@/components/form/EmailField.vue';
 import TextField from '@/components/form/TextField.vue';
 import { useAuthStore } from '@/stores/auth.js';
@@ -34,6 +35,8 @@ const maxLength = (fieldKey, length) => value =>
   t('validation.maxLength', { field: t(fieldKey), length: length });
 
 const nameRules = fieldKey => [required(fieldKey), maxLength(fieldKey, 255)];
+
+const countryRules = [required('validation.fields.country')];
 
 const emailRules = [
   required('validation.fields.email'),
@@ -161,13 +164,12 @@ async function handleSubmit() {
         />
 
         <div class="profile-grid">
-          <TextField
+          <CountrySelectField
             v-model="form.country"
             :label="t('profile.fields.country.label')"
             name="country"
             :placeholder="t('profile.fields.country.placeholder')"
-            :rules="nameRules('validation.fields.country')"
-            :maxlength="255"
+            :rules="countryRules"
           />
 
           <TextField

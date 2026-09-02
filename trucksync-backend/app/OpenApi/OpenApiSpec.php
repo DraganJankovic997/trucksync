@@ -29,6 +29,10 @@ class OpenApiSpec
                     'name' => 'Authentication',
                     'description' => 'Registration, login, profile, and logout endpoints.',
                 ],
+                [
+                    'name' => 'Users',
+                    'description' => 'Authenticated user profile management.',
+                ],
             ],
             'paths' => [
                 '/api/auth/register' => [
@@ -164,6 +168,49 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/user' => [
+                    'put' => [
+                        'tags' => ['Users'],
+                        'summary' => 'Update the authenticated user',
+                        'operationId' => 'updateAuthenticatedUser',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/UserUpdateRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'User updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/UserUpdateResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'components' => [
                 'securitySchemes' => [
@@ -249,6 +296,9 @@ class OpenApiSpec
                             'first_name',
                             'last_name',
                             'email',
+                            'country',
+                            'phone_number',
+                            'profile_type',
                         ],
                         'properties' => [
                             'id' => [
@@ -269,6 +319,71 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'format' => 'email',
                                 'example' => 'sam.driver@example.com',
+                            ],
+                            'country' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Serbia',
+                            ],
+                            'phone_number' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 30,
+                                'example' => '+381601234567',
+                            ],
+                            'profile_type' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'enum' => ['driver', 'dispatcher', 'rest_stop'],
+                                'example' => 'driver',
+                            ],
+                        ],
+                    ],
+                    'UserUpdateRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'first_name',
+                            'last_name',
+                            'email',
+                            'country',
+                            'phone_number',
+                            'profile_type',
+                        ],
+                        'properties' => [
+                            'first_name' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Sam',
+                            ],
+                            'last_name' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Driver',
+                            ],
+                            'email' => [
+                                'type' => 'string',
+                                'format' => 'email',
+                                'description' => 'Must be unique, except for the authenticated user.',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'sam.driver@example.com',
+                            ],
+                            'country' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Serbia',
+                            ],
+                            'phone_number' => [
+                                'type' => 'string',
+                                'maxLength' => 30,
+                                'example' => '+381601234567',
+                            ],
+                            'profile_type' => [
+                                'type' => 'string',
+                                'enum' => ['driver', 'dispatcher', 'rest_stop'],
+                                'example' => 'driver',
                             ],
                         ],
                     ],
@@ -321,6 +436,28 @@ class OpenApiSpec
                         'type' => 'object',
                         'required' => ['data'],
                         'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['user'],
+                                'properties' => [
+                                    'user' => [
+                                        '$ref' => '#/components/schemas/User',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'UserUpdateResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'User updated successfully.',
+                            ],
                             'data' => [
                                 'type' => 'object',
                                 'required' => ['user'],

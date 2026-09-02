@@ -1,20 +1,8 @@
 <script setup>
-import { computed, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '@/stores/auth.js';
+import ProfileForm from '@/components/profile/ProfileForm.vue';
 
-const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
 const { t } = useI18n();
-
-const printedUser = computed(() => JSON.stringify(user.value, null, 2));
-
-onMounted(() => {
-  if (!user.value) {
-    void authStore.me();
-  }
-});
 </script>
 
 <template>
@@ -27,11 +15,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <q-card class="profile-user-card" bordered flat>
-        <q-card-section>
-          <pre>{{ printedUser }}</pre>
-        </q-card-section>
-      </q-card>
+      <ProfileForm />
     </div>
   </q-page>
 </template>

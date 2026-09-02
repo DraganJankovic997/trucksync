@@ -2,6 +2,9 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from '#q-app';
+import { fileURLToPath } from 'node:url';
+
+const srcPath = fileURLToPath(new URL('./src', import.meta.url));
 
 function getApiOrigin() {
   const apiUrl = import.meta.env.API_URL?.trim().replace(/\/+$/, '');
@@ -66,7 +69,7 @@ export default defineConfig((/* ctx */) => {
       // https://v2.quasar.dev/quasar-cli-vite/page-routing-with-vue-router#filename-based-routing
       // filenameBasedRouting: true,
 
-      vueRouterMode: 'history' // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
 
       // publicPath: '/',
@@ -77,6 +80,16 @@ export default defineConfig((/* ctx */) => {
       // distDir
 
       // extendViteConf (viteConf) {},
+      extendViteConf(viteConf) {
+        viteConf.resolve = viteConf.resolve || {};
+
+        const aliases = viteConf.resolve.alias || {};
+
+        viteConf.resolve.alias = Array.isArray(aliases)
+          ? [...aliases, { find: 'src', replacement: srcPath }]
+          : { ...aliases, src: srcPath };
+      }
+
       // viteVuePluginOptions: {},
 
       // to write components with JSX/TSX:

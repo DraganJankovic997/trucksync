@@ -8,6 +8,7 @@ import {
 
 import { useAuthStore } from '@/stores/auth.js';
 import routes from './routes.js';
+import { storeToRefs } from 'pinia';
 
 /*
  * If not building with SSR mode, you can
@@ -35,35 +36,31 @@ export default defineRouter(({ store }) => {
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
   });
 
-  Router.beforeEach(async to => {
+  Router.beforeEach(async (to, from) => {
     const authStore = useAuthStore(store);
-    const requiresAuth = to.matched.some(route => route.meta.requiresAuth);
-    const guestOnly = to.matched.some(route => route.meta.guestOnly);
+    await authStore.me();
+    const { user } = storeToRefs(authStore);
 
-    if (requiresAuth) {
-      if (!authStore.getToken()) {
+    if (to.meta.requiresAuth === true) {
+      console.log('inside if');
+      if (!user.value) {
         return {
           name: 'login',
           query: { redirect: to.fullPath }
         };
       }
+    } else if (to.meta.guestOnly === true) {
+      console.log('inside else if');
+      if (user.value) {
+                  console.log('inside smaller if');
 
-      if (!authStore.user) {
-        const user = await authStore.me();
-
-        if (!user) {
           return {
-            name: 'login',
-            query: { redirect: to.fullPath }
+            name: 'dashboard',
           };
-        }
       }
+      console.log('passed the small if');
     }
-
-    if (guestOnly && authStore.getToken()) {
-      return { name: 'dashboard' };
-    }
-
+    console.log('came to the end');
     return true;
   });
 

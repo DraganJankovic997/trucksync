@@ -17,6 +17,7 @@ cp .env.example .env
 composer install
 php artisan key:generate
 php artisan migrate
+php artisan countries:import
 ```
 
 If you are not using Docker, set `DB_HOST=127.0.0.1` and
@@ -27,6 +28,7 @@ If you are not using Docker, set `DB_HOST=127.0.0.1` and
 ```sh
 make dev
 make migrate
+make import-countries
 make test
 make lint-check
 make lint

@@ -1,4 +1,4 @@
-.PHONY: install dev migrate test lint lint-check
+.PHONY: install dev migrate import-countries test lint lint-check
 
 install:
 	composer install
@@ -8,6 +8,10 @@ dev:
 
 migrate:
 	php artisan migrate
+	php artisan countries:import
+
+import-countries:
+	php artisan countries:import
 
 test:
 	composer test

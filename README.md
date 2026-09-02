@@ -36,8 +36,9 @@ Services:
 - Redis: localhost:6379
 
 The backend container waits for PostgreSQL and Redis, runs Laravel migrations,
-and then starts `php artisan serve`. Backend and database configuration is
-loaded from `trucksync-backend/.env`; keep `DB_HOST=postgres` and
+imports countries from `trucksync-backend/database/data/countries.json`, and then
+starts `php artisan serve`. Backend and database configuration is loaded from
+`trucksync-backend/.env`; keep `DB_HOST=postgres` and
 `REDIS_HOST=redis` when running the app through Compose.
 
 Useful commands:

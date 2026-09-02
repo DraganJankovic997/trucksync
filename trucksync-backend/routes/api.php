@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/countries', [CountryController::class, 'index'])->name('countries.index');
 
 Route::prefix('auth')->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register')->name('auth.register');

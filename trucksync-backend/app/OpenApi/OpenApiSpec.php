@@ -33,8 +33,31 @@ class OpenApiSpec
                     'name' => 'Users',
                     'description' => 'Authenticated user profile management.',
                 ],
+                [
+                    'name' => 'Countries',
+                    'description' => 'Country reference data.',
+                ],
             ],
             'paths' => [
+                '/api/countries' => [
+                    'get' => [
+                        'tags' => ['Countries'],
+                        'summary' => 'List countries',
+                        'operationId' => 'listCountries',
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Country list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/CountriesIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/auth/register' => [
                     'post' => [
                         'tags' => ['Authentication'],
@@ -286,6 +309,43 @@ class OpenApiSpec
                                 'format' => 'password',
                                 'minLength' => 1,
                                 'example' => 'secure-password',
+                            ],
+                        ],
+                    ],
+                    'Country' => [
+                        'type' => 'object',
+                        'required' => [
+                            'code',
+                            'name',
+                        ],
+                        'properties' => [
+                            'code' => [
+                                'type' => 'string',
+                                'minLength' => 2,
+                                'maxLength' => 2,
+                                'example' => 'RS',
+                            ],
+                            'name' => [
+                                'type' => 'string',
+                                'example' => 'Serbia',
+                            ],
+                        ],
+                    ],
+                    'CountriesIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['countries'],
+                                'properties' => [
+                                    'countries' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/Country',
+                                        ],
+                                    ],
+                                ],
                             ],
                         ],
                     ],

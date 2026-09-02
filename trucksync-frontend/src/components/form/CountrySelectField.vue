@@ -1,6 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useCountryStore } from '@/stores/country.js';
 
 defineProps({
@@ -29,6 +30,14 @@ const model = defineModel({
 
 const countryStore = useCountryStore();
 const { countries } = storeToRefs(countryStore);
+const { t } = useI18n();
+
+const countryOptions = computed(() =>
+  (countries.value ?? []).map(country => ({
+    label: t(`countries.${country.name}`),
+    value: country.name
+  }))
+);
 
 onMounted(async () => {
   await countryStore.fetchCountries();
@@ -43,12 +52,10 @@ onMounted(async () => {
     lazy-rules
     emit-value
     map-options
-    option-label="name"
-    option-value="name"
     :label="label"
     :placeholder="placeholder"
     :rules="rules"
     :name="name"
-    :options="countries ?? []"
+    :options="countryOptions"
   />
 </template>

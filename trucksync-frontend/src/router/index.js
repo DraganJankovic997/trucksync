@@ -36,7 +36,7 @@ export default defineRouter(({ store }) => {
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
   });
 
-  Router.beforeEach(async (to, from) => {
+  Router.beforeEach(async to => {
     const authStore = useAuthStore(store);
     await authStore.me();
     const { user } = storeToRefs(authStore);
@@ -52,11 +52,11 @@ export default defineRouter(({ store }) => {
     } else if (to.meta.guestOnly === true) {
       console.log('inside else if');
       if (user.value) {
-                  console.log('inside smaller if');
+        console.log('inside smaller if');
 
-          return {
-            name: 'dashboard',
-          };
+        return {
+          name: 'dashboard'
+        };
       }
       console.log('passed the small if');
     }

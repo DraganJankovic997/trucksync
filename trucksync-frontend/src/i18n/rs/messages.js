@@ -15,5 +15,8 @@ export default {
   profile: {
     updateSuccess: 'Profil je uspesno azuriran',
     updateError: 'Azuriranje profila nije uspelo'
+  },
+  country: {
+    fetchError: 'Preuzimanje zemalja nije uspelo'
   }
 };

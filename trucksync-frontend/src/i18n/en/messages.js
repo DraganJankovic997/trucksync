@@ -15,5 +15,8 @@ export default {
   profile: {
     updateSuccess: 'Profile updated successfully',
     updateError: 'Profile update failed'
+  },
+  country: {
+    fetchError: 'Failed to fetch countries'
   }
 };

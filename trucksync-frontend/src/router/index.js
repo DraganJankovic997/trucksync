@@ -36,22 +36,32 @@ export default defineRouter(({ store }) => {
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
   });
 
-  Router.beforeEach(async (to, from, next) => {
+  Router.beforeEach(async (to, from) => {
     const authStore = useAuthStore(store);
     await authStore.me();
     const { user } = storeToRefs(authStore);
 
     if (to.meta.requiresAuth === true) {
+      console.log('inside if');
       if (!user.value) {
-        return { path: '/login' };
+        return {
+          name: 'login',
+          query: { redirect: to.fullPath }
+        };
       }
     } else if (to.meta.guestOnly === true) {
+      console.log('inside else if');
       if (user.value) {
-        return { path: '/' };
+                  console.log('inside smaller if');
+
+          return {
+            name: 'dashboard',
+          };
       }
-    } else {
-      return true;
+      console.log('passed the small if');
     }
+    console.log('came to the end');
+    return true;
   });
 
   return Router;

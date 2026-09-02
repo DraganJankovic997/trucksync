@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Country;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -7,6 +8,11 @@ use Laravel\Sanctum\Sanctum;
 uses(RefreshDatabase::class);
 
 it('updates the authenticated user', function () {
+    Country::query()->create([
+        'code' => 'RS',
+        'name' => 'Serbia',
+    ]);
+
     $user = User::factory()->create([
         'first_name' => 'Sam',
         'last_name' => 'Driver',
@@ -63,7 +69,7 @@ it('validates user update fields', function () {
         'first_name' => '',
         'last_name' => '',
         'email' => 'not-an-email',
-        'country' => str_repeat('a', 256),
+        'country' => 'Atlantis',
         'phone_number' => str_repeat('1', 31),
         'profile_type' => 'admin',
     ]);
@@ -96,6 +102,11 @@ it('requires full user profile fields for update', function () {
 });
 
 it('validates unique email addresses except for the authenticated user', function () {
+    Country::query()->create([
+        'code' => 'RS',
+        'name' => 'Serbia',
+    ]);
+
     User::factory()->create([
         'email' => 'taken@example.com',
     ]);

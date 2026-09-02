@@ -1,3 +1,4 @@
+import countries from './countries.js';
 import dashboard from './dashboard.js';
 import layout from './layout.js';
 import login from './login.js';
@@ -9,6 +10,7 @@ import serverError from './serverError.js';
 import validation from './validation.js';
 
 export default {
+  countries,
   dashboard,
   layout,
   login,

@@ -27,7 +27,7 @@ class UserController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($authenticatedUser->id),
             ],
-            'country' => ['required', 'string', 'max:255'],
+            'country' => ['required', 'string', 'max:255', Rule::exists('countries', 'name')],
             'phone_number' => ['required', 'string', 'max:30', 'min:10'],
             'profile_type' => ['required', 'string', Rule::in(['driver', 'dispatcher', 'rest_stop'])],
         ]);

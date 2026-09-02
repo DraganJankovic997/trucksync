@@ -372,6 +372,7 @@ class OpenApiSpec
                             ],
                             'country' => [
                                 'type' => 'string',
+                                'description' => 'Country name matching countries.name.',
                                 'maxLength' => 255,
                                 'example' => 'Serbia',
                             ],

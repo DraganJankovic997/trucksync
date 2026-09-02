@@ -28,11 +28,7 @@ export default boot(({ app, router }) => {
   api.interceptors.response.use(
     response => response,
     error => {
-      const status = error.response?.status;
-
-      if (status === 401) {
-        redirectTo(router, 'login');
-      } else if (status >= 500 && status < 600) {
+      if (error.response?.status && error.response?.status >= 500) {
         redirectTo(router, 'server-error');
       }
 

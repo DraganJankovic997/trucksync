@@ -43,12 +43,14 @@ export default defineRouter(({ store }) => {
 
     if (to.meta.requiresAuth === true) {
       if (!user.value) {
-        next({ path: '/login', query: { redirect: to.fullPath } });
+        return { path: '/login' };
       }
     } else if (to.meta.guestOnly === true) {
       if (user.value) {
-        next({ name: 'dashboard' });
+        return { path: '/' };
       }
+    } else {
+      return true;
     }
   });
 

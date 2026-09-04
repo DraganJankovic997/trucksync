@@ -34,5 +34,16 @@ export default {
     dispatcher: 'Dispatcher',
     restStop: 'Rest stop'
   },
+  typeForms: {
+    driver: {
+      title: 'Driver profile'
+    },
+    dispatcher: {
+      title: 'Dispatcher profile'
+    },
+    restStop: {
+      title: 'Rest stop profile'
+    }
+  },
   submit: 'Save changes'
 };

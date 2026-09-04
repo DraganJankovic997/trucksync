@@ -34,5 +34,16 @@ export default {
     dispatcher: 'Dispecer',
     restStop: 'Odmoriste'
   },
+  typeForms: {
+    driver: {
+      title: 'Vozac profil'
+    },
+    dispatcher: {
+      title: 'Dispecer profil'
+    },
+    restStop: {
+      title: 'Odmoriste profil'
+    }
+  },
   submit: 'Sacuvaj izmene'
 };

@@ -35,6 +35,13 @@ export default {
     saveSuccess: 'Rest stop profile saved successfully',
     saveError: 'Failed to save rest stop profile'
   },
+  restStopService: {
+    fetchError: 'Failed to fetch rest stop services',
+    addSuccess: 'Service added to rest stop successfully',
+    addError: 'Failed to add service to rest stop',
+    removeSuccess: 'Service removed from rest stop successfully',
+    removeError: 'Failed to remove service from rest stop'
+  },
   service: {
     fetchError: 'Failed to fetch services',
     fetchOneError: 'Failed to fetch service',

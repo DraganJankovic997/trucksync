@@ -23,5 +23,11 @@ export default {
     fetchError: 'Preuzimanje profila vozaca nije uspelo',
     saveSuccess: 'Profil vozaca je uspesno sacuvan',
     saveError: 'Cuvanje profila vozaca nije uspelo'
+  },
+  dispatcher: {
+    fetchError: 'Preuzimanje profila dispecera nije uspelo',
+    fetchAllError: 'Preuzimanje dispecera nije uspelo',
+    saveSuccess: 'Profil dispecera je uspesno sacuvan',
+    saveError: 'Cuvanje profila dispecera nije uspelo'
   }
 };

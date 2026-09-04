@@ -50,7 +50,34 @@ export default {
       }
     },
     dispatcher: {
-      title: 'Dispecer profil'
+      title: 'Dispecer profil',
+      formAriaLabel: 'Azuriranje profila dispecera',
+      fields: {
+        companyName: {
+          label: 'Naziv kompanije',
+          placeholder: 'Acme Dispatch'
+        },
+        country: {
+          label: 'Drzava',
+          placeholder: 'Srbija'
+        },
+        city: {
+          label: 'Grad',
+          placeholder: 'Beograd'
+        },
+        address: {
+          label: 'Adresa',
+          placeholder: 'Glavna ulica 1'
+        },
+        postCode: {
+          label: 'Postanski broj',
+          placeholder: '11000'
+        },
+        registrationNumber: {
+          label: 'Registracioni broj',
+          placeholder: 'REG-1234'
+        }
+      }
     },
     restStop: {
       title: 'Odmoriste profil'

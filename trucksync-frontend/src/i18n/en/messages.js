@@ -23,5 +23,11 @@ export default {
     fetchError: 'Failed to fetch driver profile',
     saveSuccess: 'Driver profile saved successfully',
     saveError: 'Failed to save driver profile'
+  },
+  dispatcher: {
+    fetchError: 'Failed to fetch dispatcher profile',
+    fetchAllError: 'Failed to fetch dispatchers',
+    saveSuccess: 'Dispatcher profile saved successfully',
+    saveError: 'Failed to save dispatcher profile'
   }
 };

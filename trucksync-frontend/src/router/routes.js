@@ -18,6 +18,12 @@ const routes = [
         name: 'profile',
         component: () => import('@/pages/ProfilePage.vue'),
         meta: { requiresAuth: true }
+      },
+      {
+        path: '/services',
+        name: 'services',
+        component: () => import('@/pages/ServicesPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
       }
     ]
   },

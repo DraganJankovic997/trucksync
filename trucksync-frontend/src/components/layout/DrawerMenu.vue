@@ -1,7 +1,10 @@
 <script setup>
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import DrawerMenuLink from '@/components/layout/DrawerMenuLink.vue';
+import { useAuthStore } from '@/stores/auth.js';
+import { hasRole } from '@/utils/authorization.js';
 
 const props = defineProps({
   modelValue: {
@@ -12,6 +15,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 const { t } = useI18n();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 const drawerOpen = computed({
   get() {
@@ -32,8 +37,18 @@ const linksList = [
     labelKey: 'layout.navigation.profile',
     link: '/profile',
     icon: 'o_person'
+  },
+  {
+    labelKey: 'layout.navigation.services',
+    link: '/services',
+    icon: 'miscellaneous_services',
+    adminOnly: true
   }
 ];
+
+const visibleLinksList = computed(() =>
+  linksList.filter(link => !link.adminOnly || hasRole(user.value, 'admin'))
+);
 </script>
 
 <template>
@@ -44,7 +59,7 @@ const linksList = [
       </q-item-label>
 
       <DrawerMenuLink
-        v-for="link in linksList"
+        v-for="link in visibleLinksList"
         :key="link.labelKey"
         :label="t(link.labelKey)"
         :link="link.link"

@@ -9,6 +9,7 @@ export default {
   navigation: {
     header: 'Glavni linkovi',
     dashboard: 'Kontrolna tabla',
-    profile: 'Profil'
+    profile: 'Profil',
+    services: 'Usluge'
   }
 };

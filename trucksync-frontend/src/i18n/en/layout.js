@@ -9,6 +9,7 @@ export default {
   navigation: {
     header: 'Essential Links',
     dashboard: 'Dashboard',
-    profile: 'Profile'
+    profile: 'Profile',
+    services: 'Services'
   }
 };

@@ -8,6 +8,13 @@ use App\Models\User;
 
 class DispatcherService implements DispatcherServiceContract
 {
+    public function findForUser(User $user): ?Dispatcher
+    {
+        return Dispatcher::query()
+            ->where('user_id', $user->id)
+            ->first();
+    }
+
     public function upsertForUser(
         User $user,
         string $companyName,

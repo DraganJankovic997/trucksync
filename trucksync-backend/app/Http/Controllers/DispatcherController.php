@@ -13,6 +13,34 @@ class DispatcherController extends Controller
 {
     public function __construct(private readonly DispatcherServiceContract $dispatcherService) {}
 
+    public function show(Request $request): JsonResponse
+    {
+        try {
+            $dispatcher = $this->dispatcherService->findForUser($request->user());
+
+            if (! $dispatcher) {
+                return response()->json([
+                    'message' => 'Dispatcher profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'dispatcher' => $this->dispatcherPayload($dispatcher),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch dispatcher profile.', [
+                'user_id' => $request->user()->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch dispatcher profile.',
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $authenticatedUser = $request->user();

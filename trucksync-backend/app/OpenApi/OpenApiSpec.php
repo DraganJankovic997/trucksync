@@ -330,6 +330,37 @@ class OpenApiSpec
                     ],
                 ],
                 '/api/dispatcher' => [
+                    'get' => [
+                        'tags' => ['Dispatchers'],
+                        'summary' => 'Get the authenticated dispatcher profile',
+                        'operationId' => 'getAuthenticatedDispatcher',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Authenticated dispatcher profile.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/CurrentDispatcherResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DispatcherNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
                     'post' => [
                         'tags' => ['Dispatchers'],
                         'summary' => 'Create or update the authenticated dispatcher profile',
@@ -855,6 +886,21 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'CurrentDispatcherResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['dispatcher'],
+                                'properties' => [
+                                    'dispatcher' => [
+                                        '$ref' => '#/components/schemas/Dispatcher',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -993,6 +1039,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Driver profile not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherNotFound' => [
+                        'description' => 'Dispatcher profile not found for the authenticated user.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Dispatcher profile not found.',
                                 ],
                             ],
                         ],

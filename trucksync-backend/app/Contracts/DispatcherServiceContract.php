@@ -7,6 +7,8 @@ use App\Models\User;
 
 interface DispatcherServiceContract
 {
+    public function findForUser(User $user): ?Dispatcher;
+
     public function upsertForUser(
         User $user,
         string $companyName,

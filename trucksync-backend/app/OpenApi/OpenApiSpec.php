@@ -38,6 +38,10 @@ class OpenApiSpec
                     'description' => 'Authenticated driver profile management.',
                 ],
                 [
+                    'name' => 'Dispatchers',
+                    'description' => 'Authenticated dispatcher profile management.',
+                ],
+                [
                     'name' => 'Countries',
                     'description' => 'Country reference data.',
                 ],
@@ -325,6 +329,62 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher' => [
+                    'post' => [
+                        'tags' => ['Dispatchers'],
+                        'summary' => 'Create or update the authenticated dispatcher profile',
+                        'operationId' => 'upsertAuthenticatedDispatcher',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherUpsertRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Dispatcher profile updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherUpsertResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '201' => [
+                                'description' => 'Dispatcher profile created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherUpsertResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherProfileForbidden',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'components' => [
                 'securitySchemes' => [
@@ -530,6 +590,60 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'Dispatcher' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'company_name',
+                            'country',
+                            'city',
+                            'address',
+                            'post_code',
+                            'registration_number',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'company_name' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Acme Dispatch',
+                            ],
+                            'country' => [
+                                'type' => 'string',
+                                'description' => 'Country name matching countries.name.',
+                                'maxLength' => 255,
+                                'example' => 'Serbia',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Main Street 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => '11000',
+                            ],
+                            'registration_number' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'REG-1234',
+                            ],
+                        ],
+                    ],
                     'UserUpdateRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -591,6 +705,56 @@ class OpenApiSpec
                                 'nullable' => true,
                                 'description' => 'Must reference an existing dispatcher when provided.',
                                 'example' => 2,
+                            ],
+                        ],
+                    ],
+                    'DispatcherUpsertRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'company_name',
+                            'country',
+                            'city',
+                            'address',
+                            'post_code',
+                            'registration_number',
+                        ],
+                        'properties' => [
+                            'company_name' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Acme Dispatch',
+                            ],
+                            'country' => [
+                                'type' => 'string',
+                                'description' => 'Country name matching countries.name.',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Serbia',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Main Street 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => '11000',
+                            ],
+                            'registration_number' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'REG-1234',
                             ],
                         ],
                     ],
@@ -708,6 +872,28 @@ class OpenApiSpec
                                 'properties' => [
                                     'driver' => [
                                         '$ref' => '#/components/schemas/Driver',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherUpsertResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Dispatcher profile created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['dispatcher'],
+                                'properties' => [
+                                    'dispatcher' => [
+                                        '$ref' => '#/components/schemas/Dispatcher',
                                     ],
                                 ],
                             ],
@@ -833,6 +1019,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only driver users can create or update driver profiles.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherProfileForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only dispatcher users can create or update dispatcher profiles.',
                                 ],
                             ],
                         ],

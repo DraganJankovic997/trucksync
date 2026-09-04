@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -21,3 +22,4 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'update'])->name('user.update');
 Route::middleware('auth:sanctum')->get('/driver', [DriverController::class, 'show'])->name('driver.show');
 Route::middleware('auth:sanctum')->post('/driver', [DriverController::class, 'store'])->name('driver.store');
+Route::middleware('auth:sanctum')->post('/dispatcher', [DispatcherController::class, 'store'])->name('dispatcher.store');

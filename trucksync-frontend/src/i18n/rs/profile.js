@@ -80,7 +80,32 @@ export default {
       }
     },
     restStop: {
-      title: 'Odmoriste profil'
+      title: 'Odmoriste profil',
+      formAriaLabel: 'Azuriranje profila odmorista',
+      fields: {
+        country: {
+          label: 'Drzava',
+          placeholder: 'Srbija'
+        },
+        city: {
+          label: 'Grad',
+          placeholder: 'Beograd'
+        },
+        address: {
+          label: 'Adresa',
+          placeholder: 'Autoput 1'
+        },
+        postCode: {
+          label: 'Postanski broj',
+          placeholder: '11000'
+        },
+        worksFrom: {
+          label: 'Radi od'
+        },
+        worksTo: {
+          label: 'Radi do'
+        }
+      }
     }
   },
   submit: 'Sacuvaj izmene'

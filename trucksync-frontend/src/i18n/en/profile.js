@@ -80,7 +80,32 @@ export default {
       }
     },
     restStop: {
-      title: 'Rest stop profile'
+      title: 'Rest stop profile',
+      formAriaLabel: 'Update rest stop profile',
+      fields: {
+        country: {
+          label: 'Country',
+          placeholder: 'Serbia'
+        },
+        city: {
+          label: 'City',
+          placeholder: 'Belgrade'
+        },
+        address: {
+          label: 'Address',
+          placeholder: 'Highway 1'
+        },
+        postCode: {
+          label: 'Post code',
+          placeholder: '11000'
+        },
+        worksFrom: {
+          label: 'Works from'
+        },
+        worksTo: {
+          label: 'Works to'
+        }
+      }
     }
   },
   submit: 'Save changes'

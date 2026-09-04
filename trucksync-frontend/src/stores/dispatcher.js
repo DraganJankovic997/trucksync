@@ -26,7 +26,7 @@ export const useDispatcherStore = defineStore('dispatcher', () => {
 
   async function fetchDispatchers() {
     try {
-      const { data } = await api.get('/dispatchers');
+      const { data } = await api.get('/dispatcher/all');
 
       dispatchers.value = data?.data?.dispatchers ?? [];
 

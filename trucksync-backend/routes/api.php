@@ -32,17 +32,14 @@ Route::prefix('driver')
         Route::post('/', 'store')->name('store');
     });
 
-Route::middleware('auth:sanctum')
+Route::prefix('dispatcher')
+    ->middleware('auth:sanctum')
     ->controller(DispatcherController::class)
+    ->name('dispatcher.')
     ->group(function () {
-        Route::get('/dispatchers', 'index')->name('dispatchers.index');
-
-        Route::prefix('dispatcher')
-            ->name('dispatcher.')
-            ->group(function () {
-                Route::get('/', 'show')->name('show');
-                Route::post('/', 'store')->name('store');
-            });
+        Route::get('/all', 'index')->name('index');
+        Route::get('/', 'show')->name('show');
+        Route::post('/', 'store')->name('store');
     });
 
 Route::prefix('rest-stop')

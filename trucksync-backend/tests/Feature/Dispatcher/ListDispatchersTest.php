@@ -40,7 +40,7 @@ it('returns all dispatchers for an authenticated user without profile type limit
 
     Sanctum::actingAs($authenticatedUser);
 
-    $this->getJson('/api/dispatchers')
+    $this->getJson('/api/dispatcher/all')
         ->assertOk()
         ->assertJsonCount(2, 'data.dispatchers')
         ->assertJsonPath('data.dispatchers.0.id', $firstDispatcher->id)
@@ -66,13 +66,13 @@ it('returns an empty dispatcher list when no dispatchers exist', function () {
         'profile_type' => 'rest_stop',
     ]));
 
-    $this->getJson('/api/dispatchers')
+    $this->getJson('/api/dispatcher/all')
         ->assertOk()
         ->assertJsonPath('data.dispatchers', []);
 });
 
 it('requires authentication to list dispatchers', function () {
-    $this->getJson('/api/dispatchers')
+    $this->getJson('/api/dispatcher/all')
         ->assertUnauthorized()
         ->assertJsonPath('message', 'Unauthenticated.');
 });

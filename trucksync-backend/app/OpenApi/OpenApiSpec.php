@@ -502,7 +502,7 @@ class OpenApiSpec
                         ],
                     ],
                 ],
-                '/api/dispatchers' => [
+                '/api/dispatcher/all' => [
                     'get' => [
                         'tags' => ['Dispatchers'],
                         'summary' => 'List dispatchers',

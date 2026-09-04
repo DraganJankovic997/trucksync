@@ -26,41 +26,37 @@ Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'update'
 Route::prefix('driver')
     ->middleware('auth:sanctum')
     ->controller(DriverController::class)
-    ->name('driver.')
     ->group(function () {
-        Route::get('/', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
+        Route::get('/', 'show')->name('driver.show');
+        Route::post('/', 'store')->name('driver.store');
     });
 
 Route::prefix('dispatcher')
     ->middleware('auth:sanctum')
     ->controller(DispatcherController::class)
-    ->name('dispatcher.')
     ->group(function () {
-        Route::get('/all', 'index')->name('index');
-        Route::get('/', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
+        Route::get('/all', 'index')->name('dispatcher.index');
+        Route::get('/', 'show')->name('dispatcher.show');
+        Route::post('/', 'store')->name('dispatcher.store');
     });
 
 Route::prefix('rest-stop')
     ->middleware('auth:sanctum')
     ->controller(RestStopController::class)
-    ->name('rest-stop.')
     ->group(function () {
-        Route::get('/', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
+        Route::get('/', 'show')->name('rest-stop.show');
+        Route::post('/', 'store')->name('rest-stop.store');
     });
 
 Route::prefix('service')
     ->middleware('auth:sanctum')
     ->controller(ServiceController::class)
-    ->name('service.')
     ->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{id}', 'show')->whereNumber('id')->name('show');
+        Route::get('/', 'index')->name('service.index');
+        Route::get('/{id}', 'show')->whereNumber('id')->name('service.show');
 
         Route::middleware('role:admin')->group(function () {
-            Route::post('/', 'store')->name('store');
-            Route::delete('/{id}', 'destroy')->whereNumber('id')->name('destroy');
+            Route::post('/', 'store')->name('service.store');
+            Route::delete('/{id}', 'destroy')->whereNumber('id')->name('service.destroy');
         });
     });

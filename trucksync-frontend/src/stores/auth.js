@@ -24,12 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function login(email, password, password_confirmation = null) {
+  async function login(email, password) {
     try {
       const { data } = await api.post('/auth/login', {
         email: email,
         password: password,
-        password_confirmation: password_confirmation
       });
       const authToken = data?.data?.token ?? null;
 

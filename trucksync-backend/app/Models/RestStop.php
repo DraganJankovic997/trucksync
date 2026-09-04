@@ -21,6 +21,7 @@ class RestStop extends Model
         'country',
         'city',
         'address',
+        'post_code',
         'works_from',
         'works_to',
     ];

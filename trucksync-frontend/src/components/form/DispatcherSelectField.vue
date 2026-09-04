@@ -1,5 +1,7 @@
 <script setup>
-import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { computed, onMounted } from 'vue';
+import { useDispatcherStore } from '@/stores/dispatcher.js';
 
 defineProps({
   label: {
@@ -22,10 +24,22 @@ defineProps({
 
 const model = defineModel({
   type: [String, Number],
-  default: ''
+  default: null
 });
 
-const dispatcherOptions = computed(() => []);
+const dispatcherStore = useDispatcherStore();
+const { dispatchers } = storeToRefs(dispatcherStore);
+
+const dispatcherOptions = computed(() =>
+  (dispatchers.value ?? []).map(dispatcher => ({
+    label: dispatcher.company_name,
+    value: dispatcher.id
+  }))
+);
+
+onMounted(async () => {
+  await dispatcherStore.fetchDispatchers();
+});
 </script>
 
 <template>

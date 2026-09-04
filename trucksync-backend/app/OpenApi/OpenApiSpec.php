@@ -239,6 +239,37 @@ class OpenApiSpec
                     ],
                 ],
                 '/api/driver' => [
+                    'get' => [
+                        'tags' => ['Drivers'],
+                        'summary' => 'Get the authenticated driver profile',
+                        'operationId' => 'getAuthenticatedDriver',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Authenticated driver profile.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/CurrentDriverResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DriverNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
                     'post' => [
                         'tags' => ['Drivers'],
                         'summary' => 'Create or update the authenticated driver profile',
@@ -645,6 +676,21 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'CurrentDriverResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['driver'],
+                                'properties' => [
+                                    'driver' => [
+                                        '$ref' => '#/components/schemas/Driver',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -748,6 +794,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'User not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DriverNotFound' => [
+                        'description' => 'Driver profile not found for the authenticated user.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Driver profile not found.',
                                 ],
                             ],
                         ],

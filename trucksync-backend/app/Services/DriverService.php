@@ -8,6 +8,13 @@ use App\Models\User;
 
 class DriverService implements DriverServiceContract
 {
+    public function findForUser(User $user): ?Driver
+    {
+        return Driver::query()
+            ->where('user_id', $user->id)
+            ->first();
+    }
+
     public function upsertForUser(
         User $user,
         string $licenseNumber,

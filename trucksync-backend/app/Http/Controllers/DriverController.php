@@ -13,6 +13,34 @@ class DriverController extends Controller
 {
     public function __construct(private readonly DriverServiceContract $driverService) {}
 
+    public function show(Request $request): JsonResponse
+    {
+        try {
+            $driver = $this->driverService->findForUser($request->user());
+
+            if (! $driver) {
+                return response()->json([
+                    'message' => 'Driver profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'driver' => $this->driverPayload($driver),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch driver profile.', [
+                'user_id' => $request->user()->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch driver profile.',
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $authenticatedUser = $request->user();

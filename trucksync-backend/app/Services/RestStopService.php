@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Contracts\RestStopServiceContract;
 use App\Models\RestStop;
 use App\Models\RestStopService as RestStopServiceModel;
+use App\Models\Service;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class RestStopService implements RestStopServiceContract
 {
@@ -14,6 +16,23 @@ class RestStopService implements RestStopServiceContract
         return RestStop::query()
             ->where('user_id', $user->id)
             ->first();
+    }
+
+    /**
+     * @return Collection<int, Service>|null
+     */
+    public function servicesForRestStop(int $restStopId): ?Collection
+    {
+        $restStop = RestStop::query()->find($restStopId);
+
+        if (! $restStop) {
+            return null;
+        }
+
+        return $restStop
+            ->services()
+            ->orderBy('name')
+            ->get();
     }
 
     public function upsertForUser(

@@ -74,6 +74,43 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/rest-stop/services/{id}' => [
+                    'get' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'List services for a rest stop',
+                        'operationId' => 'listRestStopServices',
+                        'parameters' => [
+                            [
+                                'name' => 'id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Rest stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Rest stop service list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopServicesIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RestStopByIdNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/service' => [
                     'get' => [
                         'tags' => ['Services'],
@@ -971,6 +1008,24 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStopServicesIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['services'],
+                                'properties' => [
+                                    'services' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/Service',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'User' => [
                         'type' => 'object',
                         'required' => [
@@ -1805,6 +1860,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Rest stop profile not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopByIdNotFound' => [
+                        'description' => 'Rest stop not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Rest stop not found.',
                                 ],
                             ],
                         ],

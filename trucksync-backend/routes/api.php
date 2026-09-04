@@ -23,6 +23,10 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 
 Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'update'])->name('user.update');
 
+Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexServices'])
+    ->whereNumber('id')
+    ->name('rest-stop.services.index');
+
 Route::prefix('driver')
     ->middleware('auth:sanctum')
     ->controller(DriverController::class)

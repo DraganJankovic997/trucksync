@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contracts\RestStopServiceContract;
 use App\Models\RestStop;
 use App\Models\RestStopService as RestStopServiceModel;
+use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -13,6 +14,37 @@ use Throwable;
 class RestStopController extends Controller
 {
     public function __construct(private readonly RestStopServiceContract $restStopService) {}
+
+    public function indexServices(int $id): JsonResponse
+    {
+        try {
+            $services = $this->restStopService->servicesForRestStop($id);
+
+            if (! $services) {
+                return response()->json([
+                    'message' => 'Rest stop not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'services' => $services
+                        ->map(fn (Service $service): array => $this->servicePayload($service))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch rest stop services.', [
+                'rest_stop_id' => $id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch rest stop services.',
+            ], 500);
+        }
+    }
 
     public function show(Request $request): JsonResponse
     {
@@ -220,6 +252,17 @@ class RestStopController extends Controller
         return [
             'rest_stop_id' => $restStopService->rest_stop_id,
             'service_id' => $restStopService->service_id,
+        ];
+    }
+
+    /**
+     * @return array{id: int, name: string}
+     */
+    private function servicePayload(Service $service): array
+    {
+        return [
+            'id' => $service->id,
+            'name' => $service->name,
         ];
     }
 }

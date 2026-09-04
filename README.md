@@ -45,10 +45,16 @@ Useful commands:
 
 ```sh
 make backend-test
+make backend-assign-admin EMAIL=admin@example.com
 make frontend-lint-check
 make frontend-build
 make down
 ```
+
+`make backend-test` starts a separate `postgres-test` service under the
+Compose `test` profile and runs backend tests against `trucksync_backend_test`.
+It does not use the development `postgres` service or `trucksync_backend`
+database.
 
 Override app ports with environment variables before running Compose, for
 example:

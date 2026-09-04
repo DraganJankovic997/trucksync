@@ -5,6 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -78,6 +79,7 @@ it('returns the authenticated user for a valid token', function () {
         'email' => 'sam.driver@example.com',
         'password' => Hash::make('secure-password'),
     ]);
+    $user->assignRole(Role::findOrCreate('admin'));
 
     $token = $this->postJson('/api/auth/login', [
         'email' => 'sam.driver@example.com',
@@ -91,6 +93,7 @@ it('returns the authenticated user for a valid token', function () {
         ->assertOk()
         ->assertJsonPath('data.user.id', $user->id)
         ->assertJsonPath('data.user.email', 'sam.driver@example.com')
+        ->assertJsonPath('data.user.roles', ['admin'])
         ->assertJsonMissingPath('data.user.password');
 });
 

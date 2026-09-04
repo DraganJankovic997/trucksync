@@ -120,11 +120,11 @@ class AuthController extends Controller
     }
 
     /**
-     * @return array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}
+     * @return array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null, roles: list<string>}
      */
     private function userPayload(User $user): array
     {
-        return [
+        $payload = [
             'id' => $user->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
@@ -132,6 +132,9 @@ class AuthController extends Controller
             'country' => $user->country,
             'phone_number' => $user->phone_number,
             'profile_type' => $user->profile_type,
+            'roles' => $user->getRoleNames()->values()->all()
         ];
+
+        return $payload;
     }
 }

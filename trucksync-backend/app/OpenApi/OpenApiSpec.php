@@ -913,6 +913,26 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'CurrentUser' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['roles'],
+                                'properties' => [
+                                    'roles' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'string',
+                                        ],
+                                        'example' => ['admin'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'Driver' => [
                         'type' => 'object',
                         'required' => [
@@ -1288,7 +1308,7 @@ class OpenApiSpec
                                 'required' => ['user'],
                                 'properties' => [
                                     'user' => [
-                                        '$ref' => '#/components/schemas/User',
+                                        '$ref' => '#/components/schemas/CurrentUser',
                                     ],
                                 ],
                             ],

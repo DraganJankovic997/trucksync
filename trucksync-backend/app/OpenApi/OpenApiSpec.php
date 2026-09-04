@@ -706,6 +706,65 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/rest-stop/services' => [
+                    'post' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Add a service to the authenticated rest stop',
+                        'operationId' => 'addAuthenticatedRestStopService',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/RestStopServiceStoreRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Rest stop service already exists.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopServiceStoreResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '201' => [
+                                'description' => 'Rest stop service added successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopServiceStoreResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/RestStopServiceForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RestStopNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'components' => [
                 'securitySchemes' => [
@@ -1118,6 +1177,23 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStopService' => [
+                        'type' => 'object',
+                        'required' => [
+                            'rest_stop_id',
+                            'service_id',
+                        ],
+                        'properties' => [
+                            'rest_stop_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'service_id' => [
+                                'type' => 'integer',
+                                'example' => 2,
+                            ],
+                        ],
+                    ],
                     'DriverUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -1251,6 +1327,20 @@ class OpenApiSpec
                                 'minLength' => 1,
                                 'maxLength' => 255,
                                 'example' => 'Tire replacement',
+                            ],
+                        ],
+                    ],
+                    'RestStopServiceStoreRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'service_id',
+                        ],
+                        'properties' => [
+                            'service_id' => [
+                                'type' => 'integer',
+                                'description' => 'Existing service ID.',
+                                'minimum' => 1,
+                                'example' => 2,
                             ],
                         ],
                     ],
@@ -1460,6 +1550,28 @@ class OpenApiSpec
                                 'properties' => [
                                     'rest_stop' => [
                                         '$ref' => '#/components/schemas/RestStop',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopServiceStoreResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Rest stop service added successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['rest_stop_service'],
+                                'properties' => [
+                                    'rest_stop_service' => [
+                                        '$ref' => '#/components/schemas/RestStopService',
                                     ],
                                 ],
                             ],
@@ -1700,6 +1812,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only rest stop users can create or update rest stop profiles.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopServiceForbidden' => [
+                        'description' => 'The authenticated user is not a rest stop.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only rest stop users can add rest stop services.',
                                 ],
                             ],
                         ],

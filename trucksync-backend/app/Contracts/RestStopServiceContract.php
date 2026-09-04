@@ -3,6 +3,7 @@
 namespace App\Contracts;
 
 use App\Models\RestStop;
+use App\Models\RestStopService as RestStopServiceModel;
 use App\Models\User;
 
 interface RestStopServiceContract
@@ -18,4 +19,6 @@ interface RestStopServiceContract
         string $worksFrom,
         string $worksTo
     ): RestStop;
+
+    public function addServiceForUser(User $user, int $serviceId): ?RestStopServiceModel;
 }

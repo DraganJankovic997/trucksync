@@ -22,15 +22,40 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 });
 
 Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'update'])->name('user.update');
-Route::middleware('auth:sanctum')->get('/driver', [DriverController::class, 'show'])->name('driver.show');
-Route::middleware('auth:sanctum')->post('/driver', [DriverController::class, 'store'])->name('driver.store');
-Route::middleware('auth:sanctum')->get('/dispatchers', [DispatcherController::class, 'index'])->name('dispatchers.index');
-Route::middleware('auth:sanctum')->get('/dispatcher', [DispatcherController::class, 'show'])->name('dispatcher.show');
-Route::middleware('auth:sanctum')->post('/dispatcher', [DispatcherController::class, 'store'])->name('dispatcher.store');
-Route::middleware('auth:sanctum')->get('/rest-stop', [RestStopController::class, 'show'])->name('rest-stop.show');
-Route::middleware('auth:sanctum')->post('/rest-stop', [RestStopController::class, 'store'])->name('rest-stop.store');
+
+Route::prefix('driver')
+    ->middleware('auth:sanctum')
+    ->controller(DriverController::class)
+    ->name('driver.')
+    ->group(function () {
+        Route::get('/', 'show')->name('show');
+        Route::post('/', 'store')->name('store');
+    });
+
 Route::middleware('auth:sanctum')
-    ->prefix('service')
+    ->controller(DispatcherController::class)
+    ->group(function () {
+        Route::get('/dispatchers', 'index')->name('dispatchers.index');
+
+        Route::prefix('dispatcher')
+            ->name('dispatcher.')
+            ->group(function () {
+                Route::get('/', 'show')->name('show');
+                Route::post('/', 'store')->name('store');
+            });
+    });
+
+Route::prefix('rest-stop')
+    ->middleware('auth:sanctum')
+    ->controller(RestStopController::class)
+    ->name('rest-stop.')
+    ->group(function () {
+        Route::get('/', 'show')->name('show');
+        Route::post('/', 'store')->name('store');
+    });
+
+Route::prefix('service')
+    ->middleware('auth:sanctum')
     ->controller(ServiceController::class)
     ->name('service.')
     ->group(function () {

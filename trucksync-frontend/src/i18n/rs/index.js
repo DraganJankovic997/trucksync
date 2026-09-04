@@ -7,6 +7,7 @@ import notFound from './notFound.js';
 import profile from './profile.js';
 import register from './register.js';
 import serverError from './serverError.js';
+import services from './services.js';
 import validation from './validation.js';
 
 export default {
@@ -19,5 +20,6 @@ export default {
   profile,
   register,
   serverError,
+  services,
   validation
 };

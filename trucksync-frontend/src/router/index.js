@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 
 import { useAuthStore } from '@/stores/auth.js';
+import { hasRole } from '@/utils/authorization.js';
 import routes from './routes.js';
 import { storeToRefs } from 'pinia';
 
@@ -47,6 +48,12 @@ export default defineRouter(({ store }) => {
         return {
           name: 'login',
           query: { redirect: to.fullPath }
+        };
+      }
+
+      if (to.meta.requiresAdmin === true && !hasRole(user.value, 'admin')) {
+        return {
+          name: 'dashboard'
         };
       }
     } else if (to.meta.guestOnly === true) {

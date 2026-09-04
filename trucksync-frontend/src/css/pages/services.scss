@@ -1,0 +1,76 @@
+@use '../quasar.variables' as brand;
+
+.services-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .services-shell {
+    width: min(100%, 1180px);
+    margin: 0 auto;
+  }
+
+  .services-eyebrow {
+    color: brand.$brand-accent-dark;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .services-description {
+    max-width: 640px;
+  }
+
+  .services-description,
+  .service-muted,
+  .services-empty-state {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .service-card {
+    border-color: brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    box-shadow: 0 18px 48px brand.$brand-shadow;
+  }
+
+  .service-table-card {
+    overflow: hidden;
+  }
+
+  .services-empty-state {
+    min-height: 220px;
+
+    strong {
+      color: brand.$brand-ink;
+    }
+  }
+
+  .services-empty-icon {
+    color: brand.$brand-accent-dark;
+  }
+}
+
+.service-delete-dialog {
+  width: min(100vw - 32px, 460px);
+  border-color: brand.$brand-border;
+  border-radius: brand.$brand-radius;
+
+  .service-muted {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .service-delete-icon {
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-error-background;
+    color: brand.$brand-error;
+  }
+
+  .service-delete-warning {
+    border: 1px solid rgba(brand.$brand-error, 0.24);
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-error-background;
+    color: brand.$brand-error;
+    font-weight: 700;
+  }
+}

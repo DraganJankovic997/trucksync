@@ -46,6 +46,10 @@ class OpenApiSpec
                     'description' => 'Authenticated rest stop profile management.',
                 ],
                 [
+                    'name' => 'Services',
+                    'description' => 'Authenticated service catalogue management.',
+                ],
+                [
                     'name' => 'Countries',
                     'description' => 'Country reference data.',
                 ],
@@ -66,6 +70,171 @@ class OpenApiSpec
                                         ],
                                     ],
                                 ],
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/service' => [
+                    'get' => [
+                        'tags' => ['Services'],
+                        'summary' => 'List services',
+                        'operationId' => 'listServices',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Service list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/ServicesIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                    'post' => [
+                        'tags' => ['Services'],
+                        'summary' => 'Create a service',
+                        'operationId' => 'createService',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/ServiceCreateRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '201' => [
+                                'description' => 'Service created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/ServiceCreateResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/service/{id}' => [
+                    'get' => [
+                        'tags' => ['Services'],
+                        'summary' => 'Get a service',
+                        'operationId' => 'getService',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Service ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Service details.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/ServiceResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/ServiceNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                    'delete' => [
+                        'tags' => ['Services'],
+                        'summary' => 'Delete a service',
+                        'operationId' => 'deleteService',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Service ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Service deleted successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/MessageResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/ServiceNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
                             ],
                         ],
                     ],
@@ -333,7 +502,7 @@ class OpenApiSpec
                         ],
                     ],
                 ],
-                '/api/dispatchers' => [
+                '/api/dispatcher/all' => [
                     'get' => [
                         'tags' => ['Dispatchers'],
                         'summary' => 'List dispatchers',
@@ -658,6 +827,42 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'Service' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'name',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'name' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Tire replacement',
+                            ],
+                        ],
+                    ],
+                    'ServicesIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['services'],
+                                'properties' => [
+                                    'services' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/Service',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'User' => [
                         'type' => 'object',
                         'required' => [
@@ -705,6 +910,26 @@ class OpenApiSpec
                                 'nullable' => true,
                                 'enum' => ['driver', 'dispatcher', 'rest_stop'],
                                 'example' => 'driver',
+                            ],
+                        ],
+                    ],
+                    'CurrentUser' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['roles'],
+                                'properties' => [
+                                    'roles' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'string',
+                                        ],
+                                        'example' => ['admin'],
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -1014,6 +1239,21 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'ServiceCreateRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'name',
+                        ],
+                        'properties' => [
+                            'name' => [
+                                'type' => 'string',
+                                'description' => 'Must be unique.',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Tire replacement',
+                            ],
+                        ],
+                    ],
                     'RegisterResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -1068,7 +1308,7 @@ class OpenApiSpec
                                 'required' => ['user'],
                                 'properties' => [
                                     'user' => [
-                                        '$ref' => '#/components/schemas/User',
+                                        '$ref' => '#/components/schemas/CurrentUser',
                                     ],
                                 ],
                             ],
@@ -1225,6 +1465,43 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'ServiceResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['service'],
+                                'properties' => [
+                                    'service' => [
+                                        '$ref' => '#/components/schemas/Service',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'ServiceCreateResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Service created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['service'],
+                                'properties' => [
+                                    'service' => [
+                                        '$ref' => '#/components/schemas/Service',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'MessageResponse' => [
                         'type' => 'object',
                         'required' => ['message'],
@@ -1345,6 +1622,32 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Rest stop profile not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'ServiceNotFound' => [
+                        'description' => 'Service not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Service not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AdminRoleRequired' => [
+                        'description' => 'The authenticated user does not have the admin role.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'User does not have the right roles.',
                                 ],
                             ],
                         ],

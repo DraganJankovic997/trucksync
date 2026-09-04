@@ -34,5 +34,13 @@ export default {
     fetchError: 'Failed to fetch rest stop profile',
     saveSuccess: 'Rest stop profile saved successfully',
     saveError: 'Failed to save rest stop profile'
+  },
+  service: {
+    fetchError: 'Failed to fetch services',
+    fetchOneError: 'Failed to fetch service',
+    createSuccess: 'Service created successfully',
+    createError: 'Failed to create service',
+    deleteSuccess: 'Service deleted successfully',
+    deleteError: 'Failed to delete service'
   }
 };

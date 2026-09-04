@@ -51,6 +51,25 @@ services:
       timeout: 5s
       retries: 10
 
+  postgres-test:
+    image: trucksync-postgres
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    profiles:
+      - test
+    environment:
+      DB_DATABASE: trucksync_backend_test
+      DB_USERNAME: trucksync_test
+      DB_PASSWORD: trucksync_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USERNAME} -d $${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   redis:
     image: redis:7-alpine
     ports:

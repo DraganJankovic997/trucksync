@@ -29,5 +29,10 @@ export default {
     fetchAllError: 'Failed to fetch dispatchers',
     saveSuccess: 'Dispatcher profile saved successfully',
     saveError: 'Failed to save dispatcher profile'
+  },
+  restStop: {
+    fetchError: 'Failed to fetch rest stop profile',
+    saveSuccess: 'Rest stop profile saved successfully',
+    saveError: 'Failed to save rest stop profile'
   }
 };

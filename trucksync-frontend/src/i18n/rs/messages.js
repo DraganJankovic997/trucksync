@@ -29,5 +29,10 @@ export default {
     fetchAllError: 'Preuzimanje dispecera nije uspelo',
     saveSuccess: 'Profil dispecera je uspesno sacuvan',
     saveError: 'Cuvanje profila dispecera nije uspelo'
+  },
+  restStop: {
+    fetchError: 'Preuzimanje profila odmorista nije uspelo',
+    saveSuccess: 'Profil odmorista je uspesno sacuvan',
+    saveError: 'Cuvanje profila odmorista nije uspelo'
   }
 };

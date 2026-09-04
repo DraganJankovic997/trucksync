@@ -1,4 +1,4 @@
-.PHONY: install dev migrate import-countries create-roles assign-admin test lint lint-check
+.PHONY: install dev migrate import-countries create-roles assign-admin seed refresh-db test lint lint-check
 
 install:
 	composer install
@@ -19,6 +19,12 @@ create-roles:
 
 assign-admin:
 	php artisan roles:assign-admin "$(EMAIL)"
+
+seed:
+	php artisan db:seed
+
+refresh-db:
+	php artisan migrate:fresh --seed
 
 test:
 	composer test

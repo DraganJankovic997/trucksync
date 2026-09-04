@@ -37,10 +37,15 @@ make import-countries
 make create-roles
 php artisan roles:assign-admin admin@example.com
 make assign-admin EMAIL=admin@example.com
+make seed
+make refresh-db
 make test
 make lint-check
 make lint
 ```
+
+`make refresh-db` runs `php artisan migrate:fresh --seed` and drops/recreates
+the database configured in `.env`.
 
 ## API Documentation
 

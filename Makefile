@@ -1,4 +1,4 @@
-.PHONY: up down ps logs backend-shell frontend-shell backend-assign-admin assign-admin backend-test backend-lint backend-lint-check frontend-lint frontend-lint-check frontend-build lint test build ci
+.PHONY: up down ps logs backend-shell frontend-shell backend-assign-admin assign-admin backend-seed seed backend-refresh-db refresh-db backend-test backend-lint backend-lint-check frontend-lint frontend-lint-check frontend-build lint test build ci
 
 up:
 	docker compose up -d --build
@@ -19,6 +19,16 @@ backend-assign-admin:
 	docker compose exec backend php artisan roles:assign-admin "$(EMAIL)"
 
 assign-admin: backend-assign-admin
+
+backend-seed:
+	docker compose exec backend php artisan db:seed
+
+seed: backend-seed
+
+backend-refresh-db:
+	docker compose exec backend php artisan migrate:fresh --seed
+
+refresh-db: backend-refresh-db
 
 frontend-shell:
 	docker compose exec frontend sh

@@ -50,7 +50,34 @@ export default {
       }
     },
     dispatcher: {
-      title: 'Dispatcher profile'
+      title: 'Dispatcher profile',
+      formAriaLabel: 'Update dispatcher profile',
+      fields: {
+        companyName: {
+          label: 'Company name',
+          placeholder: 'Acme Dispatch'
+        },
+        country: {
+          label: 'Country',
+          placeholder: 'Serbia'
+        },
+        city: {
+          label: 'City',
+          placeholder: 'Belgrade'
+        },
+        address: {
+          label: 'Address',
+          placeholder: 'Main Street 1'
+        },
+        postCode: {
+          label: 'Post code',
+          placeholder: '11000'
+        },
+        registrationNumber: {
+          label: 'Registration number',
+          placeholder: 'REG-1234'
+        }
+      }
     },
     restStop: {
       title: 'Rest stop profile'

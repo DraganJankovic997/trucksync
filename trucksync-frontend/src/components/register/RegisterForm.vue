@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import EmailField from '@/components/form/EmailField.vue';
 import PasswordField from '@/components/form/PasswordField.vue';
@@ -14,9 +14,12 @@ const form = reactive({
   firstName: '',
   lastName: '',
   email: '',
+  profileType: '',
   password: '',
   passwordConfirmation: ''
 });
+
+const profileTypeValues = ['driver', 'dispatcher', 'rest_stop'];
 
 const required = fieldKey => value =>
   Boolean(String(value ?? '').trim()) ||
@@ -51,6 +54,30 @@ const confirmPasswordRules = [
   value => value === form.password || t('validation.confirmed')
 ];
 
+const profileTypeOptions = computed(() => [
+  {
+    label: t('profile.profileTypes.driver'),
+    value: 'driver'
+  },
+  {
+    label: t('profile.profileTypes.dispatcher'),
+    value: 'dispatcher'
+  },
+  {
+    label: t('profile.profileTypes.restStop'),
+    value: 'rest_stop'
+  }
+]);
+
+const profileTypeRules = [
+  required('validation.fields.profileType'),
+  value =>
+    profileTypeValues.includes(value) ||
+    t('validation.invalidChoice', {
+      field: t('validation.fields.profileType')
+    })
+];
+
 async function handleSubmit() {
   const isValid = await formRef.value?.validate();
 
@@ -62,6 +89,7 @@ async function handleSubmit() {
     first_name: form.firstName,
     last_name: form.lastName,
     email: form.email,
+    profile_type: form.profileType,
     password: form.password,
     password_confirmation: form.passwordConfirmation
   });
@@ -102,6 +130,19 @@ async function handleSubmit() {
           :placeholder="t('register.fields.email.placeholder')"
           :rules="emailRules"
           :maxlength="255"
+        />
+
+        <q-select
+          v-model="form.profileType"
+          class="form-field"
+          outlined
+          lazy-rules
+          emit-value
+          map-options
+          name="profile_type"
+          :label="t('register.fields.profileType.label')"
+          :options="profileTypeOptions"
+          :rules="profileTypeRules"
         />
 
         <PasswordField

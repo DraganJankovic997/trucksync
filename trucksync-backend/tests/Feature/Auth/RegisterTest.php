@@ -8,11 +8,12 @@ uses(RefreshDatabase::class);
 
 it('registers a new user', function () {
     $response = $this->postJson('/api/auth/register', [
-        'first_name' => 'Sam',
-        'last_name' => 'Driver',
-        'email' => 'sam.driver@example.com',
+        'first_name' => '  Sam  ',
+        'last_name' => '  Driver  ',
+        'email' => '  SAM.DRIVER@EXAMPLE.COM  ',
         'password' => 'secure-password',
         'password_confirmation' => 'secure-password',
+        'profile_type' => 'driver',
     ]);
 
     $response
@@ -21,6 +22,7 @@ it('registers a new user', function () {
         ->assertJsonPath('data.user.first_name', 'Sam')
         ->assertJsonPath('data.user.last_name', 'Driver')
         ->assertJsonPath('data.user.email', 'sam.driver@example.com')
+        ->assertJsonPath('data.user.profile_type', 'driver')
         ->assertJsonMissingPath('data.user.name')
         ->assertJsonMissingPath('data.user.password');
 
@@ -29,6 +31,7 @@ it('registers a new user', function () {
     expect($user)->not->toBeNull()
         ->and($user->first_name)->toBe('Sam')
         ->and($user->last_name)->toBe('Driver')
+        ->and($user->profile_type)->toBe('driver')
         ->and(Hash::check('secure-password', $user->password))->toBeTrue();
 });
 
@@ -42,6 +45,7 @@ it('validates required registration fields', function () {
             'last_name',
             'email',
             'password',
+            'profile_type',
         ]);
 });
 
@@ -56,6 +60,7 @@ it('validates unique email addresses and password confirmation', function () {
         'email' => 'taken@example.com',
         'password' => 'secure-password',
         'password_confirmation' => 'different-password',
+        'profile_type' => 'dispatcher',
     ]);
 
     $response
@@ -64,4 +69,19 @@ it('validates unique email addresses and password confirmation', function () {
             'email',
             'password',
         ]);
+});
+
+it('validates registration profile type choices', function () {
+    $response = $this->postJson('/api/auth/register', [
+        'first_name' => 'Jamie',
+        'last_name' => 'Dispatcher',
+        'email' => 'jamie.dispatcher@example.com',
+        'password' => 'secure-password',
+        'password_confirmation' => 'secure-password',
+        'profile_type' => 'admin',
+    ]);
+
+    $response
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['profile_type']);
 });

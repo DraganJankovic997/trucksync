@@ -34,5 +34,27 @@ export default {
     dispatcher: 'Dispecer',
     restStop: 'Odmoriste'
   },
+  typeForms: {
+    driver: {
+      title: 'Vozac profil',
+      formAriaLabel: 'Azuriranje profila vozaca',
+      fields: {
+        licenseNumber: {
+          label: 'Broj vozacke dozvole',
+          placeholder: 'DL-123456'
+        },
+        dispatcherId: {
+          label: 'ID dispecera',
+          placeholder: 'Opciono'
+        }
+      }
+    },
+    dispatcher: {
+      title: 'Dispecer profil'
+    },
+    restStop: {
+      title: 'Odmoriste profil'
+    }
+  },
   submit: 'Sacuvaj izmene'
 };

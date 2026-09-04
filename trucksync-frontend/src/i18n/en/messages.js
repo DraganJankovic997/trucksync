@@ -18,5 +18,10 @@ export default {
   },
   country: {
     fetchError: 'Failed to fetch countries'
+  },
+  driver: {
+    fetchError: 'Failed to fetch driver profile',
+    saveSuccess: 'Driver profile saved successfully',
+    saveError: 'Failed to save driver profile'
   }
 };

@@ -34,6 +34,10 @@ class OpenApiSpec
                     'description' => 'Authenticated user profile management.',
                 ],
                 [
+                    'name' => 'Drivers',
+                    'description' => 'Authenticated driver profile management.',
+                ],
+                [
                     'name' => 'Countries',
                     'description' => 'Country reference data.',
                 ],
@@ -234,6 +238,93 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/driver' => [
+                    'get' => [
+                        'tags' => ['Drivers'],
+                        'summary' => 'Get the authenticated driver profile',
+                        'operationId' => 'getAuthenticatedDriver',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Authenticated driver profile.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/CurrentDriverResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DriverNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                    'post' => [
+                        'tags' => ['Drivers'],
+                        'summary' => 'Create or update the authenticated driver profile',
+                        'operationId' => 'upsertAuthenticatedDriver',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DriverUpsertRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Driver profile updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DriverUpsertResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '201' => [
+                                'description' => 'Driver profile created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DriverUpsertResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/Forbidden',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'components' => [
                 'securitySchemes' => [
@@ -253,6 +344,7 @@ class OpenApiSpec
                             'email',
                             'password',
                             'password_confirmation',
+                            'profile_type',
                         ],
                         'properties' => [
                             'first_name' => [
@@ -287,6 +379,11 @@ class OpenApiSpec
                                 'description' => 'Must match password.',
                                 'minLength' => 8,
                                 'example' => 'secure-password',
+                            ],
+                            'profile_type' => [
+                                'type' => 'string',
+                                'enum' => ['driver', 'dispatcher', 'rest_stop'],
+                                'example' => 'driver',
                             ],
                         ],
                     ],
@@ -399,6 +496,40 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'Driver' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'dispatcher_id',
+                            'license_number',
+                            'is_dispatcher_approved',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'dispatcher_id' => [
+                                'type' => 'integer',
+                                'nullable' => true,
+                                'example' => 2,
+                            ],
+                            'license_number' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'D1234567',
+                            ],
+                            'is_dispatcher_approved' => [
+                                'type' => 'boolean',
+                                'example' => false,
+                            ],
+                        ],
+                    ],
                     'UserUpdateRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -407,7 +538,6 @@ class OpenApiSpec
                             'email',
                             'country',
                             'phone_number',
-                            'profile_type',
                         ],
                         'properties' => [
                             'first_name' => [
@@ -441,10 +571,26 @@ class OpenApiSpec
                                 'maxLength' => 30,
                                 'example' => '+381601234567',
                             ],
-                            'profile_type' => [
+                        ],
+                    ],
+                    'DriverUpsertRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'license_number',
+                        ],
+                        'properties' => [
+                            'license_number' => [
                                 'type' => 'string',
-                                'enum' => ['driver', 'dispatcher', 'rest_stop'],
-                                'example' => 'driver',
+                                'description' => 'Must be unique, except for the authenticated driver profile.',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'D1234567',
+                            ],
+                            'dispatcher_id' => [
+                                'type' => 'integer',
+                                'nullable' => true,
+                                'description' => 'Must reference an existing dispatcher when provided.',
+                                'example' => 2,
                             ],
                         ],
                     ],
@@ -525,6 +671,43 @@ class OpenApiSpec
                                 'properties' => [
                                     'user' => [
                                         '$ref' => '#/components/schemas/User',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'CurrentDriverResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['driver'],
+                                'properties' => [
+                                    'driver' => [
+                                        '$ref' => '#/components/schemas/Driver',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DriverUpsertResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Driver profile created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['driver'],
+                                'properties' => [
+                                    'driver' => [
+                                        '$ref' => '#/components/schemas/Driver',
                                     ],
                                 ],
                             ],
@@ -615,6 +798,19 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DriverNotFound' => [
+                        'description' => 'Driver profile not found for the authenticated user.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Driver profile not found.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'Unauthenticated' => [
                         'description' => 'Missing or invalid bearer token.',
                         'content' => [
@@ -624,6 +820,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Unauthenticated.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'Forbidden' => [
+                        'description' => 'The authenticated user cannot perform this action.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only driver users can create or update driver profiles.',
                                 ],
                             ],
                         ],

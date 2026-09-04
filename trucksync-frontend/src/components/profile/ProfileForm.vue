@@ -15,8 +15,6 @@ const formRef = ref(null);
 const isSaving = ref(false);
 const { t } = useI18n();
 
-const profileTypeValues = ['driver', 'dispatcher', 'rest_stop'];
-
 const form = reactive({
   firstName: '',
   lastName: '',
@@ -61,15 +59,6 @@ const profileTypeOptions = computed(() => [
   }
 ]);
 
-const profileTypeRules = [
-  required('validation.fields.profileType'),
-  value =>
-    profileTypeValues.includes(value) ||
-    t('validation.invalidChoice', {
-      field: t('validation.fields.profileType')
-    })
-];
-
 function syncForm(currentUser) {
   if (!currentUser) {
     return;
@@ -112,8 +101,7 @@ async function handleSubmit() {
       last_name: form.lastName,
       email: form.email,
       country: form.country,
-      phone_number: form.phoneNumber,
-      profile_type: form.profileType
+      phone_number: form.phoneNumber
     });
   } finally {
     isSaving.value = false;
@@ -190,12 +178,12 @@ async function handleSubmit() {
           class="form-field"
           outlined
           lazy-rules
+          disable
           emit-value
           map-options
           name="profile_type"
           :label="t('profile.fields.profileType.label')"
           :options="profileTypeOptions"
-          :rules="profileTypeRules"
         />
       </q-card-section>
 

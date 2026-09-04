@@ -15,6 +15,8 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
+    public const PROFILE_TYPES = ['driver', 'dispatcher', 'rest_stop'];
+
     /**
      * The attributes that are mass assignable.
      *

@@ -4,6 +4,7 @@ export default {
     lastName: 'Last name',
     email: 'Email',
     country: 'Country',
+    licenseNumber: 'License number',
     phoneNumber: 'Phone number',
     profileType: 'Profile type',
     password: 'Password',

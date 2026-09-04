@@ -18,5 +18,10 @@ export default {
   },
   country: {
     fetchError: 'Preuzimanje zemalja nije uspelo'
+  },
+  driver: {
+    fetchError: 'Preuzimanje profila vozaca nije uspelo',
+    saveSuccess: 'Profil vozaca je uspesno sacuvan',
+    saveError: 'Cuvanje profila vozaca nije uspelo'
   }
 };

@@ -34,5 +34,27 @@ export default {
     dispatcher: 'Dispatcher',
     restStop: 'Rest stop'
   },
+  typeForms: {
+    driver: {
+      title: 'Driver profile',
+      formAriaLabel: 'Update driver profile',
+      fields: {
+        licenseNumber: {
+          label: 'License number',
+          placeholder: 'DL-123456'
+        },
+        dispatcherId: {
+          label: 'Dispatcher ID',
+          placeholder: 'Optional'
+        }
+      }
+    },
+    dispatcher: {
+      title: 'Dispatcher profile'
+    },
+    restStop: {
+      title: 'Rest stop profile'
+    }
+  },
   submit: 'Save changes'
 };

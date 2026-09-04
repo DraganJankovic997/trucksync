@@ -29,7 +29,6 @@ class UserController extends Controller
             ],
             'country' => ['required', 'string', 'max:255', Rule::exists('countries', 'name')],
             'phone_number' => ['required', 'string', 'max:30', 'min:10'],
-            'profile_type' => ['required', 'string', Rule::in(['driver', 'dispatcher', 'rest_stop'])],
         ]);
 
         try {
@@ -40,7 +39,6 @@ class UserController extends Controller
                 strtolower(trim($validated['email'])),
                 trim($validated['country']),
                 trim($validated['phone_number']),
-                trim($validated['profile_type']),
             );
 
             return response()->json([

@@ -139,6 +139,57 @@ class RestStopController extends Controller
         }
     }
 
+    public function destroyService(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'rest_stop') {
+            return response()->json([
+                'message' => 'Only rest stop users can remove rest stop services.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'service_id' => ['required', 'integer', Rule::exists('services', 'id')],
+        ]);
+
+        try {
+            if (! $this->restStopService->findForUser($authenticatedUser)) {
+                return response()->json([
+                    'message' => 'Rest stop profile not found.',
+                ], 404);
+            }
+
+            $restStopService = $this->restStopService->removeServiceForUser(
+                $authenticatedUser,
+                $validated['service_id'],
+            );
+
+            if (! $restStopService) {
+                return response()->json([
+                    'message' => 'Rest stop service not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Rest stop service removed successfully.',
+                'data' => [
+                    'rest_stop_service' => $this->restStopServicePayload($restStopService),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to remove rest stop service.', [
+                'user_id' => $authenticatedUser->id,
+                'service_id' => $validated['service_id'],
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to remove rest stop service.',
+            ], 500);
+        }
+    }
+
     /**
      * @return array{id: int, user_id: int, country: string, city: string, address: string, post_code: string, works_from: string, works_to: string}
      */

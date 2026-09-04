@@ -706,7 +706,7 @@ class OpenApiSpec
                         ],
                     ],
                 ],
-                '/api/rest-stop/services' => [
+                '/api/rest-stop/services/add' => [
                     'post' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'Add a service to the authenticated rest stop',
@@ -755,6 +755,55 @@ class OpenApiSpec
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/RestStopNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/rest-stop/services/remove' => [
+                    'post' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Remove a service from the authenticated rest stop',
+                        'operationId' => 'removeAuthenticatedRestStopService',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/RestStopServiceStoreRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Rest stop service removed successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopServiceRemoveResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/RestStopServiceRemoveForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RestStopServiceRemoveNotFound',
                             ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
@@ -1577,6 +1626,28 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStopServiceRemoveResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Rest stop service removed successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['rest_stop_service'],
+                                'properties' => [
+                                    'rest_stop_service' => [
+                                        '$ref' => '#/components/schemas/RestStopService',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'ServiceResponse' => [
                         'type' => 'object',
                         'required' => ['data'],
@@ -1825,6 +1896,43 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only rest stop users can add rest stop services.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopServiceRemoveForbidden' => [
+                        'description' => 'The authenticated user is not a rest stop.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only rest stop users can remove rest stop services.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopServiceRemoveNotFound' => [
+                        'description' => 'The rest stop profile or rest stop service was not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'rest_stop_profile' => [
+                                        'summary' => 'Missing rest stop profile',
+                                        'value' => [
+                                            'message' => 'Rest stop profile not found.',
+                                        ],
+                                    ],
+                                    'rest_stop_service' => [
+                                        'summary' => 'Missing rest stop service',
+                                        'value' => [
+                                            'message' => 'Rest stop service not found.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

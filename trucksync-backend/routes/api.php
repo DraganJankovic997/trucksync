@@ -46,7 +46,8 @@ Route::prefix('rest-stop')
     ->group(function () {
         Route::get('/', 'show')->name('rest-stop.show');
         Route::post('/', 'store')->name('rest-stop.store');
-        Route::post('/services', 'storeService')->name('rest-stop.services.store');
+        Route::post('/services/add', 'storeService')->name('rest-stop.services.add');
+        Route::post('/services/remove', 'destroyService')->name('rest-stop.services.remove');
     });
 
 Route::prefix('service')

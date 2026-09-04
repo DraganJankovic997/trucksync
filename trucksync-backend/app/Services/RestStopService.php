@@ -51,4 +51,29 @@ class RestStopService implements RestStopServiceContract
             'service_id' => $serviceId,
         ]);
     }
+
+    public function removeServiceForUser(User $user, int $serviceId): ?RestStopServiceModel
+    {
+        $restStop = $this->findForUser($user);
+
+        if (! $restStop) {
+            return null;
+        }
+
+        $restStopService = $restStop
+            ->restStopServices()
+            ->where('service_id', $serviceId)
+            ->first();
+
+        if (! $restStopService) {
+            return null;
+        }
+
+        $restStop
+            ->restStopServices()
+            ->where('service_id', $serviceId)
+            ->delete();
+
+        return $restStopService;
+    }
 }

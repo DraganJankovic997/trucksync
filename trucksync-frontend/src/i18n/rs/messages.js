@@ -34,5 +34,13 @@ export default {
     fetchError: 'Preuzimanje profila odmorista nije uspelo',
     saveSuccess: 'Profil odmorista je uspesno sacuvan',
     saveError: 'Cuvanje profila odmorista nije uspelo'
+  },
+  service: {
+    fetchError: 'Preuzimanje usluga nije uspelo',
+    fetchOneError: 'Preuzimanje usluge nije uspelo',
+    createSuccess: 'Usluga je uspesno kreirana',
+    createError: 'Kreiranje usluge nije uspelo',
+    deleteSuccess: 'Usluga je uspesno obrisana',
+    deleteError: 'Brisanje usluge nije uspelo'
   }
 };

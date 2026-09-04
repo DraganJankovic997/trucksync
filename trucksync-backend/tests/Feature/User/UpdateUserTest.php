@@ -17,6 +17,7 @@ it('updates the authenticated user', function () {
         'first_name' => 'Sam',
         'last_name' => 'Driver',
         'email' => 'sam.driver@example.com',
+        'profile_type' => 'dispatcher',
     ]);
 
     Sanctum::actingAs($user);
@@ -39,7 +40,7 @@ it('updates the authenticated user', function () {
         ->assertJsonPath('data.user.email', 'samuel.updated@example.com')
         ->assertJsonPath('data.user.country', 'Serbia')
         ->assertJsonPath('data.user.phone_number', '+381601234567')
-        ->assertJsonPath('data.user.profile_type', 'driver')
+        ->assertJsonPath('data.user.profile_type', 'dispatcher')
         ->assertJsonMissingPath('data.user.password');
 
     $user->refresh();
@@ -49,7 +50,7 @@ it('updates the authenticated user', function () {
         ->and($user->email)->toBe('samuel.updated@example.com')
         ->and($user->country)->toBe('Serbia')
         ->and($user->phone_number)->toBe('+381601234567')
-        ->and($user->profile_type)->toBe('driver');
+        ->and($user->profile_type)->toBe('dispatcher');
 });
 
 it('requires authentication to update a user', function () {
@@ -71,7 +72,6 @@ it('validates user update fields', function () {
         'email' => 'not-an-email',
         'country' => 'Atlantis',
         'phone_number' => str_repeat('1', 31),
-        'profile_type' => 'admin',
     ]);
 
     $response
@@ -82,7 +82,6 @@ it('validates user update fields', function () {
             'email',
             'country',
             'phone_number',
-            'profile_type',
         ]);
 });
 
@@ -97,7 +96,6 @@ it('requires full user profile fields for update', function () {
             'email',
             'country',
             'phone_number',
-            'profile_type',
         ]);
 });
 
@@ -125,7 +123,6 @@ it('validates unique email addresses except for the authenticated user', functio
         'email' => 'taken@example.com',
         'country' => 'Serbia',
         'phone_number' => '+381601234567',
-        'profile_type' => 'driver',
     ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['email']);
@@ -138,7 +135,6 @@ it('validates unique email addresses except for the authenticated user', functio
         'email' => 'SAM.DRIVER@EXAMPLE.COM',
         'country' => 'Serbia',
         'phone_number' => '+381601234567',
-        'profile_type' => 'driver',
     ])
         ->assertOk()
         ->assertJsonPath('data.user.email', 'sam.driver@example.com');

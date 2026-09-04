@@ -15,12 +15,14 @@ class AuthService implements AuthServiceContract
         string $lastName,
         string $email,
         string $password,
+        string $profileType,
     ): User {
         return User::query()->create([
             'first_name' => trim($firstName),
             'last_name' => trim($lastName),
             'email' => strtolower(trim($email)),
             'password' => $password,
+            'profile_type' => trim($profileType),
         ]);
     }
 

@@ -19,6 +19,9 @@ export default {
       label: 'Email',
       placeholder: "name{'@'}example.com"
     },
+    profileType: {
+      label: 'Profile type'
+    },
     password: {
       label: 'Password',
       placeholder: 'Minimum 8 characters'

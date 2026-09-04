@@ -8,6 +8,7 @@ use App\Exceptions\UserNotFoundException;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 class AuthController extends Controller
@@ -21,6 +22,7 @@ class AuthController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'profile_type' => ['required', 'string', Rule::in(User::PROFILE_TYPES)],
         ]);
 
         try {
@@ -29,6 +31,7 @@ class AuthController extends Controller
                 $validated['last_name'],
                 $validated['email'],
                 $validated['password'],
+                $validated['profile_type'],
             );
         } catch (Throwable $throwable) {
             logger()->error('Unable to register user.', [
@@ -44,12 +47,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Account created successfully.',
             'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'email' => $user->email,
-                ],
+                'user' => $this->userPayload($user),
             ],
         ], 201);
     }

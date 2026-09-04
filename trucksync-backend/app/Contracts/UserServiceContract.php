@@ -12,7 +12,6 @@ interface UserServiceContract
         string $lastName,
         string $email,
         string $country,
-        string $phoneNumber,
-        string $profileType,
+        string $phoneNumber
     ): User;
 }

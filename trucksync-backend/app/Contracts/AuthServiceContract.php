@@ -11,6 +11,7 @@ interface AuthServiceContract
         string $lastName,
         string $email,
         string $password,
+        string $profileType,
     ): User;
 
     public function authenticate(string $email, string $password): string;

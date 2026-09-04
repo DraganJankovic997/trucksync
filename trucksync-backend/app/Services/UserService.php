@@ -14,7 +14,6 @@ class UserService implements UserServiceContract
         string $email,
         string $country,
         string $phoneNumber,
-        string $profileType,
     ): User {
         $user->fill([
             'first_name' => $firstName,
@@ -22,7 +21,6 @@ class UserService implements UserServiceContract
             'email' => $email,
             'country' => $country,
             'phone_number' => $phoneNumber,
-            'profile_type' => $profileType,
         ]);
 
         $user->save();

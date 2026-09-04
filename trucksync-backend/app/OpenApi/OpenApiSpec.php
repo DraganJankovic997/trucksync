@@ -253,6 +253,7 @@ class OpenApiSpec
                             'email',
                             'password',
                             'password_confirmation',
+                            'profile_type',
                         ],
                         'properties' => [
                             'first_name' => [
@@ -287,6 +288,11 @@ class OpenApiSpec
                                 'description' => 'Must match password.',
                                 'minLength' => 8,
                                 'example' => 'secure-password',
+                            ],
+                            'profile_type' => [
+                                'type' => 'string',
+                                'enum' => ['driver', 'dispatcher', 'rest_stop'],
+                                'example' => 'driver',
                             ],
                         ],
                     ],
@@ -407,7 +413,6 @@ class OpenApiSpec
                             'email',
                             'country',
                             'phone_number',
-                            'profile_type',
                         ],
                         'properties' => [
                             'first_name' => [
@@ -440,11 +445,6 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'maxLength' => 30,
                                 'example' => '+381601234567',
-                            ],
-                            'profile_type' => [
-                                'type' => 'string',
-                                'enum' => ['driver', 'dispatcher', 'rest_stop'],
-                                'example' => 'driver',
                             ],
                         ],
                     ],

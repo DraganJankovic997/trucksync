@@ -17,7 +17,7 @@ it('returns all services for an authenticated user', function () {
 
     Sanctum::actingAs(User::factory()->create());
 
-    $this->getJson('/api/services')
+    $this->getJson('/api/service')
         ->assertOk()
         ->assertJsonCount(2, 'data.services')
         ->assertJsonPath('data.services.0.id', $firstService->id)
@@ -29,13 +29,13 @@ it('returns all services for an authenticated user', function () {
 it('returns an empty service list when no services exist', function () {
     Sanctum::actingAs(User::factory()->create());
 
-    $this->getJson('/api/services')
+    $this->getJson('/api/service')
         ->assertOk()
         ->assertJsonPath('data.services', []);
 });
 
 it('requires authentication to list services', function () {
-    $this->getJson('/api/services')
+    $this->getJson('/api/service')
         ->assertUnauthorized()
         ->assertJsonPath('message', 'Unauthenticated.');
 });

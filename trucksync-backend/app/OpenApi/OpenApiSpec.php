@@ -74,7 +74,7 @@ class OpenApiSpec
                         ],
                     ],
                 ],
-                '/api/services' => [
+                '/api/service' => [
                     'get' => [
                         'tags' => ['Services'],
                         'summary' => 'List services',
@@ -103,8 +103,6 @@ class OpenApiSpec
                             ],
                         ],
                     ],
-                ],
-                '/api/service' => [
                     'post' => [
                         'tags' => ['Services'],
                         'summary' => 'Create a service',

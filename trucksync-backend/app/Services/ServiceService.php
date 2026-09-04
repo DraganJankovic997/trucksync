@@ -20,7 +20,7 @@ class ServiceService implements ServiceServiceContract
 
     public function find(int $id): ?Service
     {
-        return Service::query()->first($id);
+        return Service::query()->find($id);
     }
 
     public function create(string $name): Service

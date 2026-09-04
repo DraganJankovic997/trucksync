@@ -29,7 +29,13 @@ Route::middleware('auth:sanctum')->get('/dispatcher', [DispatcherController::cla
 Route::middleware('auth:sanctum')->post('/dispatcher', [DispatcherController::class, 'store'])->name('dispatcher.store');
 Route::middleware('auth:sanctum')->get('/rest-stop', [RestStopController::class, 'show'])->name('rest-stop.show');
 Route::middleware('auth:sanctum')->post('/rest-stop', [RestStopController::class, 'store'])->name('rest-stop.store');
-Route::middleware('auth:sanctum')->get('/service', [ServiceController::class, 'index'])->name('service.index');
-Route::middleware('auth:sanctum')->post('/service', [ServiceController::class, 'store'])->name('service.store');
-Route::middleware('auth:sanctum')->get('/service/{id}', [ServiceController::class, 'show'])->whereNumber('id')->name('service.show');
-Route::middleware('auth:sanctum')->delete('/service/{id}', [ServiceController::class, 'destroy'])->whereNumber('id')->name('service.destroy');
+Route::middleware('auth:sanctum')
+    ->prefix('service')
+    ->controller(ServiceController::class)
+    ->name('service.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->whereNumber('id')->name('show');
+        Route::delete('/{id}', 'destroy')->whereNumber('id')->name('destroy');
+    });

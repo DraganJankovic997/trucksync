@@ -22,5 +22,6 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'update'])->name('user.update');
 Route::middleware('auth:sanctum')->get('/driver', [DriverController::class, 'show'])->name('driver.show');
 Route::middleware('auth:sanctum')->post('/driver', [DriverController::class, 'store'])->name('driver.store');
+Route::middleware('auth:sanctum')->get('/dispatchers', [DispatcherController::class, 'index'])->name('dispatchers.index');
 Route::middleware('auth:sanctum')->get('/dispatcher', [DispatcherController::class, 'show'])->name('dispatcher.show');
 Route::middleware('auth:sanctum')->post('/dispatcher', [DispatcherController::class, 'store'])->name('dispatcher.store');

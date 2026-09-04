@@ -329,6 +329,36 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatchers' => [
+                    'get' => [
+                        'tags' => ['Dispatchers'],
+                        'summary' => 'List dispatchers',
+                        'operationId' => 'listDispatchers',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Dispatcher list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatchersIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher' => [
                     'get' => [
                         'tags' => ['Dispatchers'],
@@ -896,6 +926,24 @@ class OpenApiSpec
                                 'properties' => [
                                     'dispatcher' => [
                                         '$ref' => '#/components/schemas/Dispatcher',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatchersIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['dispatchers'],
+                                'properties' => [
+                                    'dispatchers' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/Dispatcher',
+                                        ],
                                     ],
                                 ],
                             ],

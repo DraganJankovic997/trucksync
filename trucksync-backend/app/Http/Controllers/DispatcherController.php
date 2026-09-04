@@ -13,6 +13,31 @@ class DispatcherController extends Controller
 {
     public function __construct(private readonly DispatcherServiceContract $dispatcherService) {}
 
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $dispatchers = $this->dispatcherService->all();
+
+            return response()->json([
+                'data' => [
+                    'dispatchers' => $dispatchers
+                        ->map(fn (Dispatcher $dispatcher): array => $this->dispatcherPayload($dispatcher))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch dispatchers.', [
+                'user_id' => $request->user()->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch dispatchers.',
+            ], 500);
+        }
+    }
+
     public function show(Request $request): JsonResponse
     {
         try {

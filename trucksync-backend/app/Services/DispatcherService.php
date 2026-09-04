@@ -5,9 +5,20 @@ namespace App\Services;
 use App\Contracts\DispatcherServiceContract;
 use App\Models\Dispatcher;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class DispatcherService implements DispatcherServiceContract
 {
+    /**
+     * @return Collection<int, Dispatcher>
+     */
+    public function all(): Collection
+    {
+        return Dispatcher::query()
+            ->orderBy('id')
+            ->get();
+    }
+
     public function findForUser(User $user): ?Dispatcher
     {
         return Dispatcher::query()

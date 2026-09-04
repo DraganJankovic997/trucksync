@@ -18,6 +18,7 @@ composer install
 php artisan key:generate
 php artisan migrate
 php artisan countries:import
+php artisan roles:create
 ```
 
 If you are not using Docker, set `DB_HOST=127.0.0.1` and
@@ -29,6 +30,9 @@ If you are not using Docker, set `DB_HOST=127.0.0.1` and
 make dev
 make migrate
 make import-countries
+make create-roles
+php artisan roles:assign-admin admin@example.com
+make assign-admin EMAIL=admin@example.com
 make test
 make lint-check
 make lint

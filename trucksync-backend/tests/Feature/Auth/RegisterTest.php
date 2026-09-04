@@ -8,9 +8,9 @@ uses(RefreshDatabase::class);
 
 it('registers a new user', function () {
     $response = $this->postJson('/api/auth/register', [
-        'first_name' => 'Sam',
-        'last_name' => 'Driver',
-        'email' => 'sam.driver@example.com',
+        'first_name' => '  Sam  ',
+        'last_name' => '  Driver  ',
+        'email' => '  SAM.DRIVER@EXAMPLE.COM  ',
         'password' => 'secure-password',
         'password_confirmation' => 'secure-password',
         'profile_type' => 'driver',

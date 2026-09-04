@@ -27,11 +27,11 @@ class AuthController extends Controller
 
         try {
             $user = $this->authService->register(
-                $validated['first_name'],
-                $validated['last_name'],
-                $validated['email'],
+                trim($validated['first_name']),
+                trim($validated['last_name']),
+                strtolower(trim($validated['email'])),
                 $validated['password'],
-                $validated['profile_type'],
+                trim($validated['profile_type']),
             );
         } catch (Throwable $throwable) {
             logger()->error('Unable to register user.', [
@@ -61,7 +61,7 @@ class AuthController extends Controller
 
         try {
             $token = $this->authService->authenticate(
-                $validated['email'],
+                strtolower(trim($validated['email'])),
                 $validated['password'],
             );
 

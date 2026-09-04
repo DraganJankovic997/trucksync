@@ -18,18 +18,18 @@ class AuthService implements AuthServiceContract
         string $profileType,
     ): User {
         return User::query()->create([
-            'first_name' => trim($firstName),
-            'last_name' => trim($lastName),
-            'email' => strtolower(trim($email)),
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
             'password' => $password,
-            'profile_type' => trim($profileType),
+            'profile_type' => $profileType,
         ]);
     }
 
     public function authenticate(string $email, string $password): string
     {
         $user = User::query()
-            ->where('email', strtolower(trim($email)))
+            ->where('email', $email)
             ->first();
 
         if (! $user) {

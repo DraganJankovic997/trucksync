@@ -17,7 +17,7 @@ it('logs in a user and returns a bearer token', function () {
     ]);
 
     $response = $this->postJson('/api/auth/login', [
-        'email' => 'sam.driver@example.com',
+        'email' => '  SAM.DRIVER@EXAMPLE.COM  ',
         'password' => 'secure-password',
     ]);
 

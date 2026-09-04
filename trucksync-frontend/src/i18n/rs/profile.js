@@ -36,7 +36,18 @@ export default {
   },
   typeForms: {
     driver: {
-      title: 'Vozac profil'
+      title: 'Vozac profil',
+      formAriaLabel: 'Azuriranje profila vozaca',
+      fields: {
+        licenseNumber: {
+          label: 'Broj vozacke dozvole',
+          placeholder: 'DL-123456'
+        },
+        dispatcherId: {
+          label: 'ID dispecera',
+          placeholder: 'Opciono'
+        }
+      }
     },
     dispatcher: {
       title: 'Dispecer profil'

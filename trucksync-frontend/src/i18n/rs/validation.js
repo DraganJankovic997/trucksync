@@ -4,6 +4,7 @@ export default {
     lastName: 'Prezime',
     email: 'Email',
     country: 'Drzava',
+    licenseNumber: 'Broj vozacke dozvole',
     phoneNumber: 'Broj telefona',
     profileType: 'Tip profila',
     password: 'Lozinka',

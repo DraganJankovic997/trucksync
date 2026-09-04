@@ -30,11 +30,11 @@ export const useDriverStore = defineStore('driver', () => {
         dispatcher_id: dispatcherId
       });
 
+      driver.value = data?.data?.driver ?? null;
+
       toast.success(i18n.global.t('messages.driver.saveSuccess'));
 
-      fetchDriver();
-
-      return data?.data?.driver ?? null;
+      return driver.value;
     } catch (requestError) {
       toast.error(i18n.global.t('messages.driver.saveError'));
 

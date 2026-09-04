@@ -36,7 +36,18 @@ export default {
   },
   typeForms: {
     driver: {
-      title: 'Driver profile'
+      title: 'Driver profile',
+      formAriaLabel: 'Update driver profile',
+      fields: {
+        licenseNumber: {
+          label: 'License number',
+          placeholder: 'DL-123456'
+        },
+        dispatcherId: {
+          label: 'Dispatcher ID',
+          placeholder: 'Optional'
+        }
+      }
     },
     dispatcher: {
       title: 'Dispatcher profile'

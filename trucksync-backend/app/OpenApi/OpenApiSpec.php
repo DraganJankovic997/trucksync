@@ -136,6 +136,9 @@ class OpenApiSpec
                             '401' => [
                                 '$ref' => '#/components/responses/Unauthenticated',
                             ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
                             ],
@@ -180,6 +183,9 @@ class OpenApiSpec
                             ],
                             '401' => [
                                 '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/ServiceNotFound',
@@ -1609,6 +1615,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Service not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AdminRoleRequired' => [
+                        'description' => 'The authenticated user does not have the admin role.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'User does not have the right roles.',
                                 ],
                             ],
                         ],

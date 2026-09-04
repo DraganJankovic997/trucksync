@@ -35,7 +35,10 @@ Route::middleware('auth:sanctum')
     ->name('service.')
     ->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
         Route::get('/{id}', 'show')->whereNumber('id')->name('show');
-        Route::delete('/{id}', 'destroy')->whereNumber('id')->name('destroy');
+
+        Route::middleware('role:admin')->group(function () {
+            Route::post('/', 'store')->name('store');
+            Route::delete('/{id}', 'destroy')->whereNumber('id')->name('destroy');
+        });
     });

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\RestStopController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,5 @@ Route::middleware('auth:sanctum')->post('/driver', [DriverController::class, 'st
 Route::middleware('auth:sanctum')->get('/dispatchers', [DispatcherController::class, 'index'])->name('dispatchers.index');
 Route::middleware('auth:sanctum')->get('/dispatcher', [DispatcherController::class, 'show'])->name('dispatcher.show');
 Route::middleware('auth:sanctum')->post('/dispatcher', [DispatcherController::class, 'store'])->name('dispatcher.store');
+Route::middleware('auth:sanctum')->get('/rest-stop', [RestStopController::class, 'show'])->name('rest-stop.show');
+Route::middleware('auth:sanctum')->post('/rest-stop', [RestStopController::class, 'store'])->name('rest-stop.store');

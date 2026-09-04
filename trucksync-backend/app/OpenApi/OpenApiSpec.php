@@ -42,6 +42,10 @@ class OpenApiSpec
                     'description' => 'Authenticated dispatcher profile management.',
                 ],
                 [
+                    'name' => 'Rest Stops',
+                    'description' => 'Authenticated rest stop profile management.',
+                ],
+                [
                     'name' => 'Countries',
                     'description' => 'Country reference data.',
                 ],
@@ -446,6 +450,93 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/rest-stop' => [
+                    'get' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Get the authenticated rest stop profile',
+                        'operationId' => 'getAuthenticatedRestStop',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Authenticated rest stop profile.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/CurrentRestStopResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RestStopNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                    'post' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Create or update the authenticated rest stop profile',
+                        'operationId' => 'upsertAuthenticatedRestStop',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/RestStopUpsertRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Rest stop profile updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopUpsertResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '201' => [
+                                'description' => 'Rest stop profile created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopUpsertResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/RestStopProfileForbidden',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'components' => [
                 'securitySchemes' => [
@@ -705,6 +796,60 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStop' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'country',
+                            'city',
+                            'address',
+                            'post_code',
+                            'works_from',
+                            'works_to',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'country' => [
+                                'type' => 'string',
+                                'description' => 'Country name matching countries.name.',
+                                'maxLength' => 255,
+                                'example' => 'Serbia',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Highway 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => '11000',
+                            ],
+                            'works_from' => [
+                                'type' => 'string',
+                                'pattern' => '^\\d{2}:\\d{2}$',
+                                'example' => '08:00',
+                            ],
+                            'works_to' => [
+                                'type' => 'string',
+                                'pattern' => '^\\d{2}:\\d{2}$',
+                                'example' => '22:00',
+                            ],
+                        ],
+                    ],
                     'UserUpdateRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -816,6 +961,56 @@ class OpenApiSpec
                                 'minLength' => 1,
                                 'maxLength' => 255,
                                 'example' => 'REG-1234',
+                            ],
+                        ],
+                    ],
+                    'RestStopUpsertRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'country',
+                            'city',
+                            'address',
+                            'post_code',
+                            'works_from',
+                            'works_to',
+                        ],
+                        'properties' => [
+                            'country' => [
+                                'type' => 'string',
+                                'description' => 'Country name matching countries.name.',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Serbia',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Highway 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => '11000',
+                            ],
+                            'works_from' => [
+                                'type' => 'string',
+                                'description' => 'Opening time in 24-hour HH:mm format.',
+                                'pattern' => '^\\d{2}:\\d{2}$',
+                                'example' => '08:00',
+                            ],
+                            'works_to' => [
+                                'type' => 'string',
+                                'description' => 'Closing time in 24-hour HH:mm format.',
+                                'pattern' => '^\\d{2}:\\d{2}$',
+                                'example' => '22:00',
                             ],
                         ],
                     ],
@@ -931,6 +1126,21 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'CurrentRestStopResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['rest_stop'],
+                                'properties' => [
+                                    'rest_stop' => [
+                                        '$ref' => '#/components/schemas/RestStop',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DispatchersIndexResponse' => [
                         'type' => 'object',
                         'required' => ['data'],
@@ -988,6 +1198,28 @@ class OpenApiSpec
                                 'properties' => [
                                     'dispatcher' => [
                                         '$ref' => '#/components/schemas/Dispatcher',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopUpsertResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Rest stop profile created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['rest_stop'],
+                                'properties' => [
+                                    'rest_stop' => [
+                                        '$ref' => '#/components/schemas/RestStop',
                                     ],
                                 ],
                             ],
@@ -1104,6 +1336,19 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStopNotFound' => [
+                        'description' => 'Rest stop profile not found for the authenticated user.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Rest stop profile not found.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'Unauthenticated' => [
                         'description' => 'Missing or invalid bearer token.',
                         'content' => [
@@ -1139,6 +1384,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can create or update dispatcher profiles.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopProfileForbidden' => [
+                        'description' => 'The authenticated user is not a rest stop.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only rest stop users can create or update rest stop profiles.',
                                 ],
                             ],
                         ],

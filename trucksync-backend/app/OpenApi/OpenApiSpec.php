@@ -1813,12 +1813,13 @@ class OpenApiSpec
                             'start_date' => [
                                 'type' => 'string',
                                 'format' => 'date',
+                                'description' => 'Must be a future date.',
                                 'example' => '2026-10-01',
                             ],
                             'end_date' => [
                                 'type' => 'string',
                                 'format' => 'date',
-                                'description' => 'Must be the same as or after start_date.',
+                                'description' => 'Must be a future date that is the same as or after start_date.',
                                 'example' => '2026-10-05',
                             ],
                         ],

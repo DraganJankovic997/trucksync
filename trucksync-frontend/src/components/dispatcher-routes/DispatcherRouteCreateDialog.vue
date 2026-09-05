@@ -38,6 +38,22 @@ const dialogOpen = computed({
   }
 });
 
+const minimumRouteDate = computed(() =>
+  getDateInputValue(addDays(new Date(), 1))
+);
+
+const minimumEndDate = computed(() => {
+  if (
+    form.startDate &&
+    isValidDateValue(form.startDate) &&
+    form.startDate > minimumRouteDate.value
+  ) {
+    return form.startDate;
+  }
+
+  return minimumRouteDate.value;
+});
+
 const required = fieldKey => value =>
   Boolean(String(value ?? '').trim()) ||
   t('validation.required', { field: t(fieldKey) });
@@ -55,13 +71,19 @@ const date = fieldKey => value =>
   isValidDateValue(value) ||
   t('validation.date', { field: t(fieldKey) });
 
+const futureDate = fieldKey => value =>
+  !value ||
+  !isValidDateValue(value) ||
+  parseDateInputValue(value) > getToday() ||
+  t('validation.futureDate', { field: t(fieldKey) });
+
 const dateAfterOrEqual =
   (fieldKey, comparisonFieldKey, comparisonValue) => value =>
     !value ||
     !comparisonValue ||
     !isValidDateValue(value) ||
     !isValidDateValue(comparisonValue) ||
-    new Date(`${value}T00:00:00`) >= new Date(`${comparisonValue}T00:00:00`) ||
+    parseDateInputValue(value) >= parseDateInputValue(comparisonValue) ||
     t('validation.afterOrEqual', {
       field: t(fieldKey),
       comparison: t(comparisonFieldKey)
@@ -76,11 +98,13 @@ const convoySizeRules = [
 ];
 const startDateRules = [
   required('validation.fields.startDate'),
-  date('validation.fields.startDate')
+  date('validation.fields.startDate'),
+  futureDate('validation.fields.startDate')
 ];
 const endDateRules = [
   required('validation.fields.endDate'),
   date('validation.fields.endDate'),
+  futureDate('validation.fields.endDate'),
   value =>
     dateAfterOrEqual(
       'validation.fields.endDate',
@@ -88,6 +112,28 @@ const endDateRules = [
       form.startDate
     )(value)
 ];
+
+function addDays(dateValue, days) {
+  const nextDate = new Date(dateValue);
+  nextDate.setDate(nextDate.getDate() + days);
+
+  return nextDate;
+}
+
+function getDateInputValue(dateValue) {
+  const year = dateValue.getFullYear();
+  const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+  const day = String(dateValue.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function getToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return today;
+}
 
 function isValidDateValue(value) {
   const dateMatch = String(value ?? '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -97,13 +143,17 @@ function isValidDateValue(value) {
   }
 
   const [, year, month, day] = dateMatch;
-  const parsedDate = new Date(`${year}-${month}-${day}T00:00:00`);
+  const parsedDate = parseDateInputValue(value);
 
   return (
     parsedDate.getFullYear() === Number(year) &&
     parsedDate.getMonth() + 1 === Number(month) &&
     parsedDate.getDate() === Number(day)
   );
+}
+
+function parseDateInputValue(value) {
+  return new Date(`${value}T00:00:00`);
 }
 
 watch(dialogOpen, isOpen => {
@@ -215,6 +265,7 @@ function resetForm() {
               v-model="form.startDate"
               type="date"
               stack-label
+              :min="minimumRouteDate"
               :label="t('dispatcherRoutes.form.fields.startDate.label')"
               name="start_date"
               :rules="startDateRules"
@@ -224,7 +275,7 @@ function resetForm() {
               v-model="form.endDate"
               type="date"
               stack-label
-              :min="form.startDate || undefined"
+              :min="minimumEndDate"
               :label="t('dispatcherRoutes.form.fields.endDate.label')"
               name="end_date"
               :rules="endDateRules"

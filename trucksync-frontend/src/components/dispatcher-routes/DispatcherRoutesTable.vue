@@ -60,9 +60,9 @@ const columns = computed(() => [
     sortable: true
   },
   {
-    name: 'closedAt',
-    label: t('dispatcherRoutes.table.closedAt'),
-    field: 'closedAt',
+    name: 'status',
+    label: t('dispatcherRoutes.table.status'),
+    field: 'status',
     align: 'left',
     sortable: true
   },
@@ -83,8 +83,8 @@ const rows = computed(() =>
     startDate: formatDate(route.start_date),
     endDate: formatDate(route.end_date),
     isClosed: Boolean(route.closed_at),
-    closedAt: route.closed_at
-      ? formatDateTime(route.closed_at)
+    status: route.closed_at
+      ? t('dispatcherRoutes.table.closed')
       : t('dispatcherRoutes.table.open'),
     plannedTravelDetails: formatValue(route.planned_travel_details)
   }))
@@ -108,20 +108,6 @@ function formatDate(value) {
     month: 'short',
     year: 'numeric'
   }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatDateTime(value) {
-  if (!value) {
-    return t('dispatcherRoutes.table.open');
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(value));
 }
 </script>
 
@@ -172,17 +158,15 @@ function formatDateTime(value) {
         </q-td>
       </template>
 
-      <template #body-cell-closedAt="scope">
+      <template #body-cell-status="scope">
         <q-td :props="scope">
           <q-badge
-            v-if="!scope.row.isClosed"
             class="dispatcher-routes-status"
-            color="positive"
+            :color="scope.row.isClosed ? 'grey-8' : 'positive'"
             outline
           >
-            {{ scope.row.closedAt }}
+            {{ scope.row.status }}
           </q-badge>
-          <span v-else>{{ scope.row.closedAt }}</span>
         </q-td>
       </template>
 

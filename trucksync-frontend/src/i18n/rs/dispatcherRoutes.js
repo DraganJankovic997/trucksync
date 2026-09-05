@@ -46,9 +46,10 @@ export default {
     convoySize: 'Velicina konvoja',
     startDate: 'Datum pocetka',
     endDate: 'Datum zavrsetka',
-    closedAt: 'Zatvoreno',
+    status: 'Status',
     plannedTravelDetails: 'Planirani detalji puta',
     open: 'Otvorena',
+    closed: 'Zatvorena',
     emptyValue: '-',
     emptyTitle: 'Nema kreiranih ruta',
     emptyDescription: 'Kreirane rute ce biti prikazane ovde.'

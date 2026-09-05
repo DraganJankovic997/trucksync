@@ -4,9 +4,18 @@ use App\Models\Dispatcher;
 use App\Models\Route as DispatcherRoute;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Carbon::setTestNow('2026-09-05 12:00:00');
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
+});
 
 it('creates a route for the authenticated dispatcher profile', function () {
     $user = User::factory()->create([
@@ -159,6 +168,28 @@ it('validates route field values', function () {
             'origin',
             'planned_travel_details',
             'convoy_size',
+            'end_date',
+        ]);
+});
+
+it('validates route dates are future dates', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    createDispatcherForRouteUser($user);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/dispatcher/route', [
+        'origin' => 'Belgrade warehouse',
+        'destination' => 'Berlin logistics hub',
+        'convoy_size' => 2,
+        'start_date' => '2026-09-05',
+        'end_date' => '2026-09-04',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([
+            'start_date',
             'end_date',
         ]);
 });

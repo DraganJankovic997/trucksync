@@ -28,6 +28,7 @@ export default {
   invalidChoice: 'Izaberite ispravan izbor za {field}',
   time: 'Unesite ispravno vreme za {field}',
   date: 'Unesite ispravan datum za {field}',
+  futureDate: '{field} mora biti datum u buducnosti',
   integer: '{field} mora biti ceo broj',
   min: '{field} mora biti najmanje {min}',
   afterOrEqual: '{field} mora biti na datum ili posle {comparison}',

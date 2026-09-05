@@ -59,8 +59,8 @@ class RouteController extends Controller
             'destination' => ['required', 'string', 'min:1'],
             'planned_travel_details' => ['nullable', 'string'],
             'convoy_size' => ['required', 'integer', 'min:1'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'start_date' => ['required', 'date', 'after:today'],
+            'end_date' => ['required', 'date', 'after:today', 'after_or_equal:start_date'],
         ]);
 
         try {

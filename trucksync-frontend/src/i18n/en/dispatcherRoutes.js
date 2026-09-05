@@ -46,9 +46,10 @@ export default {
     convoySize: 'Convoy size',
     startDate: 'Start date',
     endDate: 'End date',
-    closedAt: 'Closed at',
+    status: 'Status',
     plannedTravelDetails: 'Planned travel details',
     open: 'Open',
+    closed: 'Closed',
     emptyValue: '-',
     emptyTitle: 'No routes created',
     emptyDescription: 'Created routes will appear here.'

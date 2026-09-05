@@ -28,6 +28,7 @@ export default {
   invalidChoice: 'Select a valid {field}',
   time: 'Enter a valid {field}',
   date: 'Enter a valid {field}',
+  futureDate: '{field} must be a future date',
   integer: '{field} must be a whole number',
   min: '{field} must be at least {min}',
   afterOrEqual: '{field} must be on or after {comparison}',

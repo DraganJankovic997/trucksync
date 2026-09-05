@@ -5,7 +5,6 @@ import { toast } from '@/boot/toast.js';
 import { ref } from 'vue';
 
 export const useRouteStore = defineStore('route', () => {
-  const route = ref(null);
   const routes = ref([]);
 
   async function fetchRoutesForDispatcher(dispatcherId) {
@@ -42,11 +41,15 @@ export const useRouteStore = defineStore('route', () => {
         end_date: endDate
       });
 
-      route.value = data?.data?.route ?? null;
+      const createdRoute = data?.data?.route ?? null;
+
+      if (createdRoute?.dispatcher_id) {
+        await fetchRoutesForDispatcher(createdRoute.dispatcher_id);
+      }
 
       toast.success(i18n.global.t('messages.route.createSuccess'));
 
-      return route.value;
+      return createdRoute;
     } catch (requestError) {
       toast.error(i18n.global.t('messages.route.createError'));
 
@@ -60,11 +63,15 @@ export const useRouteStore = defineStore('route', () => {
     try {
       const { data } = await api.post(`/dispatcher/route/close/${routeId}`);
 
-      route.value = data?.data?.route ?? null;
+      const closedRoute = data?.data?.route ?? null;
+
+      if (closedRoute?.dispatcher_id) {
+        await fetchRoutesForDispatcher(closedRoute.dispatcher_id);
+      }
 
       toast.success(i18n.global.t('messages.route.closeSuccess'));
 
-      return route.value;
+      return closedRoute;
     } catch (requestError) {
       toast.error(i18n.global.t('messages.route.closeError'));
 
@@ -75,7 +82,6 @@ export const useRouteStore = defineStore('route', () => {
   }
 
   return {
-    route,
     routes,
     closeRoute,
     createRoute,

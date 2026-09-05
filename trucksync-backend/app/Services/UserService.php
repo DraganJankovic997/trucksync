@@ -23,8 +23,29 @@ class UserService implements UserServiceContract
             'phone_number' => $phoneNumber,
         ]);
 
+        $hasProfileChanges = $user->isDirty();
+
         $user->save();
 
+        if ($hasProfileChanges) {
+            $this->resetProfileApproval($user);
+        }
+
         return $user->refresh();
+    }
+
+    private function resetProfileApproval(User $user): void
+    {
+        if ($user->profile_type === 'dispatcher') {
+            $user->dispatcher()->update([
+                'is_approved' => false,
+            ]);
+        }
+
+        if ($user->profile_type === 'rest_stop') {
+            $user->restStop()->update([
+                'is_approved' => false,
+            ]);
+        }
     }
 }

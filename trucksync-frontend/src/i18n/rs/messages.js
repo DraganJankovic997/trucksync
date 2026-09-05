@@ -16,6 +16,11 @@ export default {
     updateSuccess: 'Profil je uspesno azuriran',
     updateError: 'Azuriranje profila nije uspelo'
   },
+  approval: {
+    fetchError: 'Preuzimanje profila za odobravanje nije uspelo',
+    approveSuccess: 'Profil je uspesno odobren',
+    approveError: 'Odobravanje profila nije uspelo'
+  },
   country: {
     fetchError: 'Preuzimanje zemalja nije uspelo'
   },

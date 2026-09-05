@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('convoy_size');
             $table->date('start_date');
             $table->date('end_date');
+            $table->dateTime('closed_at')->nullable();
             $table->timestamps();
         });
     }

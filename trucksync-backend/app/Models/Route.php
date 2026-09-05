@@ -23,6 +23,7 @@ class Route extends Model
         'convoy_size',
         'start_date',
         'end_date',
+        'closed_at',
     ];
 
     /**
@@ -36,6 +37,7 @@ class Route extends Model
             'convoy_size' => 'integer',
             'start_date' => 'date',
             'end_date' => 'date',
+            'closed_at' => 'datetime',
         ];
     }
 

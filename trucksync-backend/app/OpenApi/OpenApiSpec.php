@@ -1326,6 +1326,7 @@ class OpenApiSpec
                             'convoy_size',
                             'start_date',
                             'end_date',
+                            'closed_at',
                         ],
                         'properties' => [
                             'id' => [
@@ -1363,6 +1364,12 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'format' => 'date',
                                 'example' => '2026-10-05',
+                            ],
+                            'closed_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'nullable' => true,
+                                'example' => null,
                             ],
                         ],
                     ],

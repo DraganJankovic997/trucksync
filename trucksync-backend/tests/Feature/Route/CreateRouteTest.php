@@ -38,7 +38,8 @@ it('creates a route for the authenticated dispatcher profile', function () {
         ->assertJsonPath('data.route.planned_travel_details', 'Take the A3 corridor and stop near Vienna.')
         ->assertJsonPath('data.route.convoy_size', 3)
         ->assertJsonPath('data.route.start_date', '2026-10-01')
-        ->assertJsonPath('data.route.end_date', '2026-10-05');
+        ->assertJsonPath('data.route.end_date', '2026-10-05')
+        ->assertJsonPath('data.route.closed_at', null);
 
     $this->assertDatabaseHas('routes', [
         'dispatcher_id' => $dispatcher->id,
@@ -48,6 +49,7 @@ it('creates a route for the authenticated dispatcher profile', function () {
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        'closed_at' => null,
     ]);
 
     $this->assertDatabaseMissing('routes', [

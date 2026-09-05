@@ -28,6 +28,7 @@ it('stores routes for a dispatcher', function () {
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        'closed_at' => '2026-10-05 15:30:00',
     ]);
 
     expect(Schema::getColumnListing('routes'))->toBe([
@@ -39,13 +40,15 @@ it('stores routes for a dispatcher', function () {
         'convoy_size',
         'start_date',
         'end_date',
+        'closed_at',
         'created_at',
         'updated_at',
     ])
         ->and($dispatcher->routes()->first()->is($route))->toBeTrue()
         ->and($route->dispatcher->is($dispatcher))->toBeTrue()
         ->and($route->start_date->toDateString())->toBe('2026-10-01')
-        ->and($route->end_date->toDateString())->toBe('2026-10-05');
+        ->and($route->end_date->toDateString())->toBe('2026-10-05')
+        ->and($route->closed_at->toDateTimeString())->toBe('2026-10-05 15:30:00');
 
     $this->assertDatabaseHas('routes', [
         'id' => $route->id,
@@ -56,5 +59,6 @@ it('stores routes for a dispatcher', function () {
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        'closed_at' => '2026-10-05 15:30:00',
     ]);
 });

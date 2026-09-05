@@ -67,7 +67,7 @@ class RouteController extends Controller
     }
 
     /**
-     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string}
+     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null}
      */
     private function routePayload(DispatcherRoute $route): array
     {
@@ -80,6 +80,7 @@ class RouteController extends Controller
             'convoy_size' => $route->convoy_size,
             'start_date' => $route->start_date->toDateString(),
             'end_date' => $route->end_date->toDateString(),
+            'closed_at' => $route->closed_at?->toJSON(),
         ];
     }
 }

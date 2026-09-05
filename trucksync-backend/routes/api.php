@@ -52,11 +52,13 @@ Route::prefix('dispatcher')
         Route::get('/all', 'index')->name('dispatcher.index');
         Route::get('/', 'show')->name('dispatcher.show');
         Route::post('/', 'store')->name('dispatcher.store');
-    });
 
-Route::middleware('auth:sanctum')
-    ->post('/dispatcher/route', [RouteController::class, 'store'])
-    ->name('dispatcher.route.store');
+        Route::prefix('route')
+            ->controller(RouteController::class)
+            ->group(function () {
+                Route::post('/', 'store')->name('dispatcher.route.store');
+            });
+    });
 
 Route::prefix('rest-stop')
     ->middleware('auth:sanctum')

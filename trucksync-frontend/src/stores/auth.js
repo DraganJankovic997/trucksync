@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { data } = await api.post('/auth/login', {
         email: email,
-        password: password,
+        password: password
       });
       const authToken = data?.data?.token ?? null;
 

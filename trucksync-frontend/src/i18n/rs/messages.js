@@ -35,6 +35,13 @@ export default {
     saveSuccess: 'Profil odmorista je uspesno sacuvan',
     saveError: 'Cuvanje profila odmorista nije uspelo'
   },
+  restStopService: {
+    fetchError: 'Preuzimanje usluga odmorista nije uspelo',
+    addSuccess: 'Usluga je uspesno dodata odmoristu',
+    addError: 'Dodavanje usluge odmoristu nije uspelo',
+    removeSuccess: 'Usluga je uspesno uklonjena sa odmorista',
+    removeError: 'Uklanjanje usluge sa odmorista nije uspelo'
+  },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',
     fetchOneError: 'Preuzimanje usluge nije uspelo',

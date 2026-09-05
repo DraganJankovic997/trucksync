@@ -10,6 +10,7 @@ export default {
     header: 'Essential Links',
     dashboard: 'Dashboard',
     profile: 'Profile',
-    services: 'Services'
+    profileServices: 'My services',
+    adminServices: 'Services'
   }
 };

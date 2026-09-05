@@ -20,9 +20,6 @@ export default {
     city: 'City',
     address: 'Address',
     postCode: 'Post code',
-    status: 'Status',
-    pending: 'Pending',
-    approved: 'Approved',
     emptyValue: '-'
   },
   dispatchers: {

@@ -115,13 +115,6 @@ const columns = computed(() => [
     field: 'registrationNumber',
     align: 'left',
     sortable: true
-  },
-  {
-    name: 'status',
-    label: t('approval.table.status'),
-    field: 'status',
-    align: 'left',
-    sortable: true
   }
 ]);
 
@@ -141,10 +134,7 @@ const rows = computed(() =>
     city: formatValue(dispatcher.city),
     address: formatValue(dispatcher.address),
     postCode: formatValue(dispatcher.post_code),
-    registrationNumber: formatValue(dispatcher.registration_number),
-    status: dispatcher.is_approved
-      ? t('approval.table.approved')
-      : t('approval.table.pending')
+    registrationNumber: formatValue(dispatcher.registration_number)
   }))
 );
 

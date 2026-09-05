@@ -20,9 +20,6 @@ export default {
     city: 'Grad',
     address: 'Adresa',
     postCode: 'Postanski broj',
-    status: 'Status',
-    pending: 'Na cekanju',
-    approved: 'Odobreno',
     emptyValue: '-'
   },
   dispatchers: {

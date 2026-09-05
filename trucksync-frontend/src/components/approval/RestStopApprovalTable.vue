@@ -115,13 +115,6 @@ const columns = computed(() => [
     field: 'worksTo',
     align: 'left',
     sortable: true
-  },
-  {
-    name: 'status',
-    label: t('approval.table.status'),
-    field: 'status',
-    align: 'left',
-    sortable: true
   }
 ]);
 
@@ -141,10 +134,7 @@ const rows = computed(() =>
     address: formatValue(restStop.address),
     postCode: formatValue(restStop.post_code),
     worksFrom: formatValue(restStop.works_from),
-    worksTo: formatValue(restStop.works_to),
-    status: restStop.is_approved
-      ? t('approval.table.approved')
-      : t('approval.table.pending')
+    worksTo: formatValue(restStop.works_to)
   }))
 );
 

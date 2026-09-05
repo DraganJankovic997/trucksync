@@ -48,6 +48,7 @@ export default {
     removeError: 'Failed to remove service from rest stop'
   },
   route: {
+    fetchError: 'Failed to fetch routes',
     createSuccess: 'Route created successfully',
     createError: 'Failed to create route',
     closeSuccess: 'Route closed successfully',

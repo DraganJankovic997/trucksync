@@ -16,6 +16,11 @@ interface DispatcherServiceContract
 
     public function findForUser(User $user): ?Dispatcher;
 
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function routesForDispatcher(int $dispatcherId): ?Collection;
+
     public function upsertForUser(
         User $user,
         string $companyName,

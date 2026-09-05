@@ -27,6 +27,23 @@ class DispatcherService implements DispatcherServiceContract
             ->first();
     }
 
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function routesForDispatcher(int $dispatcherId): ?Collection
+    {
+        $dispatcher = Dispatcher::query()->find($dispatcherId);
+
+        if (! $dispatcher) {
+            return null;
+        }
+
+        return $dispatcher->routes()
+            ->orderByRaw('CASE WHEN closed_at IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('created_at')
+            ->get();
+    }
+
     public function upsertForUser(
         User $user,
         string $companyName,

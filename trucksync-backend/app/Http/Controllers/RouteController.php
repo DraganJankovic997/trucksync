@@ -12,6 +12,38 @@ class RouteController extends Controller
 {
     public function __construct(private readonly DispatcherServiceContract $dispatcherService) {}
 
+    public function index(Request $request, int $dispatcherId): JsonResponse
+    {
+        try {
+            $routes = $this->dispatcherService->routesForDispatcher($dispatcherId);
+
+            if (! $routes) {
+                return response()->json([
+                    'message' => 'Dispatcher not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'routes' => $routes
+                        ->map(fn (DispatcherRoute $route): array => $this->routePayload($route))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch dispatcher routes.', [
+                'user_id' => $request->user()->id,
+                'dispatcher_id' => $dispatcherId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch routes.',
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $authenticatedUser = $request->user();

@@ -48,6 +48,7 @@ export default {
     removeError: 'Uklanjanje usluge sa odmorista nije uspelo'
   },
   route: {
+    fetchError: 'Preuzimanje ruta nije uspelo',
     createSuccess: 'Ruta je uspesno kreirana',
     createError: 'Kreiranje rute nije uspelo',
     closeSuccess: 'Ruta je uspesno zatvorena',

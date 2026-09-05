@@ -16,6 +16,11 @@ export default {
     updateSuccess: 'Profile updated successfully',
     updateError: 'Profile update failed'
   },
+  approval: {
+    fetchError: 'Failed to fetch profiles pending approval',
+    approveSuccess: 'Profile approved successfully',
+    approveError: 'Failed to approve profile'
+  },
   country: {
     fetchError: 'Failed to fetch countries'
   },

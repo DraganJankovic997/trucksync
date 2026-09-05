@@ -1,3 +1,4 @@
+import approval from './approval.js';
 import countries from './countries.js';
 import dashboard from './dashboard.js';
 import layout from './layout.js';
@@ -13,6 +14,7 @@ import services from './services.js';
 import validation from './validation.js';
 
 export default {
+  approval,
   countries,
   dashboard,
   layout,

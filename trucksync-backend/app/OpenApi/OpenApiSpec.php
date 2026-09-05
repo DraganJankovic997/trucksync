@@ -34,6 +34,10 @@ class OpenApiSpec
                     'description' => 'Authenticated user profile management.',
                 ],
                 [
+                    'name' => 'Admin',
+                    'description' => 'Administrative profile approval actions.',
+                ],
+                [
                     'name' => 'Drivers',
                     'description' => 'Authenticated driver profile management.',
                 ],
@@ -445,6 +449,87 @@ class OpenApiSpec
                             ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/admin/approve' => [
+                    'get' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'List dispatcher and rest stop profiles needing approval',
+                        'operationId' => 'listProfilesNeedingApproval',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Profiles needing approval.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/PendingProfileApprovalsResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/admin/approve/{userId}' => [
+                    'post' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'Approve a dispatcher or rest stop profile',
+                        'operationId' => 'approveProfile',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'userId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'User ID for a dispatcher or rest stop profile.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Profile approved successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/ProfileApprovalResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/ApprovableProfileNotFound',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -1224,6 +1309,150 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'PendingDispatcherApproval' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'company_name',
+                            'city',
+                            'address',
+                            'post_code',
+                            'registration_number',
+                            'is_approved',
+                            'user',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'company_name' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Acme Dispatch',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Main Street 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => '11000',
+                            ],
+                            'registration_number' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'REG-1234',
+                            ],
+                            'is_approved' => [
+                                'type' => 'boolean',
+                                'example' => false,
+                            ],
+                            'user' => [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                        ],
+                    ],
+                    'PendingRestStopApproval' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'city',
+                            'address',
+                            'post_code',
+                            'works_from',
+                            'works_to',
+                            'is_approved',
+                            'user',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Highway 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => '11000',
+                            ],
+                            'works_from' => [
+                                'type' => 'string',
+                                'pattern' => '^\\d{2}:\\d{2}$',
+                                'example' => '08:00',
+                            ],
+                            'works_to' => [
+                                'type' => 'string',
+                                'pattern' => '^\\d{2}:\\d{2}$',
+                                'example' => '22:00',
+                            ],
+                            'is_approved' => [
+                                'type' => 'boolean',
+                                'example' => false,
+                            ],
+                            'user' => [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                        ],
+                    ],
+                    'ProfileApproval' => [
+                        'type' => 'object',
+                        'required' => [
+                            'profile_id',
+                            'user_id',
+                            'profile_type',
+                            'is_approved',
+                            'user',
+                        ],
+                        'properties' => [
+                            'profile_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'profile_type' => [
+                                'type' => 'string',
+                                'enum' => ['dispatcher', 'rest_stop'],
+                                'example' => 'dispatcher',
+                            ],
+                            'is_approved' => [
+                                'type' => 'boolean',
+                                'example' => true,
+                            ],
+                            'user' => [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                        ],
+                    ],
                     'UserUpdateRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -1629,6 +1858,55 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'ProfileApprovalResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Profile approved successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['approval'],
+                                'properties' => [
+                                    'approval' => [
+                                        '$ref' => '#/components/schemas/ProfileApproval',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'PendingProfileApprovalsResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'dispatchers',
+                                    'rest_stops',
+                                ],
+                                'properties' => [
+                                    'dispatchers' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/PendingDispatcherApproval',
+                                        ],
+                                    ],
+                                    'rest_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/PendingRestStopApproval',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopServiceStoreResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -1856,6 +2134,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Service not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'ApprovableProfileNotFound' => [
+                        'description' => 'No dispatcher or rest stop profile exists for the user ID.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Approvable profile not found.',
                                 ],
                             ],
                         ],

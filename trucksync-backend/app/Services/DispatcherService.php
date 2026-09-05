@@ -34,15 +34,24 @@ class DispatcherService implements DispatcherServiceContract
         string $postCode,
         string $registrationNumber
     ): Dispatcher {
-        return Dispatcher::query()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'company_name' => $companyName,
-                'city' => $city,
-                'address' => $address,
-                'post_code' => $postCode,
-                'registration_number' => $registrationNumber,
-            ],
-        )->refresh();
+        $dispatcher = Dispatcher::query()->firstOrNew([
+            'user_id' => $user->id,
+        ]);
+
+        $dispatcher->fill([
+            'company_name' => $companyName,
+            'city' => $city,
+            'address' => $address,
+            'post_code' => $postCode,
+            'registration_number' => $registrationNumber,
+        ]);
+
+        if (! $dispatcher->exists || $dispatcher->isDirty()) {
+            $dispatcher->is_approved = false;
+        }
+
+        $dispatcher->save();
+
+        return $dispatcher->refresh();
     }
 }

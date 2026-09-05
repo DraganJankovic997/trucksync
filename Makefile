@@ -30,6 +30,9 @@ backend-seed:
 
 seed: backend-seed
 
+backend-migrate:
+	docker compose exec backend php artisan migrate
+
 backend-refresh-db:
 	docker compose exec backend php artisan migrate:fresh --seed
 

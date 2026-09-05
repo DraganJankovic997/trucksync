@@ -34,6 +34,12 @@ const routes = [
         name: 'admin-services',
         component: () => import('@/pages/ServicesPage.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: '/admin/approval',
+        name: 'admin-approval',
+        component: () => import('@/pages/ApprovalPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
       }
     ]
   },

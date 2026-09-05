@@ -43,16 +43,25 @@ class RestStopService implements RestStopServiceContract
         string $worksFrom,
         string $worksTo
     ): RestStop {
-        return RestStop::query()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'city' => $city,
-                'address' => $address,
-                'post_code' => $postCode,
-                'works_from' => $worksFrom,
-                'works_to' => $worksTo,
-            ],
-        )->refresh();
+        $restStop = RestStop::query()->firstOrNew([
+            'user_id' => $user->id,
+        ]);
+
+        $restStop->fill([
+            'city' => $city,
+            'address' => $address,
+            'post_code' => $postCode,
+            'works_from' => $worksFrom,
+            'works_to' => $worksTo,
+        ]);
+
+        if (! $restStop->exists || $restStop->isDirty()) {
+            $restStop->is_approved = false;
+        }
+
+        $restStop->save();
+
+        return $restStop->refresh();
     }
 
     public function addServiceForUser(User $user, int $serviceId): ?RestStopServiceModel

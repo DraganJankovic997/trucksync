@@ -132,7 +132,7 @@ class AuthController extends Controller
             'country' => $user->country,
             'phone_number' => $user->phone_number,
             'profile_type' => $user->profile_type,
-            'roles' => $user->getRoleNames()->values()->all()
+            'roles' => $user->getRoleNames()->values()->all(),
         ];
 
         return $payload;

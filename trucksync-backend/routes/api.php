@@ -7,6 +7,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RestStopController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/countries', [CountryController::class, 'index'])->name('countries.index');
@@ -22,6 +23,13 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 });
 
 Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'update'])->name('user.update');
+
+Route::prefix('admin')
+    ->middleware(['auth:sanctum', 'role:admin'])
+    ->controller(UserManagementController::class)
+    ->group(function () {
+        Route::post('/approve/{userId}', 'approve')->whereNumber('userId')->name('admin.approve');
+    });
 
 Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexServices'])
     ->whereNumber('id')

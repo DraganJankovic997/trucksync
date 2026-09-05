@@ -34,6 +34,10 @@ class OpenApiSpec
                     'description' => 'Authenticated user profile management.',
                 ],
                 [
+                    'name' => 'Admin',
+                    'description' => 'Administrative profile approval actions.',
+                ],
+                [
                     'name' => 'Drivers',
                     'description' => 'Authenticated driver profile management.',
                 ],
@@ -445,6 +449,54 @@ class OpenApiSpec
                             ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/admin/approve/{userId}' => [
+                    'post' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'Approve a dispatcher or rest stop profile',
+                        'operationId' => 'approveProfile',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'userId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'User ID for a dispatcher or rest stop profile.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Profile approved successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/ProfileApprovalResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/ApprovableProfileNotFound',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -1224,6 +1276,34 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'ProfileApproval' => [
+                        'type' => 'object',
+                        'required' => [
+                            'profile_id',
+                            'user_id',
+                            'profile_type',
+                            'is_approved',
+                        ],
+                        'properties' => [
+                            'profile_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'profile_type' => [
+                                'type' => 'string',
+                                'enum' => ['dispatcher', 'rest_stop'],
+                                'example' => 'dispatcher',
+                            ],
+                            'is_approved' => [
+                                'type' => 'boolean',
+                                'example' => true,
+                            ],
+                        ],
+                    ],
                     'UserUpdateRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -1629,6 +1709,28 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'ProfileApprovalResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Profile approved successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['approval'],
+                                'properties' => [
+                                    'approval' => [
+                                        '$ref' => '#/components/schemas/ProfileApproval',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopServiceStoreResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -1856,6 +1958,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Service not found.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'ApprovableProfileNotFound' => [
+                        'description' => 'No dispatcher or rest stop profile exists for the user ID.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Approvable profile not found.',
                                 ],
                             ],
                         ],

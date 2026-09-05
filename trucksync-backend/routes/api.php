@@ -28,6 +28,7 @@ Route::prefix('admin')
     ->middleware(['auth:sanctum', 'role:admin'])
     ->controller(UserManagementController::class)
     ->group(function () {
+        Route::get('/approve', 'index')->name('admin.approve.index');
         Route::post('/approve/{userId}', 'approve')->whereNumber('userId')->name('admin.approve');
     });
 

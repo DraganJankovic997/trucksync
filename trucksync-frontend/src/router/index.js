@@ -64,6 +64,15 @@ export default defineRouter(({ store }) => {
           name: 'dashboard'
         };
       }
+
+      if (
+        to.meta.requiresDispatcher === true &&
+        user.value?.profile_type !== 'dispatcher'
+      ) {
+        return {
+          name: 'dashboard'
+        };
+      }
     } else if (to.meta.guestOnly === true) {
       if (user.value) {
         return {

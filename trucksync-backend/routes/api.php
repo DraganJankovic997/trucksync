@@ -5,6 +5,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RestStopController;
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserManagementController;
@@ -51,6 +52,18 @@ Route::prefix('dispatcher')
         Route::get('/all', 'index')->name('dispatcher.index');
         Route::get('/', 'show')->name('dispatcher.show');
         Route::post('/', 'store')->name('dispatcher.store');
+
+        Route::prefix('route')
+            ->controller(RouteController::class)
+            ->group(function () {
+                Route::get('/{dispatcherId}', 'index')
+                    ->whereNumber('dispatcherId')
+                    ->name('dispatcher.route.index');
+                Route::post('/', 'store')->name('dispatcher.route.store');
+                Route::post('/close/{routeId}', 'close')
+                    ->whereNumber('routeId')
+                    ->name('dispatcher.route.close');
+            });
     });
 
 Route::prefix('rest-stop')

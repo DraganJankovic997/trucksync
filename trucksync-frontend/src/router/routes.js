@@ -26,6 +26,12 @@ const routes = [
         meta: { requiresAuth: true, requiresRestStop: true }
       },
       {
+        path: '/dispatcher/routes',
+        name: 'dispatcher-routes',
+        component: () => import('@/pages/DispatcherRoutesPage.vue'),
+        meta: { requiresAuth: true, requiresDispatcher: true }
+      },
+      {
         path: '/services',
         redirect: { name: 'admin-services' }
       },

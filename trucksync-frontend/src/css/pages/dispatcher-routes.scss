@@ -1,0 +1,94 @@
+@use '../quasar.variables' as brand;
+
+.dispatcher-routes-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .dispatcher-routes-shell {
+    width: min(100%, 1280px);
+    margin: 0 auto;
+  }
+
+  .dispatcher-routes-eyebrow {
+    color: brand.$brand-accent-dark;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .dispatcher-routes-muted,
+  .dispatcher-routes-empty-state {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .dispatcher-routes-card {
+    border-color: brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    box-shadow: 0 18px 48px brand.$brand-shadow;
+  }
+
+  .dispatcher-routes-table-card {
+    overflow: hidden;
+  }
+
+  .dispatcher-routes-details {
+    min-width: 220px;
+    max-width: 360px;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .dispatcher-routes-status {
+    border-radius: brand.$brand-radius;
+    font-weight: 700;
+  }
+
+  .dispatcher-routes-empty-state {
+    min-height: 220px;
+
+    strong {
+      color: brand.$brand-ink;
+    }
+  }
+
+  .dispatcher-routes-empty-icon {
+    color: brand.$brand-accent-dark;
+  }
+}
+
+.dispatcher-route-create-dialog {
+  width: min(100vw - 32px, 680px);
+  border-color: brand.$brand-border;
+  border-radius: brand.$brand-radius;
+
+  .dispatcher-routes-muted {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .dispatcher-route-create-icon {
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-success-background;
+    color: brand.$brand-accent-dark;
+  }
+
+  .dispatcher-route-create-body {
+    display: grid;
+    gap: 16px;
+  }
+
+  .dispatcher-route-create-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 599px) {
+  .dispatcher-route-create-dialog {
+    .dispatcher-route-create-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

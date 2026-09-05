@@ -46,6 +46,10 @@ class OpenApiSpec
                     'description' => 'Authenticated dispatcher profile management.',
                 ],
                 [
+                    'name' => 'Routes',
+                    'description' => 'Authenticated dispatcher route management.',
+                ],
+                [
                     'name' => 'Rest Stops',
                     'description' => 'Authenticated rest stop profile management.',
                 ],
@@ -741,6 +745,148 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/route' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Create a route for the authenticated dispatcher',
+                        'operationId' => 'createDispatcherRoute',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteCreateRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '201' => [
+                                'description' => 'Route created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteCreateResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DispatcherNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/dispatcher/route/{dispatcherId}' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List routes for a dispatcher',
+                        'operationId' => 'listDispatcherRoutes',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'dispatcherId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Dispatcher ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Dispatcher route list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRoutesIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DispatcherByIdNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/dispatcher/route/close/{routeId}' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Close a route owned by the authenticated dispatcher',
+                        'operationId' => 'closeDispatcherRoute',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route closed successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteCloseResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteCloseForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/rest-stop' => [
                     'get' => [
                         'tags' => ['Rest Stops'],
@@ -1262,6 +1408,64 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRoute' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'dispatcher_id',
+                            'origin',
+                            'destination',
+                            'planned_travel_details',
+                            'convoy_size',
+                            'start_date',
+                            'end_date',
+                            'closed_at',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'dispatcher_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'origin' => [
+                                'type' => 'string',
+                                'example' => 'Belgrade warehouse',
+                            ],
+                            'destination' => [
+                                'type' => 'string',
+                                'example' => 'Berlin logistics hub',
+                            ],
+                            'planned_travel_details' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Take the A3 corridor and stop near Vienna.',
+                            ],
+                            'convoy_size' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'start_date' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'example' => '2026-10-01',
+                            ],
+                            'end_date' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'example' => '2026-10-05',
+                            ],
+                            'closed_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'nullable' => true,
+                                'example' => null,
+                            ],
+                        ],
+                    ],
                     'RestStop' => [
                         'type' => 'object',
                         'required' => [
@@ -1576,6 +1780,50 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteCreateRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'origin',
+                            'destination',
+                            'convoy_size',
+                            'start_date',
+                            'end_date',
+                        ],
+                        'properties' => [
+                            'origin' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'example' => 'Belgrade warehouse',
+                            ],
+                            'destination' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'example' => 'Berlin logistics hub',
+                            ],
+                            'planned_travel_details' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Take the A3 corridor and stop near Vienna.',
+                            ],
+                            'convoy_size' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'start_date' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'description' => 'Must be a future date.',
+                                'example' => '2026-10-01',
+                            ],
+                            'end_date' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'description' => 'Must be a future date that is the same as or after start_date.',
+                                'example' => '2026-10-05',
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -1831,6 +2079,68 @@ class OpenApiSpec
                                 'properties' => [
                                     'dispatcher' => [
                                         '$ref' => '#/components/schemas/Dispatcher',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteCreateResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route'],
+                                'properties' => [
+                                    'route' => [
+                                        '$ref' => '#/components/schemas/DispatcherRoute',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRoutesIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['routes'],
+                                'properties' => [
+                                    'routes' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DispatcherRoute',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteCloseResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route closed successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route'],
+                                'properties' => [
+                                    'route' => [
+                                        '$ref' => '#/components/schemas/DispatcherRoute',
                                     ],
                                 ],
                             ],
@@ -2099,6 +2409,19 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherByIdNotFound' => [
+                        'description' => 'Dispatcher not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Dispatcher not found.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopNotFound' => [
                         'description' => 'Rest stop profile not found for the authenticated user.',
                         'content' => [
@@ -2151,6 +2474,19 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RouteNotFound' => [
+                        'description' => 'Route not found for the authenticated dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Route not found.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'AdminRoleRequired' => [
                         'description' => 'The authenticated user does not have the admin role.',
                         'content' => [
@@ -2199,6 +2535,32 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can create or update dispatcher profiles.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only dispatcher users can create routes.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteCloseForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only dispatcher users can close routes.',
                                 ],
                             ],
                         ],

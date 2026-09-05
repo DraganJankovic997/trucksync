@@ -47,4 +47,9 @@ class Dispatcher extends Model
     {
         return $this->hasMany(Driver::class);
     }
+
+    public function routes(): HasMany
+    {
+        return $this->hasMany(Route::class);
+    }
 }

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import DispatcherRouteCreateDialog from '@/components/dispatcher-routes/DispatcherRouteCreateDialog.vue';
 import DispatcherRoutesTable from '@/components/dispatcher-routes/DispatcherRoutesTable.vue';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 import { useRouteStore } from '@/stores/route.js';
@@ -12,6 +13,7 @@ const routeStore = useRouteStore();
 const { routes } = storeToRefs(routeStore);
 
 const isFetching = ref(false);
+const createDialogOpen = ref(false);
 
 async function loadRoutes() {
   isFetching.value = true;
@@ -55,20 +57,34 @@ onMounted(() => {
         </div>
 
         <div class="col-12 col-md-auto">
-          <q-btn
-            color="primary"
-            icon="refresh"
-            outline
-            no-caps
-            class="text-weight-bold"
-            :label="t('dispatcherRoutes.actions.refresh')"
-            :loading="isFetching"
-            @click="loadRoutes"
-          />
+          <div class="row items-center q-gutter-sm">
+            <q-btn
+              color="primary"
+              icon="add"
+              no-caps
+              class="text-weight-bold"
+              :label="t('dispatcherRoutes.actions.create')"
+              unelevated
+              @click="createDialogOpen = true"
+            />
+
+            <q-btn
+              color="primary"
+              icon="refresh"
+              outline
+              no-caps
+              class="text-weight-bold"
+              :label="t('dispatcherRoutes.actions.refresh')"
+              :loading="isFetching"
+              @click="loadRoutes"
+            />
+          </div>
         </div>
       </header>
 
       <DispatcherRoutesTable :routes="routes" :loading="isFetching" />
+
+      <DispatcherRouteCreateDialog v-model="createDialogOpen" />
     </div>
   </q-page>
 </template>

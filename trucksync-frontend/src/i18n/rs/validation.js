@@ -15,12 +15,22 @@ export default {
     phoneNumber: 'Broj telefona',
     profileType: 'Tip profila',
     password: 'Lozinka',
-    passwordConfirmation: 'Potvrda lozinke'
+    passwordConfirmation: 'Potvrda lozinke',
+    origin: 'Polaziste',
+    destination: 'Odrediste',
+    convoySize: 'Velicina konvoja',
+    startDate: 'Datum pocetka',
+    endDate: 'Datum zavrsetka',
+    plannedTravelDetails: 'Planirani detalji puta'
   },
   required: '{field} je obavezno polje',
   email: 'Unesite ispravnu email adresu',
   invalidChoice: 'Izaberite ispravan izbor za {field}',
   time: 'Unesite ispravno vreme za {field}',
+  date: 'Unesite ispravan datum za {field}',
+  integer: '{field} mora biti ceo broj',
+  min: '{field} mora biti najmanje {min}',
+  afterOrEqual: '{field} mora biti na datum ili posle {comparison}',
   maxLength: '{field} mora imati {length} karaktera ili manje',
   minLength: '{field} mora imati najmanje {length} karaktera',
   confirmed: 'Lozinke se ne podudaraju'

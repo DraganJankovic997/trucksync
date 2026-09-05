@@ -34,4 +34,6 @@ interface DispatcherServiceContract
         string $startDate,
         string $endDate
     ): ?DispatcherRoute;
+
+    public function closeRouteForUser(User $user, int $routeId): ?DispatcherRoute;
 }

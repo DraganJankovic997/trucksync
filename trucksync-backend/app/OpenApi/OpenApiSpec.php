@@ -794,6 +794,54 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/route/close/{routeId}' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Close a route owned by the authenticated dispatcher',
+                        'operationId' => 'closeDispatcherRoute',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route closed successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteCloseResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteCloseForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/rest-stop' => [
                     'get' => [
                         'tags' => ['Rest Stops'],
@@ -2012,6 +2060,28 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteCloseResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route closed successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route'],
+                                'properties' => [
+                                    'route' => [
+                                        '$ref' => '#/components/schemas/DispatcherRoute',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -2327,6 +2397,19 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RouteNotFound' => [
+                        'description' => 'Route not found for the authenticated dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Route not found.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'AdminRoleRequired' => [
                         'description' => 'The authenticated user does not have the admin role.',
                         'content' => [
@@ -2388,6 +2471,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can create routes.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteCloseForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only dispatcher users can close routes.',
                                 ],
                             ],
                         ],

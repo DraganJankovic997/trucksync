@@ -82,4 +82,26 @@ class DispatcherService implements DispatcherServiceContract
 
         return $route->refresh();
     }
+
+    public function closeRouteForUser(User $user, int $routeId): ?DispatcherRoute
+    {
+        $dispatcher = $this->findForUser($user);
+
+        if (! $dispatcher) {
+            return null;
+        }
+
+        $route = $dispatcher->routes()
+            ->whereKey($routeId)
+            ->first();
+
+        if (! $route) {
+            return null;
+        }
+
+        $route->closed_at = now();
+        $route->save();
+
+        return $route->refresh();
+    }
 }

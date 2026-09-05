@@ -57,6 +57,9 @@ Route::prefix('dispatcher')
             ->controller(RouteController::class)
             ->group(function () {
                 Route::post('/', 'store')->name('dispatcher.route.store');
+                Route::post('/close/{routeId}', 'close')
+                    ->whereNumber('routeId')
+                    ->name('dispatcher.route.close');
             });
     });
 

@@ -66,6 +66,47 @@ class RouteController extends Controller
         }
     }
 
+    public function close(Request $request, int $routeId): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can close routes.',
+            ], 403);
+        }
+
+        try {
+            $route = $this->dispatcherService->closeRouteForUser(
+                $authenticatedUser,
+                $routeId,
+            );
+
+            if (! $route) {
+                return response()->json([
+                    'message' => 'Route not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Route closed successfully.',
+                'data' => [
+                    'route' => $this->routePayload($route),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to close dispatcher route.', [
+                'user_id' => $authenticatedUser->id,
+                'route_id' => $routeId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to close route.',
+            ], 500);
+        }
+    }
+
     /**
      * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null}
      */

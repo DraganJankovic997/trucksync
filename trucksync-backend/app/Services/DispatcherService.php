@@ -40,7 +40,7 @@ class DispatcherService implements DispatcherServiceContract
 
         return $dispatcher->routes()
             ->orderByRaw('CASE WHEN closed_at IS NULL THEN 0 ELSE 1 END')
-            ->orderBy('created_at')
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 

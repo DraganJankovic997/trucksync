@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\DispatcherServiceContract;
 use App\Models\Dispatcher;
+use App\Models\Route as DispatcherRoute;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -53,5 +54,32 @@ class DispatcherService implements DispatcherServiceContract
         $dispatcher->save();
 
         return $dispatcher->refresh();
+    }
+
+    public function createRouteForUser(
+        User $user,
+        string $origin,
+        string $destination,
+        ?string $plannedTravelDetails,
+        int $convoySize,
+        string $startDate,
+        string $endDate
+    ): ?DispatcherRoute {
+        $dispatcher = $this->findForUser($user);
+
+        if (! $dispatcher) {
+            return null;
+        }
+
+        $route = $dispatcher->routes()->create([
+            'origin' => $origin,
+            'destination' => $destination,
+            'planned_travel_details' => $plannedTravelDetails,
+            'convoy_size' => $convoySize,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ]);
+
+        return $route->refresh();
     }
 }

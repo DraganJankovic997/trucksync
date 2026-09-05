@@ -5,6 +5,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RestStopController;
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserManagementController;
@@ -52,6 +53,10 @@ Route::prefix('dispatcher')
         Route::get('/', 'show')->name('dispatcher.show');
         Route::post('/', 'store')->name('dispatcher.store');
     });
+
+Route::middleware('auth:sanctum')
+    ->post('/dispatcher/route', [RouteController::class, 'store'])
+    ->name('dispatcher.route.store');
 
 Route::prefix('rest-stop')
     ->middleware('auth:sanctum')

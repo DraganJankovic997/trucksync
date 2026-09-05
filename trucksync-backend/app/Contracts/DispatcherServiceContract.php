@@ -3,6 +3,7 @@
 namespace App\Contracts;
 
 use App\Models\Dispatcher;
+use App\Models\Route as DispatcherRoute;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -23,4 +24,14 @@ interface DispatcherServiceContract
         string $postCode,
         string $registrationNumber
     ): Dispatcher;
+
+    public function createRouteForUser(
+        User $user,
+        string $origin,
+        string $destination,
+        ?string $plannedTravelDetails,
+        int $convoySize,
+        string $startDate,
+        string $endDate
+    ): ?DispatcherRoute;
 }

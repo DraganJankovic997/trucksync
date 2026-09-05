@@ -14,7 +14,6 @@ it('returns the authenticated users dispatcher profile', function () {
     Dispatcher::query()->create([
         'user_id' => $otherUser->id,
         'company_name' => 'Other Dispatch',
-        'country' => 'Serbia',
         'city' => 'Novi Sad',
         'address' => 'Other Street 5',
         'post_code' => '21000',
@@ -27,7 +26,6 @@ it('returns the authenticated users dispatcher profile', function () {
     $dispatcher = Dispatcher::query()->create([
         'user_id' => $user->id,
         'company_name' => 'Acme Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',
@@ -41,7 +39,7 @@ it('returns the authenticated users dispatcher profile', function () {
         ->assertJsonPath('data.dispatcher.id', $dispatcher->id)
         ->assertJsonPath('data.dispatcher.user_id', $user->id)
         ->assertJsonPath('data.dispatcher.company_name', 'Acme Dispatch')
-        ->assertJsonPath('data.dispatcher.country', 'Serbia')
+        ->assertJsonMissingPath('data.dispatcher.country')
         ->assertJsonPath('data.dispatcher.city', 'Belgrade')
         ->assertJsonPath('data.dispatcher.address', 'Main Street 1')
         ->assertJsonPath('data.dispatcher.post_code', '11000')

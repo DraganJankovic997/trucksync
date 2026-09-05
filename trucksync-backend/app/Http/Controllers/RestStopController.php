@@ -85,7 +85,6 @@ class RestStopController extends Controller
         }
 
         $validated = $request->validate([
-            'country' => ['required', 'string', 'max:255', Rule::exists('countries', 'name')],
             'city' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'post_code' => ['required', 'string', 'max:255'],
@@ -96,7 +95,6 @@ class RestStopController extends Controller
         try {
             $restStop = $this->restStopService->upsertForUser(
                 $authenticatedUser,
-                trim($validated['country']),
                 trim($validated['city']),
                 trim($validated['address']),
                 trim($validated['post_code']),
@@ -223,14 +221,13 @@ class RestStopController extends Controller
     }
 
     /**
-     * @return array{id: int, user_id: int, country: string, city: string, address: string, post_code: string, works_from: string, works_to: string}
+     * @return array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string}
      */
     private function restStopPayload(RestStop $restStop): array
     {
         return [
             'id' => $restStop->id,
             'user_id' => $restStop->user_id,
-            'country' => $restStop->country,
             'city' => $restStop->city,
             'address' => $restStop->address,
             'post_code' => $restStop->post_code,

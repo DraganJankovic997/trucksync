@@ -23,17 +23,9 @@ export const useRestStopStore = defineStore('rest-stop', () => {
     }
   }
 
-  async function saveRestStop(
-    country,
-    city,
-    address,
-    postCode,
-    worksFrom,
-    worksTo
-  ) {
+  async function saveRestStop(city, address, postCode, worksFrom, worksTo) {
     try {
       const { data } = await api.post('/rest-stop', {
-        country: country,
         city: city,
         address: address,
         post_code: postCode,

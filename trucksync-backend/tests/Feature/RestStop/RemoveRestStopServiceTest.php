@@ -128,7 +128,6 @@ function createRestStopForRemoveServiceUser(User $user): RestStop
 {
     return RestStop::query()->create([
         'user_id' => $user->id,
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Highway 1',
         'post_code' => '11000',

@@ -1136,7 +1136,6 @@ class OpenApiSpec
                             'id',
                             'user_id',
                             'company_name',
-                            'country',
                             'city',
                             'address',
                             'post_code',
@@ -1155,12 +1154,6 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'maxLength' => 255,
                                 'example' => 'Acme Dispatch',
-                            ],
-                            'country' => [
-                                'type' => 'string',
-                                'description' => 'Country name matching countries.name.',
-                                'maxLength' => 255,
-                                'example' => 'Serbia',
                             ],
                             'city' => [
                                 'type' => 'string',
@@ -1189,7 +1182,6 @@ class OpenApiSpec
                         'required' => [
                             'id',
                             'user_id',
-                            'country',
                             'city',
                             'address',
                             'post_code',
@@ -1204,12 +1196,6 @@ class OpenApiSpec
                             'user_id' => [
                                 'type' => 'integer',
                                 'example' => 1,
-                            ],
-                            'country' => [
-                                'type' => 'string',
-                                'description' => 'Country name matching countries.name.',
-                                'maxLength' => 255,
-                                'example' => 'Serbia',
                             ],
                             'city' => [
                                 'type' => 'string',
@@ -1323,7 +1309,6 @@ class OpenApiSpec
                         'type' => 'object',
                         'required' => [
                             'company_name',
-                            'country',
                             'city',
                             'address',
                             'post_code',
@@ -1335,13 +1320,6 @@ class OpenApiSpec
                                 'minLength' => 1,
                                 'maxLength' => 255,
                                 'example' => 'Acme Dispatch',
-                            ],
-                            'country' => [
-                                'type' => 'string',
-                                'description' => 'Country name matching countries.name.',
-                                'minLength' => 1,
-                                'maxLength' => 255,
-                                'example' => 'Serbia',
                             ],
                             'city' => [
                                 'type' => 'string',
@@ -1372,7 +1350,6 @@ class OpenApiSpec
                     'RestStopUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
-                            'country',
                             'city',
                             'address',
                             'post_code',
@@ -1380,13 +1357,6 @@ class OpenApiSpec
                             'works_to',
                         ],
                         'properties' => [
-                            'country' => [
-                                'type' => 'string',
-                                'description' => 'Country name matching countries.name.',
-                                'minLength' => 1,
-                                'maxLength' => 255,
-                                'example' => 'Serbia',
-                            ],
                             'city' => [
                                 'type' => 'string',
                                 'minLength' => 1,

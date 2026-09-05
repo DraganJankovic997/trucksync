@@ -42,7 +42,6 @@ export const useDispatcherStore = defineStore('dispatcher', () => {
 
   async function saveDispatcher(
     companyName,
-    country,
     city,
     address,
     postCode,
@@ -51,7 +50,6 @@ export const useDispatcherStore = defineStore('dispatcher', () => {
     try {
       const { data } = await api.post('/dispatcher', {
         company_name: companyName,
-        country: country,
         city: city,
         address: address,
         post_code: postCode,

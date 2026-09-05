@@ -12,7 +12,6 @@ it('returns the authenticated users rest stop profile', function () {
         'user_id' => User::factory()->create([
             'profile_type' => 'rest_stop',
         ])->id,
-        'country' => 'Serbia',
         'city' => 'Novi Sad',
         'address' => 'Other Highway 5',
         'post_code' => '21000',
@@ -25,7 +24,6 @@ it('returns the authenticated users rest stop profile', function () {
     ]);
     $restStop = RestStop::query()->create([
         'user_id' => $user->id,
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Highway 1',
         'post_code' => '11000',
@@ -39,7 +37,7 @@ it('returns the authenticated users rest stop profile', function () {
         ->assertOk()
         ->assertJsonPath('data.rest_stop.id', $restStop->id)
         ->assertJsonPath('data.rest_stop.user_id', $user->id)
-        ->assertJsonPath('data.rest_stop.country', 'Serbia')
+        ->assertJsonMissingPath('data.rest_stop.country')
         ->assertJsonPath('data.rest_stop.city', 'Belgrade')
         ->assertJsonPath('data.rest_stop.address', 'Highway 1')
         ->assertJsonPath('data.rest_stop.post_code', '11000')

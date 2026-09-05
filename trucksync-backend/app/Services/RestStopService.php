@@ -37,7 +37,6 @@ class RestStopService implements RestStopServiceContract
 
     public function upsertForUser(
         User $user,
-        string $country,
         string $city,
         string $address,
         string $postCode,
@@ -47,7 +46,6 @@ class RestStopService implements RestStopServiceContract
         return RestStop::query()->updateOrCreate(
             ['user_id' => $user->id],
             [
-                'country' => $country,
                 'city' => $city,
                 'address' => $address,
                 'post_code' => $postCode,

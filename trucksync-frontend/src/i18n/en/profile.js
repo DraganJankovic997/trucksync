@@ -57,10 +57,6 @@ export default {
           label: 'Company name',
           placeholder: 'Acme Dispatch'
         },
-        country: {
-          label: 'Country',
-          placeholder: 'Serbia'
-        },
         city: {
           label: 'City',
           placeholder: 'Belgrade'
@@ -83,10 +79,6 @@ export default {
       title: 'Rest stop profile',
       formAriaLabel: 'Update rest stop profile',
       fields: {
-        country: {
-          label: 'Country',
-          placeholder: 'Serbia'
-        },
         city: {
           label: 'City',
           placeholder: 'Belgrade'

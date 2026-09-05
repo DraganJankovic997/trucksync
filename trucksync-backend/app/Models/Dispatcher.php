@@ -19,7 +19,6 @@ class Dispatcher extends Model
     protected $fillable = [
         'user_id',
         'company_name',
-        'country',
         'city',
         'address',
         'post_code',

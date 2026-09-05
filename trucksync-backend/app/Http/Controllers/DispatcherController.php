@@ -6,7 +6,6 @@ use App\Contracts\DispatcherServiceContract;
 use App\Models\Dispatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Throwable;
 
 class DispatcherController extends Controller
@@ -78,7 +77,6 @@ class DispatcherController extends Controller
 
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
-            'country' => ['required', 'string', 'max:255', Rule::exists('countries', 'name')],
             'city' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'post_code' => ['required', 'string', 'max:255'],
@@ -89,7 +87,6 @@ class DispatcherController extends Controller
             $dispatcher = $this->dispatcherService->upsertForUser(
                 $authenticatedUser,
                 trim($validated['company_name']),
-                trim($validated['country']),
                 trim($validated['city']),
                 trim($validated['address']),
                 trim($validated['post_code']),
@@ -117,7 +114,7 @@ class DispatcherController extends Controller
     }
 
     /**
-     * @return array{id: int, user_id: int, company_name: string, country: string, city: string, address: string, post_code: string, registration_number: string}
+     * @return array{id: int, user_id: int, company_name: string, city: string, address: string, post_code: string, registration_number: string}
      */
     private function dispatcherPayload(Dispatcher $dispatcher): array
     {
@@ -125,7 +122,6 @@ class DispatcherController extends Controller
             'id' => $dispatcher->id,
             'user_id' => $dispatcher->user_id,
             'company_name' => $dispatcher->company_name,
-            'country' => $dispatcher->country,
             'city' => $dispatcher->city,
             'address' => $dispatcher->address,
             'post_code' => $dispatcher->post_code,

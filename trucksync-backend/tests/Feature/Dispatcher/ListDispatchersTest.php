@@ -18,7 +18,6 @@ it('returns all dispatchers for an authenticated user without profile type limit
     $firstDispatcher = Dispatcher::query()->create([
         'user_id' => $firstDispatcherUser->id,
         'company_name' => 'Acme Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',
@@ -31,7 +30,6 @@ it('returns all dispatchers for an authenticated user without profile type limit
     $secondDispatcher = Dispatcher::query()->create([
         'user_id' => $secondDispatcherUser->id,
         'company_name' => 'North Dispatch',
-        'country' => 'Serbia',
         'city' => 'Novi Sad',
         'address' => 'River Street 2',
         'post_code' => '21000',
@@ -46,7 +44,7 @@ it('returns all dispatchers for an authenticated user without profile type limit
         ->assertJsonPath('data.dispatchers.0.id', $firstDispatcher->id)
         ->assertJsonPath('data.dispatchers.0.user_id', $firstDispatcherUser->id)
         ->assertJsonPath('data.dispatchers.0.company_name', 'Acme Dispatch')
-        ->assertJsonPath('data.dispatchers.0.country', 'Serbia')
+        ->assertJsonMissingPath('data.dispatchers.0.country')
         ->assertJsonPath('data.dispatchers.0.city', 'Belgrade')
         ->assertJsonPath('data.dispatchers.0.address', 'Main Street 1')
         ->assertJsonPath('data.dispatchers.0.post_code', '11000')
@@ -54,7 +52,7 @@ it('returns all dispatchers for an authenticated user without profile type limit
         ->assertJsonPath('data.dispatchers.1.id', $secondDispatcher->id)
         ->assertJsonPath('data.dispatchers.1.user_id', $secondDispatcherUser->id)
         ->assertJsonPath('data.dispatchers.1.company_name', 'North Dispatch')
-        ->assertJsonPath('data.dispatchers.1.country', 'Serbia')
+        ->assertJsonMissingPath('data.dispatchers.1.country')
         ->assertJsonPath('data.dispatchers.1.city', 'Novi Sad')
         ->assertJsonPath('data.dispatchers.1.address', 'River Street 2')
         ->assertJsonPath('data.dispatchers.1.post_code', '21000')

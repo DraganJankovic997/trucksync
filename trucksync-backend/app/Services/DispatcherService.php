@@ -29,7 +29,6 @@ class DispatcherService implements DispatcherServiceContract
     public function upsertForUser(
         User $user,
         string $companyName,
-        string $country,
         string $city,
         string $address,
         string $postCode,
@@ -39,7 +38,6 @@ class DispatcherService implements DispatcherServiceContract
             ['user_id' => $user->id],
             [
                 'company_name' => $companyName,
-                'country' => $country,
                 'city' => $city,
                 'address' => $address,
                 'post_code' => $postCode,

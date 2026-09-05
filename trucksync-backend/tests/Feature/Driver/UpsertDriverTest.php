@@ -148,7 +148,6 @@ function createDispatcherId(): int
     return DB::table('dispatchers')->insertGetId([
         'user_id' => $dispatcherUser->id,
         'company_name' => 'Acme Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',

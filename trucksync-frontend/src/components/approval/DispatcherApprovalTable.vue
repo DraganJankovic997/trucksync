@@ -27,12 +27,6 @@ const tablePagination = { rowsPerPage: 0 };
 
 const columns = computed(() => [
   {
-    name: 'actions',
-    label: t('approval.table.actions'),
-    field: 'actions',
-    align: 'left'
-  },
-  {
     name: 'profileId',
     label: t('approval.table.profileId'),
     field: 'profileId',
@@ -115,6 +109,12 @@ const columns = computed(() => [
     field: 'registrationNumber',
     align: 'left',
     sortable: true
+  },
+  {
+    name: 'actions',
+    label: t('approval.table.actions'),
+    field: 'actions',
+    align: 'right'
   }
 ]);
 
@@ -190,10 +190,10 @@ function hasPendingApproval() {
         <q-td :props="scope">
           <div class="row items-center no-wrap q-gutter-xs">
             <q-btn
-              flat
-              round
-              color="positive"
-              icon="check_circle"
+              outline
+              color="primary"
+              class="approval-action-button"
+              icon="o_check_circle"
               :aria-label="
                 t('approval.table.approveAria', {
                   name: scope.row.fullName
@@ -207,10 +207,10 @@ function hasPendingApproval() {
             </q-btn>
 
             <q-btn
-              flat
-              round
-              color="negative"
-              icon="block"
+              outline
+              color="primary"
+              class="approval-action-button"
+              icon="o_block"
               :aria-label="
                 t('approval.table.blockAria', {
                   name: scope.row.fullName

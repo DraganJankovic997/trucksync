@@ -45,6 +45,12 @@ const linksList = [
     restStopOnly: true
   },
   {
+    labelKey: 'layout.navigation.dispatcherRoutes',
+    link: '/dispatcher/routes',
+    icon: 'route',
+    dispatcherOnly: true
+  },
+  {
     labelKey: 'layout.navigation.adminServices',
     link: '/admin/services',
     icon: 'miscellaneous_services',
@@ -65,6 +71,10 @@ const visibleLinksList = computed(() =>
     }
 
     if (link.restStopOnly && user.value?.profile_type !== 'rest_stop') {
+      return false;
+    }
+
+    if (link.dispatcherOnly && user.value?.profile_type !== 'dispatcher') {
       return false;
     }
 

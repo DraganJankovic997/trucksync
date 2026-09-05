@@ -1,0 +1,7 @@
+@use '../quasar.variables' as brand;
+
+.dispatcher-routes-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+}

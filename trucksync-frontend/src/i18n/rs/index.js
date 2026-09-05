@@ -1,6 +1,7 @@
 import approval from './approval.js';
 import countries from './countries.js';
 import dashboard from './dashboard.js';
+import dispatcherRoutes from './dispatcherRoutes.js';
 import layout from './layout.js';
 import login from './login.js';
 import messages from './messages.js';
@@ -17,6 +18,7 @@ export default {
   approval,
   countries,
   dashboard,
+  dispatcherRoutes,
   layout,
   login,
   messages,

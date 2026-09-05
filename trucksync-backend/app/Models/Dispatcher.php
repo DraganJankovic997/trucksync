@@ -23,7 +23,20 @@ class Dispatcher extends Model
         'address',
         'post_code',
         'registration_number',
+        'is_approved',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_approved' => 'boolean',
+        ];
+    }
 
     public function user(): BelongsTo
     {

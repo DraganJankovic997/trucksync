@@ -40,7 +40,10 @@ it('creates a dispatcher profile for an authenticated dispatcher user', function
         'address' => 'Main Street 1',
         'post_code' => '11000',
         'registration_number' => 'REG-1234',
+        'is_approved' => false,
     ]);
+
+    expect(Dispatcher::query()->where('user_id', $user->id)->first()?->is_approved)->toBeFalse();
 });
 
 it('updates the authenticated dispatcher profile if it already exists', function () {

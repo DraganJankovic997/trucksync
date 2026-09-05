@@ -24,7 +24,20 @@ class RestStop extends Model
         'post_code',
         'works_from',
         'works_to',
+        'is_approved',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_approved' => 'boolean',
+        ];
+    }
 
     public function user(): BelongsTo
     {

@@ -40,7 +40,10 @@ it('creates a rest stop profile for an authenticated rest stop user', function (
         'post_code' => '11000',
         'works_from' => '08:00',
         'works_to' => '22:00',
+        'is_approved' => false,
     ]);
+
+    expect(RestStop::query()->where('user_id', $user->id)->first()?->is_approved)->toBeFalse();
 });
 
 it('updates the authenticated rest stop profile if it already exists', function () {

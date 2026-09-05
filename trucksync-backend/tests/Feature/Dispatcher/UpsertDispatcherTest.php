@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Country;
 use App\Models\Dispatcher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,8 +8,6 @@ use Laravel\Sanctum\Sanctum;
 uses(RefreshDatabase::class);
 
 it('creates a dispatcher profile for an authenticated dispatcher user', function () {
-    createDispatcherCountry();
-
     $user = User::factory()->create([
         'profile_type' => 'dispatcher',
     ]);
@@ -19,7 +16,6 @@ it('creates a dispatcher profile for an authenticated dispatcher user', function
 
     $response = $this->postJson('/api/dispatcher', [
         'company_name' => '  Acme Dispatch  ',
-        'country' => '  Serbia  ',
         'city' => '  Belgrade  ',
         'address' => '  Main Street 1  ',
         'post_code' => '  11000  ',
@@ -31,7 +27,7 @@ it('creates a dispatcher profile for an authenticated dispatcher user', function
         ->assertJsonPath('message', 'Dispatcher profile created successfully.')
         ->assertJsonPath('data.dispatcher.user_id', $user->id)
         ->assertJsonPath('data.dispatcher.company_name', 'Acme Dispatch')
-        ->assertJsonPath('data.dispatcher.country', 'Serbia')
+        ->assertJsonMissingPath('data.dispatcher.country')
         ->assertJsonPath('data.dispatcher.city', 'Belgrade')
         ->assertJsonPath('data.dispatcher.address', 'Main Street 1')
         ->assertJsonPath('data.dispatcher.post_code', '11000')
@@ -40,7 +36,6 @@ it('creates a dispatcher profile for an authenticated dispatcher user', function
     $this->assertDatabaseHas('dispatchers', [
         'user_id' => $user->id,
         'company_name' => 'Acme Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',
@@ -49,15 +44,12 @@ it('creates a dispatcher profile for an authenticated dispatcher user', function
 });
 
 it('updates the authenticated dispatcher profile if it already exists', function () {
-    createDispatcherCountry();
-
     $user = User::factory()->create([
         'profile_type' => 'dispatcher',
     ]);
     $dispatcher = Dispatcher::query()->create([
         'user_id' => $user->id,
         'company_name' => 'Old Dispatch',
-        'country' => 'Serbia',
         'city' => 'Novi Sad',
         'address' => 'Old Street 5',
         'post_code' => '21000',
@@ -68,7 +60,6 @@ it('updates the authenticated dispatcher profile if it already exists', function
 
     $response = $this->postJson('/api/dispatcher', [
         'company_name' => 'New Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',
@@ -81,6 +72,7 @@ it('updates the authenticated dispatcher profile if it already exists', function
         ->assertJsonPath('data.dispatcher.id', $dispatcher->id)
         ->assertJsonPath('data.dispatcher.user_id', $user->id)
         ->assertJsonPath('data.dispatcher.company_name', 'New Dispatch')
+        ->assertJsonMissingPath('data.dispatcher.country')
         ->assertJsonPath('data.dispatcher.registration_number', 'NEW-456');
 
     expect(Dispatcher::query()->where('user_id', $user->id)->count())->toBe(1);
@@ -89,7 +81,6 @@ it('updates the authenticated dispatcher profile if it already exists', function
         'id' => $dispatcher->id,
         'user_id' => $user->id,
         'company_name' => 'New Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',
@@ -100,7 +91,6 @@ it('updates the authenticated dispatcher profile if it already exists', function
 it('requires authentication to save a dispatcher profile', function () {
     $this->postJson('/api/dispatcher', [
         'company_name' => 'Acme Dispatch',
-        'country' => 'Serbia',
         'city' => 'Belgrade',
         'address' => 'Main Street 1',
         'post_code' => '11000',
@@ -131,7 +121,6 @@ it('validates required dispatcher profile fields', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors([
             'company_name',
-            'country',
             'city',
             'address',
             'post_code',
@@ -146,7 +135,6 @@ it('validates dispatcher profile field values', function () {
 
     $this->postJson('/api/dispatcher', [
         'company_name' => str_repeat('A', 256),
-        'country' => 'Atlantis',
         'city' => str_repeat('B', 256),
         'address' => str_repeat('C', 256),
         'post_code' => str_repeat('D', 256),
@@ -155,18 +143,9 @@ it('validates dispatcher profile field values', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors([
             'company_name',
-            'country',
             'city',
             'address',
             'post_code',
             'registration_number',
         ]);
 });
-
-function createDispatcherCountry(): void
-{
-    Country::query()->create([
-        'code' => 'RS',
-        'name' => 'Serbia',
-    ]);
-}

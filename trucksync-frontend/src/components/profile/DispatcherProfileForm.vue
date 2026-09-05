@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import CountrySelectField from '@/components/form/CountrySelectField.vue';
 import TextField from '@/components/form/TextField.vue';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 
@@ -12,7 +11,6 @@ const isSaving = ref(false);
 
 const form = reactive({
   companyName: '',
-  country: '',
   city: '',
   address: '',
   postCode: '',
@@ -34,7 +32,6 @@ onMounted(async () => {
 
   if (dispatcher) {
     form.companyName = dispatcher.company_name ?? '';
-    form.country = dispatcher.country ?? '';
     form.city = dispatcher.city ?? '';
     form.address = dispatcher.address ?? '';
     form.postCode = dispatcher.post_code ?? '';
@@ -54,7 +51,6 @@ async function handleSubmit() {
   try {
     await dispatcherStore.saveDispatcher(
       form.companyName,
-      form.country,
       form.city,
       form.address,
       form.postCode,
@@ -91,28 +87,16 @@ async function handleSubmit() {
           :maxlength="255"
         />
 
-        <div class="profile-grid">
-          <CountrySelectField
-            v-model="form.country"
-            :label="t('profile.typeForms.dispatcher.fields.country.label')"
-            name="country"
-            :placeholder="
-              t('profile.typeForms.dispatcher.fields.country.placeholder')
-            "
-            :rules="fieldRules('validation.fields.country')"
-          />
-
-          <TextField
-            v-model="form.city"
-            :label="t('profile.typeForms.dispatcher.fields.city.label')"
-            name="city"
-            :placeholder="
-              t('profile.typeForms.dispatcher.fields.city.placeholder')
-            "
-            :rules="fieldRules('validation.fields.city')"
-            :maxlength="255"
-          />
-        </div>
+        <TextField
+          v-model="form.city"
+          :label="t('profile.typeForms.dispatcher.fields.city.label')"
+          name="city"
+          :placeholder="
+            t('profile.typeForms.dispatcher.fields.city.placeholder')
+          "
+          :rules="fieldRules('validation.fields.city')"
+          :maxlength="255"
+        />
 
         <TextField
           v-model="form.address"

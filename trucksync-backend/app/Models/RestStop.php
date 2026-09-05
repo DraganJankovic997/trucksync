@@ -19,7 +19,6 @@ class RestStop extends Model
      */
     protected $fillable = [
         'user_id',
-        'country',
         'city',
         'address',
         'post_code',

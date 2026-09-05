@@ -57,10 +57,6 @@ export default {
           label: 'Naziv kompanije',
           placeholder: 'Acme Dispatch'
         },
-        country: {
-          label: 'Drzava',
-          placeholder: 'Srbija'
-        },
         city: {
           label: 'Grad',
           placeholder: 'Beograd'
@@ -83,10 +79,6 @@ export default {
       title: 'Odmoriste profil',
       formAriaLabel: 'Azuriranje profila odmorista',
       fields: {
-        country: {
-          label: 'Drzava',
-          placeholder: 'Srbija'
-        },
         city: {
           label: 'Grad',
           placeholder: 'Beograd'

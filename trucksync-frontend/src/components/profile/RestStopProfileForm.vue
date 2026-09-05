@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import CountrySelectField from '@/components/form/CountrySelectField.vue';
 import TextField from '@/components/form/TextField.vue';
 import { useRestStopStore } from '@/stores/rest-stop.js';
 
@@ -11,7 +10,6 @@ const formRef = ref(null);
 const isSaving = ref(false);
 
 const form = reactive({
-  country: '',
   city: '',
   address: '',
   postCode: '',
@@ -38,7 +36,6 @@ onMounted(async () => {
   const restStop = await restStopStore.fetchRestStop();
 
   if (restStop) {
-    form.country = restStop.country ?? '';
     form.city = restStop.city ?? '';
     form.address = restStop.address ?? '';
     form.postCode = restStop.post_code ?? '';
@@ -58,7 +55,6 @@ async function handleSubmit() {
 
   try {
     await restStopStore.saveRestStop(
-      form.country,
       form.city,
       form.address,
       form.postCode,
@@ -85,28 +81,14 @@ async function handleSubmit() {
       </q-card-section>
 
       <q-card-section class="form-body">
-        <div class="profile-grid">
-          <CountrySelectField
-            v-model="form.country"
-            :label="t('profile.typeForms.restStop.fields.country.label')"
-            name="country"
-            :placeholder="
-              t('profile.typeForms.restStop.fields.country.placeholder')
-            "
-            :rules="fieldRules('validation.fields.country')"
-          />
-
-          <TextField
-            v-model="form.city"
-            :label="t('profile.typeForms.restStop.fields.city.label')"
-            name="city"
-            :placeholder="
-              t('profile.typeForms.restStop.fields.city.placeholder')
-            "
-            :rules="fieldRules('validation.fields.city')"
-            :maxlength="255"
-          />
-        </div>
+        <TextField
+          v-model="form.city"
+          :label="t('profile.typeForms.restStop.fields.city.label')"
+          name="city"
+          :placeholder="t('profile.typeForms.restStop.fields.city.placeholder')"
+          :rules="fieldRules('validation.fields.city')"
+          :maxlength="255"
+        />
 
         <TextField
           v-model="form.address"

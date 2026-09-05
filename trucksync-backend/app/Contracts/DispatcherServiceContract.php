@@ -18,7 +18,6 @@ interface DispatcherServiceContract
     public function upsertForUser(
         User $user,
         string $companyName,
-        string $country,
         string $city,
         string $address,
         string $postCode,

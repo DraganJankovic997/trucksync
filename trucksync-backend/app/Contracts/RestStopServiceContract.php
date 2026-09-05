@@ -19,7 +19,6 @@ interface RestStopServiceContract
 
     public function upsertForUser(
         User $user,
-        string $country,
         string $city,
         string $address,
         string $postCode,

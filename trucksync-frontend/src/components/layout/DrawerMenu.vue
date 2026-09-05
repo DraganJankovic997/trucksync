@@ -49,6 +49,12 @@ const linksList = [
     link: '/admin/services',
     icon: 'miscellaneous_services',
     adminOnly: true
+  },
+  {
+    labelKey: 'layout.navigation.adminApproval',
+    link: '/admin/approval',
+    icon: 'verified_user',
+    adminOnly: true
   }
 ];
 

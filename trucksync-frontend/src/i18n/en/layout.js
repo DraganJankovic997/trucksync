@@ -11,6 +11,7 @@ export default {
     dashboard: 'Dashboard',
     profile: 'Profile',
     profileServices: 'My services',
+    adminApproval: 'Approval',
     adminServices: 'Services'
   }
 };

@@ -47,6 +47,12 @@ export default {
     removeSuccess: 'Usluga je uspesno uklonjena sa odmorista',
     removeError: 'Uklanjanje usluge sa odmorista nije uspelo'
   },
+  route: {
+    createSuccess: 'Ruta je uspesno kreirana',
+    createError: 'Kreiranje rute nije uspelo',
+    closeSuccess: 'Ruta je uspesno zatvorena',
+    closeError: 'Zatvaranje rute nije uspelo'
+  },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',
     fetchOneError: 'Preuzimanje usluge nije uspelo',

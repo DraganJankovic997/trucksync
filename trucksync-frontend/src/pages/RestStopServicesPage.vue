@@ -2,22 +2,26 @@
 import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import ProfileCompletionWarning from '@/components/profile/ProfileCompletionWarning.vue';
 import RestStopServicePicker from '@/components/services/RestStopServicePicker.vue';
 import RestStopServiceRemoveDialog from '@/components/services/RestStopServiceRemoveDialog.vue';
 import RestStopServiceTable from '@/components/services/RestStopServiceTable.vue';
+import { useAuthStore } from '@/stores/auth.js';
 import { useRestStopStore } from '@/stores/rest-stop.js';
 import { useRestStopServiceStore } from '@/stores/rest-stop-service.js';
 import { useServiceStore } from '@/stores/service.js';
 
 const { t } = useI18n();
+const authStore = useAuthStore();
 const serviceStore = useServiceStore();
 const restStopStore = useRestStopStore();
 const restStopServiceStore = useRestStopServiceStore();
 
+const { user } = storeToRefs(authStore);
 const { services: catalogServices } = storeToRefs(serviceStore);
 const { services: restStopServices } = storeToRefs(restStopServiceStore);
 
-const currentRestStopId = ref(null);
+const currentRestStop = ref(null);
 const selectedServiceId = ref(null);
 const isFetching = ref(false);
 const isAdding = ref(false);
@@ -26,7 +30,9 @@ const removeDialogOpen = ref(false);
 const serviceToRemove = ref(null);
 const removingServiceId = ref(null);
 
-const hasRestStopProfile = computed(() => currentRestStopId.value !== null);
+const currentRestStopId = computed(() => currentRestStop.value?.id ?? null);
+
+const hasRestStopProfile = computed(() => Boolean(currentRestStopId.value));
 
 const selectedServiceIds = computed(
   () => new Set(restStopServices.value.map(service => String(service.id)))
@@ -42,12 +48,12 @@ async function loadServices() {
   isFetching.value = true;
 
   try {
-    const [, currentRestStop] = await Promise.all([
+    const [, fetchedRestStop] = await Promise.all([
       serviceStore.fetchServices(),
       restStopStore.fetchRestStop()
     ]);
 
-    currentRestStopId.value = currentRestStop?.id ?? null;
+    currentRestStop.value = fetchedRestStop ?? null;
 
     if (currentRestStopId.value) {
       await restStopServiceStore.fetchRestStopServices(currentRestStopId.value);
@@ -145,31 +151,12 @@ async function handleRemove() {
         </div>
       </header>
 
-      <q-banner
-        v-if="!isFetching && !hasRestStopProfile"
-        rounded
-        class="bg-warning text-dark q-mb-lg"
-      >
-        <template #avatar>
-          <q-icon name="warning" />
-        </template>
-
-        <div class="text-weight-bold">
-          {{ t('restStopServices.profileMissing.title') }}
-        </div>
-        <div>
-          {{ t('restStopServices.profileMissing.description') }}
-        </div>
-
-        <template #action>
-          <q-btn
-            flat
-            no-caps
-            :to="{ name: 'profile' }"
-            :label="t('restStopServices.actions.completeProfile')"
-          />
-        </template>
-      </q-banner>
+      <ProfileCompletionWarning
+        class="q-mb-lg"
+        :user="user"
+        :profile-record="currentRestStop"
+        :loading="isFetching"
+      />
 
       <div class="row q-col-gutter-lg items-start">
         <div class="col-12 col-md-4">

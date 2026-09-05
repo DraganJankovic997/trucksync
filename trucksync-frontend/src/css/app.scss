@@ -1,5 +1,6 @@
 @use './quasar.variables' as brand;
 @use './form/text-field';
+@use './components/profile-completion-warning';
 @use './layout/language-selector';
 @use './pages/login';
 @use './pages/profile';

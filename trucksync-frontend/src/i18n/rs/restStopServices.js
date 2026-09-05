@@ -3,12 +3,7 @@ export default {
   eyebrow: 'Usluge profila',
   description: 'Izaberite koje usluge su dostupne na vasem odmoristu.',
   actions: {
-    refresh: 'Osvezi',
-    completeProfile: 'Otvori profil'
-  },
-  profileMissing: {
-    title: 'Potreban je profil odmorista',
-    description: 'Kreirajte profil odmorista pre dodavanja usluga.'
+    refresh: 'Osvezi'
   },
   form: {
     title: 'Dodaj uslugu',

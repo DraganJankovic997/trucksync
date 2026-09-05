@@ -1,0 +1,38 @@
+@use '../quasar.variables' as brand;
+
+.profile-completion-warning {
+  border: 1px solid brand.$brand-warning-border;
+  min-height: 96px;
+  background: brand.$brand-warning-background;
+  color: brand.$brand-ink;
+
+  .q-banner__avatar {
+    align-self: center;
+    padding: 0 14px;
+  }
+
+  .q-banner__content {
+    padding: 18px 0;
+  }
+
+  .profile-completion-icon {
+    color: brand.$brand-warning-text;
+    font-size: 1.65rem;
+  }
+
+  .profile-completion-title {
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  .profile-completion-description {
+    color: brand.$brand-muted;
+    line-height: 1.5;
+  }
+
+  .profile-completion-action {
+    color: brand.$brand-warning-text;
+    font-weight: 700;
+  }
+}

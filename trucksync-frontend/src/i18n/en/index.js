@@ -5,6 +5,7 @@ import login from './login.js';
 import messages from './messages.js';
 import notFound from './notFound.js';
 import profile from './profile.js';
+import profileCompletionWarning from './profileCompletionWarning.js';
 import register from './register.js';
 import restStopServices from './restStopServices.js';
 import serverError from './serverError.js';
@@ -19,6 +20,7 @@ export default {
   messages,
   notFound,
   profile,
+  profileCompletionWarning,
   register,
   restStopServices,
   serverError,

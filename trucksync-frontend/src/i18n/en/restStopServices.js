@@ -3,12 +3,7 @@ export default {
   eyebrow: 'Profile services',
   description: 'Choose which services are available at your rest stop.',
   actions: {
-    refresh: 'Refresh',
-    completeProfile: 'Open profile'
-  },
-  profileMissing: {
-    title: 'Rest stop profile required',
-    description: 'Create your rest stop profile before adding services.'
+    refresh: 'Refresh'
   },
   form: {
     title: 'Add service',

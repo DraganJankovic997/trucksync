@@ -10,6 +10,7 @@ export default {
     header: 'Glavni linkovi',
     dashboard: 'Kontrolna tabla',
     profile: 'Profil',
-    services: 'Usluge'
+    profileServices: 'Moje usluge',
+    adminServices: 'Usluge'
   }
 };

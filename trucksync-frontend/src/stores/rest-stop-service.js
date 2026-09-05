@@ -9,6 +9,12 @@ export const useRestStopServiceStore = defineStore('rest-stop-service', () => {
   const restStopService = ref(null);
   const services = ref([]);
 
+  function clearRestStopServices() {
+    restStopId.value = null;
+    restStopService.value = null;
+    services.value = [];
+  }
+
   async function fetchRestStopServices(id) {
     try {
       const { data } = await api.get(`/rest-stop/services/${id}`);
@@ -85,6 +91,7 @@ export const useRestStopServiceStore = defineStore('rest-stop-service', () => {
 
   return {
     addRestStopService,
+    clearRestStopServices,
     fetchRestStopServices,
     removeRestStopService,
     restStopId,

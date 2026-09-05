@@ -39,15 +39,31 @@ const linksList = [
     icon: 'o_person'
   },
   {
-    labelKey: 'layout.navigation.services',
-    link: '/services',
+    labelKey: 'layout.navigation.profileServices',
+    link: '/profile/services',
+    icon: 'miscellaneous_services',
+    restStopOnly: true
+  },
+  {
+    labelKey: 'layout.navigation.adminServices',
+    link: '/admin/services',
     icon: 'miscellaneous_services',
     adminOnly: true
   }
 ];
 
 const visibleLinksList = computed(() =>
-  linksList.filter(link => !link.adminOnly || hasRole(user.value, 'admin'))
+  linksList.filter(link => {
+    if (link.adminOnly && !hasRole(user.value, 'admin')) {
+      return false;
+    }
+
+    if (link.restStopOnly && user.value?.profile_type !== 'rest_stop') {
+      return false;
+    }
+
+    return true;
+  })
 );
 </script>
 

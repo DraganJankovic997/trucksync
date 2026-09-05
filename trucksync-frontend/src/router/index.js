@@ -43,7 +43,6 @@ export default defineRouter(({ store }) => {
     const { user } = storeToRefs(authStore);
 
     if (to.meta.requiresAuth === true) {
-      console.log('inside if');
       if (!user.value) {
         return {
           name: 'login',
@@ -56,18 +55,23 @@ export default defineRouter(({ store }) => {
           name: 'dashboard'
         };
       }
-    } else if (to.meta.guestOnly === true) {
-      console.log('inside else if');
-      if (user.value) {
-        console.log('inside smaller if');
 
+      if (
+        to.meta.requiresRestStop === true &&
+        user.value?.profile_type !== 'rest_stop'
+      ) {
         return {
           name: 'dashboard'
         };
       }
-      console.log('passed the small if');
+    } else if (to.meta.guestOnly === true) {
+      if (user.value) {
+        return {
+          name: 'dashboard'
+        };
+      }
     }
-    console.log('came to the end');
+
     return true;
   });
 

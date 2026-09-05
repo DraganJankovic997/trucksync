@@ -20,8 +20,18 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
+        path: '/profile/services',
+        name: 'profile-services',
+        component: () => import('@/pages/RestStopServicesPage.vue'),
+        meta: { requiresAuth: true, requiresRestStop: true }
+      },
+      {
         path: '/services',
-        name: 'services',
+        redirect: { name: 'admin-services' }
+      },
+      {
+        path: '/admin/services',
+        name: 'admin-services',
         component: () => import('@/pages/ServicesPage.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
       }

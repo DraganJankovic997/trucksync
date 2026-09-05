@@ -6,6 +6,7 @@ import messages from './messages.js';
 import notFound from './notFound.js';
 import profile from './profile.js';
 import register from './register.js';
+import restStopServices from './restStopServices.js';
 import serverError from './serverError.js';
 import services from './services.js';
 import validation from './validation.js';
@@ -19,6 +20,7 @@ export default {
   notFound,
   profile,
   register,
+  restStopServices,
   serverError,
   services,
   validation

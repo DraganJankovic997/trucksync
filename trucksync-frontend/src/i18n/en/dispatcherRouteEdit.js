@@ -26,6 +26,8 @@ export default {
       editTitle: 'Edit route stop',
       createAriaLabel: 'Create route stop form',
       editAriaLabel: 'Edit route stop form',
+      servicesTitle: 'Services',
+      noServices: 'No services available.',
       fields: {
         location: {
           label: 'Location',
@@ -42,10 +44,21 @@ export default {
         numberOfDrivers: {
           label: 'Number of drivers',
           placeholder: '4'
+        },
+        service: {
+          label: 'Service',
+          placeholder: 'Select service',
+          duplicate: 'Service already selected'
+        },
+        quantity: {
+          label: 'Quantity',
+          placeholder: '200'
         }
       },
       actions: {
         close: 'Close',
+        addService: 'Add service',
+        removeService: 'Remove service',
         save: 'Save'
       }
     },

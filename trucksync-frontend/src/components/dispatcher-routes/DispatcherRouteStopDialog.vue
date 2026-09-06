@@ -1,7 +1,9 @@
 <script setup>
+import { storeToRefs } from 'pinia';
 import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TextField from '@/components/form/TextField.vue';
+import { useServiceStore } from '@/stores/service.js';
 
 const props = defineProps({
   modelValue: {
@@ -30,17 +32,29 @@ const emit = defineEmits({
     typeof value?.location === 'string' &&
     (typeof value?.description === 'string' || value?.description === null) &&
     Number.isInteger(value?.numberOfTrucks) &&
-    Number.isInteger(value?.numberOfDrivers)
+    Number.isInteger(value?.numberOfDrivers) &&
+    Array.isArray(value?.services) &&
+    value.services.length > 0 &&
+    value.services.every(
+      service =>
+        ['number', 'string'].includes(typeof service?.service_id) &&
+        Number.isInteger(service?.quantity)
+    )
 });
 
 const { t } = useI18n();
+const serviceStore = useServiceStore();
+const { services: catalogServices } = storeToRefs(serviceStore);
 const formRef = ref(null);
+const isFetchingServices = ref(false);
+let serviceRowId = 0;
 
 const form = reactive({
   location: '',
   description: '',
   numberOfTrucks: '',
-  numberOfDrivers: ''
+  numberOfDrivers: '',
+  services: [makeServiceRow()]
 });
 
 const dialogOpen = computed({
@@ -53,6 +67,10 @@ const dialogOpen = computed({
 });
 
 const isEditMode = computed(() => props.mode === 'edit');
+const topFieldsDisabled = computed(() => props.loading || isEditMode.value);
+const serviceFieldsDisabled = computed(
+  () => props.loading || isFetchingServices.value
+);
 const dialogTitle = computed(() =>
   isEditMode.value
     ? t('dispatcherRouteEdit.routeStops.form.editTitle')
@@ -76,10 +94,46 @@ const numberOfTrucksLabel = computed(() =>
 const numberOfDriversLabel = computed(() =>
   t('dispatcherRouteEdit.routeStops.form.fields.numberOfDrivers.label')
 );
+const serviceLabel = computed(() =>
+  t('dispatcherRouteEdit.routeStops.form.fields.service.label')
+);
+const quantityLabel = computed(() =>
+  t('dispatcherRouteEdit.routeStops.form.fields.quantity.label')
+);
+
+const serviceRecords = computed(() => {
+  const records = new Map();
+
+  for (const service of [...catalogServices.value, ...routeStopServices()]) {
+    if (hasValue(service?.id)) {
+      records.set(String(service.id), service);
+    }
+  }
+
+  return records;
+});
+
+const serviceOptions = computed(() =>
+  [...serviceRecords.value.values()].map(service => ({
+    label: formatServiceOptionLabel(service),
+    value: service.id
+  }))
+);
+
+const hasServiceOptions = computed(() => serviceOptions.value.length > 0);
+const canAddServiceRow = computed(
+  () =>
+    !props.loading &&
+    !isFetchingServices.value &&
+    form.services.length < serviceOptions.value.length
+);
 
 const required = fieldLabel => value =>
   Boolean(String(value ?? '').trim()) ||
   t('validation.required', { field: fieldLabel });
+
+const requiredSelect = fieldLabel => value =>
+  hasValue(value) || t('validation.required', { field: fieldLabel });
 
 const integer = fieldLabel => value =>
   /^\d+$/.test(String(value ?? '').trim()) ||
@@ -110,10 +164,16 @@ const numberOfDriversRules = computed(() => [
   integer(numberOfDriversLabel.value),
   min(numberOfDriversLabel.value, 1)
 ]);
+const quantityRules = computed(() => [
+  required(quantityLabel.value),
+  integer(quantityLabel.value),
+  min(quantityLabel.value, 1)
+]);
 
 watch(dialogOpen, isOpen => {
   if (isOpen) {
     hydrateForm();
+    void loadServices();
     return;
   }
 
@@ -142,8 +202,23 @@ async function handleSubmit() {
     location: form.location.trim(),
     description: form.description.trim() || null,
     numberOfTrucks: Number(form.numberOfTrucks),
-    numberOfDrivers: Number(form.numberOfDrivers)
+    numberOfDrivers: Number(form.numberOfDrivers),
+    services: servicesPayload()
   });
+}
+
+async function loadServices() {
+  if (isFetchingServices.value) {
+    return;
+  }
+
+  isFetchingServices.value = true;
+
+  try {
+    await serviceStore.fetchServices();
+  } finally {
+    isFetchingServices.value = false;
+  }
 }
 
 function hydrateForm() {
@@ -151,6 +226,7 @@ function hydrateForm() {
   form.description = props.routeStop?.description ?? '';
   form.numberOfTrucks = props.routeStop?.number_of_trucks ?? '';
   form.numberOfDrivers = props.routeStop?.number_of_drivers ?? '';
+  form.services = serviceRowsFromRouteStop();
   formRef.value?.resetValidation();
 }
 
@@ -159,7 +235,112 @@ function resetForm() {
   form.description = '';
   form.numberOfTrucks = '';
   form.numberOfDrivers = '';
+  form.services = [makeServiceRow()];
   formRef.value?.resetValidation();
+}
+
+function routeStopServices() {
+  return Array.isArray(props.routeStop?.services)
+    ? props.routeStop.services
+    : [];
+}
+
+function serviceRowsFromRouteStop() {
+  const rows = routeStopServices().map(service =>
+    makeServiceRow({
+      serviceId: service.id,
+      quantity: service.quantity
+    })
+  );
+
+  return rows.length > 0 ? rows : [makeServiceRow()];
+}
+
+function makeServiceRow({ serviceId = null, quantity = '' } = {}) {
+  serviceRowId += 1;
+
+  return {
+    uid: serviceRowId,
+    serviceId: serviceId,
+    quantity: quantity
+  };
+}
+
+function addServiceRow() {
+  if (!canAddServiceRow.value) {
+    return;
+  }
+
+  form.services.push(makeServiceRow());
+  formRef.value?.resetValidation();
+}
+
+function removeServiceRow(uid) {
+  if (form.services.length <= 1) {
+    return;
+  }
+
+  form.services = form.services.filter(serviceRow => serviceRow.uid !== uid);
+  formRef.value?.resetValidation();
+}
+
+function serviceRules(serviceRow) {
+  return [
+    requiredSelect(serviceLabel.value),
+    value =>
+      !hasValue(value) ||
+      isUniqueServiceSelection(serviceRow, value) ||
+      t('dispatcherRouteEdit.routeStops.form.fields.service.duplicate')
+  ];
+}
+
+function serviceOptionsFor(serviceRow) {
+  const selectedServiceIds = new Set(
+    form.services
+      .filter(row => row.uid !== serviceRow.uid && hasValue(row.serviceId))
+      .map(row => String(row.serviceId))
+  );
+
+  return serviceOptions.value.filter(
+    service =>
+      String(service.value) === String(serviceRow.serviceId) ||
+      !selectedServiceIds.has(String(service.value))
+  );
+}
+
+function isUniqueServiceSelection(serviceRow, value) {
+  return form.services.every(
+    row => row.uid === serviceRow.uid || String(row.serviceId) !== String(value)
+  );
+}
+
+function selectedMeasurementUnit(serviceRow) {
+  if (!hasValue(serviceRow.serviceId)) {
+    return '';
+  }
+
+  return (
+    serviceRecords.value.get(String(serviceRow.serviceId))?.measurement_unit ??
+    ''
+  );
+}
+
+function servicesPayload() {
+  return form.services.map(serviceRow => ({
+    service_id: serviceRow.serviceId,
+    quantity: Number(serviceRow.quantity)
+  }));
+}
+
+function formatServiceOptionLabel(service) {
+  const serviceName = service.name ?? '';
+  const measurementUnit = service.measurement_unit ?? '';
+
+  return measurementUnit ? `${serviceName} (${measurementUnit})` : serviceName;
+}
+
+function hasValue(value) {
+  return value !== null && value !== undefined && value !== '';
 }
 </script>
 
@@ -209,6 +390,7 @@ function resetForm() {
           <div class="dispatcher-route-stop-dialog-grid">
             <TextField
               v-model="form.location"
+              class="dispatcher-route-stop-location-field"
               :label="locationLabel"
               name="location"
               :placeholder="
@@ -218,6 +400,7 @@ function resetForm() {
               "
               :rules="locationRules"
               :maxlength="255"
+              :disable="topFieldsDisabled"
             />
 
             <TextField
@@ -233,6 +416,7 @@ function resetForm() {
                 )
               "
               :rules="numberOfTrucksRules"
+              :disable="topFieldsDisabled"
             />
 
             <TextField
@@ -248,6 +432,7 @@ function resetForm() {
                 )
               "
               :rules="numberOfDriversRules"
+              :disable="topFieldsDisabled"
             />
           </div>
 
@@ -264,7 +449,114 @@ function resetForm() {
                 'dispatcherRouteEdit.routeStops.form.fields.description.placeholder'
               )
             "
+            :disable="topFieldsDisabled"
           />
+
+          <section
+            class="dispatcher-route-stop-services"
+            :aria-label="t('dispatcherRouteEdit.routeStops.form.servicesTitle')"
+          >
+            <h3 class="text-subtitle2 text-weight-bold q-my-none">
+              {{ t('dispatcherRouteEdit.routeStops.form.servicesTitle') }}
+            </h3>
+
+            <div
+              v-for="serviceRow in form.services"
+              :key="serviceRow.uid"
+              class="dispatcher-route-stop-service-row"
+            >
+              <q-select
+                v-model="serviceRow.serviceId"
+                class="dispatcher-route-stop-service-select"
+                outlined
+                emit-value
+                map-options
+                clearable
+                option-label="label"
+                option-value="value"
+                :options="serviceOptionsFor(serviceRow)"
+                :label="serviceLabel"
+                :placeholder="
+                  t(
+                    'dispatcherRouteEdit.routeStops.form.fields.service.placeholder'
+                  )
+                "
+                :loading="isFetchingServices"
+                :disable="serviceFieldsDisabled || !hasServiceOptions"
+                :rules="serviceRules(serviceRow)"
+              />
+
+              <q-input
+                v-model="serviceRow.quantity"
+                class="dispatcher-route-stop-quantity-field"
+                outlined
+                lazy-rules
+                type="number"
+                min="1"
+                step="1"
+                :label="quantityLabel"
+                :placeholder="
+                  t(
+                    'dispatcherRouteEdit.routeStops.form.fields.quantity.placeholder'
+                  )
+                "
+                :suffix="selectedMeasurementUnit(serviceRow)"
+                :disable="serviceFieldsDisabled"
+                :rules="quantityRules"
+              />
+
+              <q-btn
+                v-if="form.services.length > 1"
+                class="dispatcher-route-stop-service-remove"
+                flat
+                round
+                color="negative"
+                icon="delete_outline"
+                :aria-label="
+                  t('dispatcherRouteEdit.routeStops.form.actions.removeService')
+                "
+                :disable="props.loading"
+                @click="removeServiceRow(serviceRow.uid)"
+              >
+                <q-tooltip>
+                  {{
+                    t(
+                      'dispatcherRouteEdit.routeStops.form.actions.removeService'
+                    )
+                  }}
+                </q-tooltip>
+              </q-btn>
+            </div>
+
+            <q-banner
+              v-if="!isFetchingServices && !hasServiceOptions"
+              dense
+              rounded
+              class="bg-grey-2 text-grey-8"
+            >
+              {{ t('dispatcherRouteEdit.routeStops.form.noServices') }}
+            </q-banner>
+
+            <q-btn
+              class="dispatcher-route-stop-service-add"
+              type="button"
+              color="primary"
+              icon="add"
+              round
+              outline
+              :aria-label="
+                t('dispatcherRouteEdit.routeStops.form.actions.addService')
+              "
+              :disable="!canAddServiceRow"
+              @click="addServiceRow"
+            >
+              <q-tooltip>
+                {{
+                  t('dispatcherRouteEdit.routeStops.form.actions.addService')
+                }}
+              </q-tooltip>
+            </q-btn>
+          </section>
         </q-card-section>
 
         <q-card-actions class="q-pa-lg q-gutter-sm" align="right">

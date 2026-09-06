@@ -26,6 +26,8 @@ export default {
       editTitle: 'Izmeni stajaliste rute',
       createAriaLabel: 'Forma za kreiranje stajalista rute',
       editAriaLabel: 'Forma za izmenu stajalista rute',
+      servicesTitle: 'Usluge',
+      noServices: 'Nema dostupnih usluga.',
       fields: {
         location: {
           label: 'Lokacija',
@@ -42,10 +44,21 @@ export default {
         numberOfDrivers: {
           label: 'Broj vozaca',
           placeholder: '4'
+        },
+        service: {
+          label: 'Usluga',
+          placeholder: 'Izaberite uslugu',
+          duplicate: 'Usluga je vec izabrana'
+        },
+        quantity: {
+          label: 'Kolicina',
+          placeholder: '200'
         }
       },
       actions: {
         close: 'Zatvori',
+        addService: 'Dodaj uslugu',
+        removeService: 'Ukloni uslugu',
         save: 'Sacuvaj'
       }
     },

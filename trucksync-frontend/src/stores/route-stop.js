@@ -62,11 +62,42 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     }
   }
 
+  async function syncRouteStopServices(id, services) {
+    try {
+      const { data } = await api.put(
+        `/dispatcher/route/route-stop/${id}/services`,
+        {
+          services: services
+        }
+      );
+
+      routeStop.value = data?.data?.route_stop ?? null;
+
+      if (routeStop.value?.route_id) {
+        await fetchRouteStops(routeStop.value.route_id);
+      }
+
+      toast.success(i18n.global.t('messages.routeStop.updateServicesSuccess'));
+
+      return routeStop.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.routeStop.updateServicesError'));
+
+      console.error(
+        'Route stop services update request failed.',
+        requestError.response
+      );
+
+      return null;
+    }
+  }
+
   return {
     clearRouteStops,
     createRouteStop,
     fetchRouteStops,
     routeStop,
-    routeStops
+    routeStops,
+    syncRouteStopServices
   };
 });

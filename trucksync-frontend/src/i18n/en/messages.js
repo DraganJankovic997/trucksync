@@ -59,7 +59,9 @@ export default {
   routeStop: {
     fetchError: 'Failed to fetch route stops',
     createSuccess: 'Route stop created successfully',
-    createError: 'Failed to create route stop'
+    createError: 'Failed to create route stop',
+    updateServicesSuccess: 'Route stop services updated successfully',
+    updateServicesError: 'Failed to update route stop services'
   },
   service: {
     fetchError: 'Failed to fetch services',

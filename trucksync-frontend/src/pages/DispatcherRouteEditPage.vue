@@ -9,7 +9,6 @@ import DispatcherRouteStopsTable from '@/components/dispatcher-routes/Dispatcher
 import { useAuthStore } from '@/stores/auth.js';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 import { useRouteStore } from '@/stores/route.js';
-import { useRouteStopStore } from '@/stores/route-stop.js';
 
 const { t } = useI18n();
 const routerRoute = useRoute();
@@ -17,7 +16,6 @@ const router = useRouter();
 const authStore = useAuthStore();
 const dispatcherStore = useDispatcherStore();
 const routeStore = useRouteStore();
-const routeStopStore = useRouteStopStore();
 const { user } = storeToRefs(authStore);
 const { route: routeRecord } = storeToRefs(routeStore);
 
@@ -62,9 +60,7 @@ const routeDetails = computed(() => [
 const isRouteAllowed = ref(false);
 const isFetchingRoute = ref(false);
 const routeStopDialogOpen = ref(false);
-const routeStopDialogMode = ref('create');
 const selectedRouteStop = ref(null);
-const isSavingRouteStop = ref(false);
 
 async function redirectToDashboardWithEditError() {
   await router.replace({ name: 'dashboard' });
@@ -128,41 +124,12 @@ function goToRoutes() {
 
 function openCreateRouteStopDialog() {
   selectedRouteStop.value = null;
-  routeStopDialogMode.value = 'create';
   routeStopDialogOpen.value = true;
 }
 
 function openEditRouteStopDialog(routeStop) {
   selectedRouteStop.value = routeStop;
-  routeStopDialogMode.value = 'edit';
   routeStopDialogOpen.value = true;
-}
-
-async function handleRouteStopSave(routeStopPayload) {
-  if (routeStopPayload.mode !== 'create') {
-    routeStopDialogOpen.value = false;
-    return;
-  }
-
-  isSavingRouteStop.value = true;
-
-  try {
-    const createdRouteStop = await routeStopStore.createRouteStop(
-      routeId.value,
-      routeStopPayload.location,
-      routeStopPayload.description,
-      routeStopPayload.numberOfTrucks,
-      routeStopPayload.numberOfDrivers,
-      routeStopPayload.services
-    );
-
-    if (createdRouteStop) {
-      await routeStore.fetchRoute(routeId.value);
-      routeStopDialogOpen.value = false;
-    }
-  } finally {
-    isSavingRouteStop.value = false;
-  }
 }
 
 onMounted(() => {
@@ -247,10 +214,8 @@ onMounted(() => {
 
       <DispatcherRouteStopDialog
         v-model="routeStopDialogOpen"
-        :mode="routeStopDialogMode"
+        :route-id="routeId"
         :route-stop="selectedRouteStop"
-        :loading="isSavingRouteStop"
-        @save="handleRouteStopSave"
       />
     </div>
   </q-page>

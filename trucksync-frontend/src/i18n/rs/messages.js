@@ -59,7 +59,9 @@ export default {
   routeStop: {
     fetchError: 'Preuzimanje stajalista rute nije uspelo',
     createSuccess: 'Stajaliste rute je uspesno kreirano',
-    createError: 'Kreiranje stajalista rute nije uspelo'
+    createError: 'Kreiranje stajalista rute nije uspelo',
+    updateServicesSuccess: 'Usluge stajalista rute su uspesno azurirane',
+    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo'
   },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',

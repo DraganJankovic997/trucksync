@@ -3,6 +3,8 @@ import { storeToRefs } from 'pinia';
 import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TextField from '@/components/form/TextField.vue';
+import { useRouteStore } from '@/stores/route.js';
+import { useRouteStopStore } from '@/stores/route-stop.js';
 import { useServiceStore } from '@/stores/service.js';
 
 const props = defineProps({
@@ -10,43 +12,28 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
-  mode: {
-    type: String,
-    default: 'create',
-    validator: value => ['create', 'edit'].includes(value)
+  routeId: {
+    type: [Number, String],
+    required: true
   },
   routeStop: {
     type: Object,
     default: null
-  },
-  loading: {
-    type: Boolean,
-    default: false
   }
 });
 
 const emit = defineEmits({
-  'update:modelValue': value => typeof value === 'boolean',
-  save: value =>
-    ['create', 'edit'].includes(value?.mode) &&
-    typeof value?.location === 'string' &&
-    (typeof value?.description === 'string' || value?.description === null) &&
-    Number.isInteger(value?.numberOfTrucks) &&
-    Number.isInteger(value?.numberOfDrivers) &&
-    Array.isArray(value?.services) &&
-    value.services.length > 0 &&
-    value.services.every(
-      service =>
-        ['number', 'string'].includes(typeof service?.service_id) &&
-        Number.isInteger(service?.quantity)
-    )
+  'update:modelValue': value => typeof value === 'boolean'
 });
 
 const { t } = useI18n();
+const routeStore = useRouteStore();
+const routeStopStore = useRouteStopStore();
 const serviceStore = useServiceStore();
 const { services: catalogServices } = storeToRefs(serviceStore);
 const formRef = ref(null);
 const isFetchingServices = ref(false);
+const isSavingRouteStop = ref(false);
 let serviceRowId = 0;
 
 const form = reactive({
@@ -66,10 +53,12 @@ const dialogOpen = computed({
   }
 });
 
-const isEditMode = computed(() => props.mode === 'edit');
-const topFieldsDisabled = computed(() => props.loading || isEditMode.value);
+const isEditMode = computed(() => Boolean(props.routeStop));
+const topFieldsDisabled = computed(
+  () => isSavingRouteStop.value || isEditMode.value
+);
 const serviceFieldsDisabled = computed(
-  () => props.loading || isFetchingServices.value
+  () => isSavingRouteStop.value || isFetchingServices.value
 );
 const dialogTitle = computed(() =>
   isEditMode.value
@@ -123,7 +112,7 @@ const serviceOptions = computed(() =>
 const hasServiceOptions = computed(() => serviceOptions.value.length > 0);
 const canAddServiceRow = computed(
   () =>
-    !props.loading &&
+    !isSavingRouteStop.value &&
     !isFetchingServices.value &&
     form.services.length < serviceOptions.value.length
 );
@@ -154,16 +143,25 @@ const locationRules = computed(() => [
   required(locationLabel.value),
   maxLength(locationLabel.value, 255)
 ]);
+const activeLocationRules = computed(() =>
+  isEditMode.value ? [] : locationRules.value
+);
 const numberOfTrucksRules = computed(() => [
   required(numberOfTrucksLabel.value),
   integer(numberOfTrucksLabel.value),
   min(numberOfTrucksLabel.value, 1)
 ]);
+const activeNumberOfTrucksRules = computed(() =>
+  isEditMode.value ? [] : numberOfTrucksRules.value
+);
 const numberOfDriversRules = computed(() => [
   required(numberOfDriversLabel.value),
   integer(numberOfDriversLabel.value),
   min(numberOfDriversLabel.value, 1)
 ]);
+const activeNumberOfDriversRules = computed(() =>
+  isEditMode.value ? [] : numberOfDriversRules.value
+);
 const quantityRules = computed(() => [
   required(quantityLabel.value),
   integer(quantityLabel.value),
@@ -196,15 +194,30 @@ async function handleSubmit() {
     return;
   }
 
-  emit('save', {
-    id: props.routeStop?.id ?? null,
-    mode: props.mode,
-    location: form.location.trim(),
-    description: form.description.trim() || null,
-    numberOfTrucks: Number(form.numberOfTrucks),
-    numberOfDrivers: Number(form.numberOfDrivers),
-    services: servicesPayload()
-  });
+  isSavingRouteStop.value = true;
+
+  try {
+    if (isEditMode.value) {
+      await routeStopStore.syncRouteStopServices(
+        props.routeStop.id,
+        servicesPayload()
+      );
+    } else {
+      await routeStopStore.createRouteStop(
+        props.routeId,
+        form.location.trim(),
+        form.description.trim() || null,
+        Number(form.numberOfTrucks),
+        Number(form.numberOfDrivers),
+        servicesPayload()
+      );
+    }
+
+    await routeStore.fetchRoute(props.routeId);
+    dialogOpen.value = false;
+  } finally {
+    isSavingRouteStop.value = false;
+  }
 }
 
 async function loadServices() {
@@ -347,7 +360,7 @@ function hasValue(value) {
 </script>
 
 <template>
-  <q-dialog v-model="dialogOpen" :persistent="props.loading">
+  <q-dialog v-model="dialogOpen" :persistent="isSavingRouteStop">
     <q-card class="dispatcher-route-stop-dialog" bordered flat>
       <q-form
         ref="formRef"
@@ -377,7 +390,7 @@ function hasValue(value) {
             dense
             icon="close"
             :aria-label="t('dispatcherRouteEdit.routeStops.form.actions.close')"
-            :disable="props.loading"
+            :disable="isSavingRouteStop"
             @click="dialogOpen = false"
           >
             <q-tooltip>
@@ -400,7 +413,7 @@ function hasValue(value) {
                   'dispatcherRouteEdit.routeStops.form.fields.location.placeholder'
                 )
               "
-              :rules="locationRules"
+              :rules="activeLocationRules"
               :maxlength="255"
               :disable="topFieldsDisabled"
             />
@@ -417,7 +430,7 @@ function hasValue(value) {
                   'dispatcherRouteEdit.routeStops.form.fields.numberOfTrucks.placeholder'
                 )
               "
-              :rules="numberOfTrucksRules"
+              :rules="activeNumberOfTrucksRules"
               :disable="topFieldsDisabled"
             />
 
@@ -433,7 +446,7 @@ function hasValue(value) {
                   'dispatcherRouteEdit.routeStops.form.fields.numberOfDrivers.placeholder'
                 )
               "
-              :rules="numberOfDriversRules"
+              :rules="activeNumberOfDriversRules"
               :disable="topFieldsDisabled"
             />
           </div>
@@ -506,7 +519,9 @@ function hasValue(value) {
                     'dispatcherRouteEdit.routeStops.form.fields.quantity.placeholder'
                   )
                 "
-                :disable="serviceFieldsDisabled || !hasValue(serviceRow.serviceId)"
+                :disable="
+                  serviceFieldsDisabled || !hasValue(serviceRow.serviceId)
+                "
                 :rules="quantityRules"
                 no-error-icon
               >
@@ -526,7 +541,7 @@ function hasValue(value) {
                 :aria-label="
                   t('dispatcherRouteEdit.routeStops.form.actions.removeService')
                 "
-                :disable="props.loading"
+                :disable="isSavingRouteStop"
                 @click="removeServiceRow(serviceRow.uid)"
               >
                 <q-tooltip>
@@ -577,7 +592,7 @@ function hasValue(value) {
             flat
             no-caps
             :label="t('dispatcherRouteEdit.routeStops.form.actions.close')"
-            :disable="props.loading"
+            :disable="isSavingRouteStop"
             v-close-popup
           />
 
@@ -589,7 +604,7 @@ function hasValue(value) {
             no-caps
             unelevated
             :label="t('dispatcherRouteEdit.routeStops.form.actions.save')"
-            :loading="props.loading"
+            :loading="isSavingRouteStop"
           />
         </q-card-actions>
       </q-form>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\DispatcherServiceContract;
+use App\Contracts\RouteServiceContract;
 use App\Models\Route as DispatcherRoute;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,12 +10,12 @@ use Throwable;
 
 class RouteController extends Controller
 {
-    public function __construct(private readonly DispatcherServiceContract $dispatcherService) {}
+    public function __construct(private readonly RouteServiceContract $routeService) {}
 
     public function index(Request $request, int $dispatcherId): JsonResponse
     {
         try {
-            $routes = $this->dispatcherService->routesForDispatcher($dispatcherId);
+            $routes = $this->routeService->forDispatcher($dispatcherId);
 
             if (! $routes) {
                 return response()->json([
@@ -64,7 +64,7 @@ class RouteController extends Controller
         ]);
 
         try {
-            $route = $this->dispatcherService->createRouteForUser(
+            $route = $this->routeService->createForUser(
                 $authenticatedUser,
                 trim($validated['origin']),
                 trim($validated['destination']),
@@ -109,7 +109,7 @@ class RouteController extends Controller
         }
 
         try {
-            $route = $this->dispatcherService->closeRouteForUser(
+            $route = $this->routeService->closeForUser(
                 $authenticatedUser,
                 $routeId,
             );

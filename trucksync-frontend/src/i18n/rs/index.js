@@ -1,5 +1,6 @@
 import approval from './approval.js';
 import countries from './countries.js';
+import dispatcherRouteEdit from './dispatcherRouteEdit.js';
 import dashboard from './dashboard.js';
 import dispatcherRoutes from './dispatcherRoutes.js';
 import layout from './layout.js';
@@ -17,6 +18,7 @@ import validation from './validation.js';
 export default {
   approval,
   countries,
+  dispatcherRouteEdit,
   dashboard,
   dispatcherRoutes,
   layout,

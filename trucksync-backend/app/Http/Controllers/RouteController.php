@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\DispatcherServiceContract;
+use App\Contracts\RouteServiceContract;
 use App\Models\Route as DispatcherRoute;
+use App\Models\RouteStop;
+use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
 
 class RouteController extends Controller
 {
-    public function __construct(private readonly DispatcherServiceContract $dispatcherService) {}
+    public function __construct(private readonly RouteServiceContract $routeService) {}
 
     public function index(Request $request, int $dispatcherId): JsonResponse
     {
         try {
-            $routes = $this->dispatcherService->routesForDispatcher($dispatcherId);
+            $routes = $this->routeService->forDispatcher($dispatcherId);
 
             if (! $routes) {
                 return response()->json([
@@ -64,7 +66,7 @@ class RouteController extends Controller
         ]);
 
         try {
-            $route = $this->dispatcherService->createRouteForUser(
+            $route = $this->routeService->createForUser(
                 $authenticatedUser,
                 trim($validated['origin']),
                 trim($validated['destination']),
@@ -98,6 +100,34 @@ class RouteController extends Controller
         }
     }
 
+    public function show(int $route_id): JsonResponse
+    {
+        try {
+            $route = $this->routeService->findWithStops($route_id);
+
+            if (! $route) {
+                return response()->json([
+                    'message' => 'Route not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'route' => $this->routeWithStopsPayload($route),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch route.', [
+                'route_id' => $route_id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch route.',
+            ], 500);
+        }
+    }
+
     public function close(Request $request, int $routeId): JsonResponse
     {
         $authenticatedUser = $request->user();
@@ -109,7 +139,7 @@ class RouteController extends Controller
         }
 
         try {
-            $route = $this->dispatcherService->closeRouteForUser(
+            $route = $this->routeService->closeForUser(
                 $authenticatedUser,
                 $routeId,
             );
@@ -154,6 +184,46 @@ class RouteController extends Controller
             'start_date' => $route->start_date->toDateString(),
             'end_date' => $route->end_date->toDateString(),
             'closed_at' => $route->closed_at?->toJSON(),
+        ];
+    }
+
+    /**
+     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null, route_stops: array<int, array{id: int, route_id: int, location: string|null, description: string|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}>}
+     */
+    private function routeWithStopsPayload(DispatcherRoute $route): array
+    {
+        return [
+            ...$this->routePayload($route),
+            'route_stops' => $route
+                ->routeStops
+                ->map(fn (RouteStop $routeStop): array => $this->routeStopPayload($routeStop))
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * @return array{id: int, route_id: int, location: string|null, description: string|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     */
+    private function routeStopPayload(RouteStop $routeStop): array
+    {
+        return [
+            'id' => $routeStop->id,
+            'route_id' => $routeStop->route_id,
+            'location' => $routeStop->location,
+            'description' => $routeStop->description,
+            'number_of_trucks' => $routeStop->number_of_trucks,
+            'number_of_drivers' => $routeStop->number_of_drivers,
+            'services' => $routeStop
+                ->services
+                ->map(fn (Service $service): array => [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'measurement_unit' => $service->measurement_unit,
+                    'quantity' => $service->pivot->quantity,
+                ])
+                ->values()
+                ->all(),
         ];
     }
 }

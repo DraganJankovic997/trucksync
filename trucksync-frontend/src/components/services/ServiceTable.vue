@@ -40,6 +40,13 @@ const columns = computed(() => [
     sortable: true
   },
   {
+    name: 'measurement_unit',
+    label: t('services.table.measurementUnit'),
+    field: 'measurement_unit',
+    align: 'left',
+    sortable: true
+  },
+  {
     name: 'actions',
     label: t('services.table.actions'),
     field: 'actions',
@@ -50,7 +57,8 @@ const columns = computed(() => [
 const rows = computed(() =>
   props.services.map(service => ({
     id: service.id,
-    name: service.name ?? ''
+    name: service.name ?? '',
+    measurement_unit: service.measurement_unit ?? ''
   }))
 );
 
@@ -95,6 +103,12 @@ function hasPendingDelete() {
           <div class="text-weight-bold">
             <span>{{ scope.row.name }}</span>
           </div>
+        </q-td>
+      </template>
+
+      <template #body-cell-measurement_unit="scope">
+        <q-td :props="scope">
+          <span>{{ scope.row.measurement_unit }}</span>
         </q-td>
       </template>
 

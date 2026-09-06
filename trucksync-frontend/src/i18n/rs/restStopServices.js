@@ -19,6 +19,7 @@ export default {
     title: 'Izabrane usluge',
     serviceCount: 'Izabrane usluge: {count}',
     name: 'Naziv',
+    measurementUnit: 'Jedinica mere',
     actions: 'Akcije',
     remove: 'Ukloni',
     removeAria: 'Ukloni {name}',

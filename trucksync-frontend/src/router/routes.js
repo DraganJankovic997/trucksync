@@ -32,6 +32,14 @@ const routes = [
         meta: { requiresAuth: true, requiresDispatcher: true }
       },
       {
+        path: '/dispatcher/routes/:routeId(\\d+)',
+        name: 'dispatcher-route-edit',
+        component: () => import('@/pages/DispatcherRouteEditPage.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: '/services',
         redirect: { name: 'admin-services' }
       },

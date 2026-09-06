@@ -5,7 +5,24 @@ import { toast } from '@/boot/toast.js';
 import { ref } from 'vue';
 
 export const useRouteStore = defineStore('route', () => {
+  const route = ref(null);
   const routes = ref([]);
+
+  async function fetchRoute(routeId) {
+    try {
+      const { data } = await api.get(`/route/${routeId}`);
+
+      route.value = data?.data?.route ?? null;
+
+      return route.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.route.fetchOneError'));
+
+      console.error('Route request failed.', requestError.response);
+
+      return null;
+    }
+  }
 
   async function fetchRoutesForDispatcher(dispatcherId) {
     try {
@@ -82,9 +99,11 @@ export const useRouteStore = defineStore('route', () => {
   }
 
   return {
+    route,
     routes,
     closeRoute,
     createRoute,
+    fetchRoute,
     fetchRoutesForDispatcher
   };
 });

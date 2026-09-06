@@ -11,7 +11,10 @@ const { t } = useI18n();
 const serviceStore = useServiceStore();
 const { services } = storeToRefs(serviceStore);
 
-const serviceName = ref('');
+const serviceForm = ref({
+  name: '',
+  measurementUnit: ''
+});
 const isFetching = ref(false);
 const isCreating = ref(false);
 const isDeleting = ref(false);
@@ -33,14 +36,20 @@ onMounted(() => {
   void loadServices();
 });
 
-async function handleCreate(name) {
+async function handleCreate({ name, measurementUnit = null }) {
   isCreating.value = true;
 
   try {
-    const createdService = await serviceStore.createService(name);
+    const createdService = await serviceStore.createService(
+      name,
+      measurementUnit
+    );
 
     if (createdService) {
-      serviceName.value = '';
+      serviceForm.value = {
+        name: '',
+        measurementUnit: ''
+      };
     }
   } finally {
     isCreating.value = false;
@@ -114,7 +123,7 @@ async function handleDelete() {
       <div class="row q-col-gutter-lg items-start">
         <div class="col-12 col-md-4">
           <ServiceCreateForm
-            v-model="serviceName"
+            v-model="serviceForm"
             :loading="isCreating"
             @create="handleCreate"
           />

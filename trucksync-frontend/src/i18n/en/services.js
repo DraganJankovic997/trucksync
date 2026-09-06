@@ -13,12 +13,17 @@ export default {
       label: 'Service name',
       placeholder: 'Parking, shower, repair...'
     },
+    measurementUnit: {
+      label: 'Measurement unit',
+      placeholder: 'truck, tire, hour...'
+    },
     submit: 'Add service'
   },
   table: {
     title: 'All services',
     id: 'ID',
     name: 'Name',
+    measurementUnit: 'Measurement unit',
     actions: 'Actions',
     delete: 'Delete',
     deleteAria: 'Delete {name}',

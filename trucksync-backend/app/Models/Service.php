@@ -20,6 +20,7 @@ class Service extends Model
      */
     protected $fillable = [
         'name',
+        'measurement_unit',
     ];
 
     public function restStopServices(): HasMany
@@ -27,8 +28,19 @@ class Service extends Model
         return $this->hasMany(RestStopService::class);
     }
 
+    public function routeStopServices(): HasMany
+    {
+        return $this->hasMany(RouteStopService::class);
+    }
+
     public function restStops(): BelongsToMany
     {
         return $this->belongsToMany(RestStop::class, 'rest_stop_services');
+    }
+
+    public function routeStops(): BelongsToMany
+    {
+        return $this->belongsToMany(RouteStop::class, 'route_stop_services')
+            ->withPivot('quantity');
     }
 }

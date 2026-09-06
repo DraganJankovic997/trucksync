@@ -51,6 +51,10 @@ defineProps({
   inputStyle: {
     type: [Object, String],
     default: undefined
+  },
+  disable: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -79,5 +83,6 @@ const model = defineModel({
     :stack-label="stackLabel"
     :rows="rows"
     :input-style="inputStyle"
+    :disable="disable"
   />
 </template>

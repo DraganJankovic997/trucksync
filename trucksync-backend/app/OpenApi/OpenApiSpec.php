@@ -119,6 +119,80 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/route/{route_id}' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Show a route with route stops and needed services',
+                        'operationId' => 'showRoute',
+                        'parameters' => [
+                            [
+                                'name' => 'route_id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route details.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteShowResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/route/route-stops/{route_id}' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List route stops with needed services for a route',
+                        'operationId' => 'listRouteStops',
+                        'parameters' => [
+                            [
+                                'name' => 'route_id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteStopsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/service' => [
                     'get' => [
                         'tags' => ['Services'],
@@ -794,6 +868,116 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/route/route-stop' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Create a route stop for a route owned by the authenticated dispatcher',
+                        'operationId' => 'createDispatcherRouteStop',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStopCreateRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '201' => [
+                                'description' => 'Route stop created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStopCreateResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/dispatcher/route/route-stop/{routeStopId}/services' => [
+                    'put' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Synchronize services and quantities for a route stop owned by the authenticated dispatcher',
+                        'operationId' => 'syncDispatcherRouteStopServices',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStopServicesSyncRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop services updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStopServicesSyncResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopServicesForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher/route/{dispatcherId}' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -1208,6 +1392,7 @@ class OpenApiSpec
                         'required' => [
                             'id',
                             'name',
+                            'measurement_unit',
                         ],
                         'properties' => [
                             'id' => [
@@ -1218,6 +1403,12 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'maxLength' => 255,
                                 'example' => 'Tire replacement',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'piece',
                             ],
                         ],
                     ],
@@ -1251,6 +1442,39 @@ class OpenApiSpec
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/Service',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteShowResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route'],
+                                'properties' => [
+                                    'route' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteWithStops',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteStopsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stops'],
+                                'properties' => [
+                                    'route_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStop',
                                         ],
                                     ],
                                 ],
@@ -1463,6 +1687,105 @@ class OpenApiSpec
                                 'format' => 'date-time',
                                 'nullable' => true,
                                 'example' => null,
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopService' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'name',
+                            'measurement_unit',
+                            'quantity',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'name' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Fuel',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'liter',
+                            ],
+                            'quantity' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 200,
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStop' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'route_id',
+                            'location',
+                            'description',
+                            'number_of_trucks',
+                            'number_of_drivers',
+                            'services',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'route_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'location' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'Vienna fuel stop',
+                            ],
+                            'description' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Refuel and inspect tires before crossing into Germany.',
+                            ],
+                            'number_of_trucks' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'number_of_drivers' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 4,
+                            ],
+                            'services' => [
+                                'type' => 'array',
+                                'items' => [
+                                    '$ref' => '#/components/schemas/DispatcherRouteStopService',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteWithStops' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/DispatcherRoute',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['route_stops'],
+                                'properties' => [
+                                    'route_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStop',
+                                        ],
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -1824,6 +2147,102 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteStopCreateRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'route_id',
+                            'location',
+                            'number_of_trucks',
+                            'number_of_drivers',
+                            'services',
+                        ],
+                        'properties' => [
+                            'route_id' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'description' => 'Route ID owned by the authenticated dispatcher.',
+                                'example' => 1,
+                            ],
+                            'location' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Vienna fuel stop',
+                            ],
+                            'description' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Refuel and inspect tires before crossing into Germany.',
+                            ],
+                            'number_of_trucks' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'number_of_drivers' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 4,
+                            ],
+                            'services' => [
+                                'type' => 'array',
+                                'minItems' => 1,
+                                'items' => [
+                                    'type' => 'object',
+                                    'required' => [
+                                        'service_id',
+                                        'quantity',
+                                    ],
+                                    'properties' => [
+                                        'service_id' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'description' => 'Existing service ID. Each service_id must be unique in the request.',
+                                            'example' => 2,
+                                        ],
+                                        'quantity' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'example' => 200,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopServicesSyncRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'services',
+                        ],
+                        'properties' => [
+                            'services' => [
+                                'type' => 'array',
+                                'minItems' => 1,
+                                'description' => 'Full desired service list for the route stop. Omitted existing services are removed. Existing services are updated with the provided quantity.',
+                                'items' => [
+                                    'type' => 'object',
+                                    'required' => [
+                                        'service_id',
+                                        'quantity',
+                                    ],
+                                    'properties' => [
+                                        'service_id' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'description' => 'Existing service ID. Each service_id must be unique in the request.',
+                                            'example' => 2,
+                                        ],
+                                        'quantity' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'example' => 200,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -1878,6 +2297,13 @@ class OpenApiSpec
                                 'minLength' => 1,
                                 'maxLength' => 255,
                                 'example' => 'Tire replacement',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'piece',
                             ],
                         ],
                     ],
@@ -2141,6 +2567,50 @@ class OpenApiSpec
                                 'properties' => [
                                     'route' => [
                                         '$ref' => '#/components/schemas/DispatcherRoute',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopCreateResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route stop created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStop',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopServicesSyncResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route stop services updated successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStop',
                                     ],
                                 ],
                             ],
@@ -2487,6 +2957,19 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RouteStopNotFound' => [
+                        'description' => 'Route stop not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Route stop not found.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'AdminRoleRequired' => [
                         'description' => 'The authenticated user does not have the admin role.',
                         'content' => [
@@ -2561,6 +3044,54 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can close routes.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route belongs to another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can create route stops.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route belongs to another dispatcher',
+                                        'value' => [
+                                            'message' => 'You cannot add route stops to a route you did not create.',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopServicesForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route stop belongs to a route created by another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can update route stop services.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route stop belongs to another dispatcher route',
+                                        'value' => [
+                                            'message' => 'You cannot update route stop services for a route you did not create.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

@@ -49,10 +49,19 @@ export default {
   },
   route: {
     fetchError: 'Failed to fetch routes',
+    fetchOneError: 'Failed to fetch route',
     createSuccess: 'Route created successfully',
     createError: 'Failed to create route',
     closeSuccess: 'Route closed successfully',
-    closeError: 'Failed to close route'
+    closeError: 'Failed to close route',
+    editForbidden: 'You are not allowed to edit this route'
+  },
+  routeStop: {
+    fetchError: 'Failed to fetch route stops',
+    createSuccess: 'Route stop created successfully',
+    createError: 'Failed to create route stop',
+    updateServicesSuccess: 'Route stop services updated successfully',
+    updateServicesError: 'Failed to update route stop services'
   },
   service: {
     fetchError: 'Failed to fetch services',

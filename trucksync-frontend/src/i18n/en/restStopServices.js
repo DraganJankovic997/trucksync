@@ -19,6 +19,7 @@ export default {
     title: 'Selected services',
     serviceCount: 'Selected services: {count}',
     name: 'Name',
+    measurementUnit: 'Measurement unit',
     actions: 'Actions',
     remove: 'Remove',
     removeAria: 'Remove {name}',

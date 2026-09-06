@@ -49,10 +49,19 @@ export default {
   },
   route: {
     fetchError: 'Preuzimanje ruta nije uspelo',
+    fetchOneError: 'Preuzimanje rute nije uspelo',
     createSuccess: 'Ruta je uspesno kreirana',
     createError: 'Kreiranje rute nije uspelo',
     closeSuccess: 'Ruta je uspesno zatvorena',
-    closeError: 'Zatvaranje rute nije uspelo'
+    closeError: 'Zatvaranje rute nije uspelo',
+    editForbidden: 'Nemate dozvolu da izmenite ovu rutu'
+  },
+  routeStop: {
+    fetchError: 'Preuzimanje stajalista rute nije uspelo',
+    createSuccess: 'Stajaliste rute je uspesno kreirano',
+    createError: 'Kreiranje stajalista rute nije uspelo',
+    updateServicesSuccess: 'Usluge stajalista rute su uspesno azurirane',
+    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo'
   },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',

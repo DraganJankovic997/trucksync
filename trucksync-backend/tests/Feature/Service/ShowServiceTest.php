@@ -10,6 +10,7 @@ uses(RefreshDatabase::class);
 it('returns a service by id for an authenticated user', function () {
     $service = Service::query()->create([
         'name' => 'Tire replacement',
+        'measurement_unit' => 'tire',
     ]);
 
     Sanctum::actingAs(User::factory()->create());
@@ -17,7 +18,8 @@ it('returns a service by id for an authenticated user', function () {
     $this->getJson("/api/service/{$service->id}")
         ->assertOk()
         ->assertJsonPath('data.service.id', $service->id)
-        ->assertJsonPath('data.service.name', 'Tire replacement');
+        ->assertJsonPath('data.service.name', 'Tire replacement')
+        ->assertJsonPath('data.service.measurement_unit', 'tire');
 });
 
 it('requires authentication to view a service', function () {

@@ -13,12 +13,15 @@ it('returns services for a rest stop without authentication', function () {
     $otherRestStop = createRestStopForListServices();
     $washout = Service::query()->create([
         'name' => 'Washout',
+        'measurement_unit' => 'bay',
     ]);
     $tireReplacement = Service::query()->create([
         'name' => 'Tire replacement',
+        'measurement_unit' => 'tire',
     ]);
     $parking = Service::query()->create([
         'name' => 'Parking',
+        'measurement_unit' => 'space',
     ]);
 
     RestStopService::query()->create([
@@ -39,8 +42,10 @@ it('returns services for a rest stop without authentication', function () {
         ->assertJsonCount(2, 'data.services')
         ->assertJsonPath('data.services.0.id', $tireReplacement->id)
         ->assertJsonPath('data.services.0.name', 'Tire replacement')
+        ->assertJsonPath('data.services.0.measurement_unit', 'tire')
         ->assertJsonPath('data.services.1.id', $washout->id)
         ->assertJsonPath('data.services.1.name', 'Washout')
+        ->assertJsonPath('data.services.1.measurement_unit', 'bay')
         ->assertJsonMissingPath('data.services.0.rest_stop_id')
         ->assertJsonMissingPath('data.services.0.service_id');
 });

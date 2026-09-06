@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   routes: {
@@ -14,6 +15,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const router = useRouter();
 const tablePagination = { rowsPerPage: 0 };
 
 const columns = computed(() => [
@@ -109,6 +111,15 @@ function formatDate(value) {
     year: 'numeric'
   }).format(new Date(`${value}T00:00:00`));
 }
+
+function openRoute(row) {
+  void router.push({
+    name: 'dispatcher-route-edit',
+    params: {
+      routeId: row.id
+    }
+  });
+}
 </script>
 
 <template>
@@ -134,6 +145,7 @@ function formatDate(value) {
     </q-card-section>
 
     <q-table
+      class="dispatcher-routes-table"
       flat
       hide-bottom
       row-key="id"
@@ -141,6 +153,7 @@ function formatDate(value) {
       :columns="columns"
       :loading="props.loading"
       :pagination="tablePagination"
+      @row-click="(_event, row) => openRoute(row)"
     >
       <template #body-cell-origin="scope">
         <q-td :props="scope">

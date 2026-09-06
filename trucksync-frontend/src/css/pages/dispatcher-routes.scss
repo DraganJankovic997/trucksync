@@ -32,6 +32,12 @@
     overflow: hidden;
   }
 
+  .dispatcher-routes-table {
+    .q-table tbody tr {
+      cursor: pointer;
+    }
+  }
+
   .dispatcher-routes-details {
     min-width: 220px;
     max-width: 360px;

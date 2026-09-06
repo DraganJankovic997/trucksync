@@ -1,0 +1,16 @@
+@use '../quasar.variables' as brand;
+
+.dispatcher-route-edit-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .dispatcher-route-edit-shell {
+    width: min(100%, 1280px);
+    margin: 0 auto;
+  }
+
+  .dispatcher-route-edit-header {
+    padding-block: 8px;
+  }
+}

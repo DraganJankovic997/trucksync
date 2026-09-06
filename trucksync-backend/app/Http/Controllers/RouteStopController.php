@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\RouteStopServiceContract;
+use App\Exceptions\RouteNotFoundException;
+use App\Exceptions\RouteNotOwnedByDispatcherException;
 use App\Models\RouteStop;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
@@ -39,14 +41,8 @@ class RouteStopController extends Controller
                 $validated['route_id'],
                 $validated['number_of_trucks'],
                 $validated['number_of_drivers'],
-                $this->servicesPayload($validated['services']),
+                $validated['services'],
             );
-
-            if (! $routeStop) {
-                return response()->json([
-                    'message' => 'Route not found.',
-                ], 404);
-            }
 
             return response()->json([
                 'message' => 'Route stop created successfully.',
@@ -54,6 +50,14 @@ class RouteStopController extends Controller
                     'route_stop' => $this->routeStopPayload($routeStop),
                 ],
             ], 201);
+        } catch (RouteNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
         } catch (Throwable $throwable) {
             logger()->error('Unable to create route stop.', [
                 'user_id' => $authenticatedUser->id,
@@ -65,21 +69,6 @@ class RouteStopController extends Controller
                 'message' => 'Unable to create route stop.',
             ], 500);
         }
-    }
-
-    /**
-     * @param  array<int, array{service_id: int, quantity: int}>  $services
-     * @return array<int, array{service_id: int, quantity: int}>
-     */
-    private function servicesPayload(array $services): array
-    {
-        return collect($services)
-            ->map(fn (array $service): array => [
-                'service_id' => (int) $service['service_id'],
-                'quantity' => (int) $service['quantity'],
-            ])
-            ->values()
-            ->all();
     }
 
     /**

@@ -79,7 +79,7 @@ it('creates a route stop with needed services for a route owned by the authentic
     ]);
 });
 
-it('does not create a route stop for a route owned by another dispatcher', function () {
+it('forbids creating a route stop for a route owned by another dispatcher', function () {
     $user = User::factory()->create([
         'profile_type' => 'dispatcher',
     ]);
@@ -106,8 +106,8 @@ it('does not create a route stop for a route owned by another dispatcher', funct
             ],
         ],
     ])
-        ->assertNotFound()
-        ->assertJsonPath('message', 'Route not found.');
+        ->assertForbidden()
+        ->assertJsonPath('message', 'You cannot add route stops to a route you did not create.');
 
     expect(RouteStop::query()->count())->toBe(0)
         ->and(RouteStopService::query()->count())->toBe(0);

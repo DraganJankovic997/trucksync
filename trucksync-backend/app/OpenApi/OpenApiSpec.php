@@ -2769,14 +2769,25 @@ class OpenApiSpec
                         ],
                     ],
                     'DispatcherRouteStopForbidden' => [
-                        'description' => 'The authenticated user is not a dispatcher.',
+                        'description' => 'The authenticated user is not a dispatcher, or the route belongs to another dispatcher.',
                         'content' => [
                             'application/json' => [
                                 'schema' => [
                                     '$ref' => '#/components/schemas/ErrorResponse',
                                 ],
-                                'example' => [
-                                    'message' => 'Only dispatcher users can create route stops.',
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can create route stops.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route belongs to another dispatcher',
+                                        'value' => [
+                                            'message' => 'You cannot add route stops to a route you did not create.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

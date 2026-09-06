@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Contracts\RouteStopServiceContract;
+use App\Exceptions\RouteNotFoundException;
+use App\Exceptions\RouteNotOwnedByDispatcherException;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\User;
@@ -12,6 +14,9 @@ class RouteStopService implements RouteStopServiceContract
 {
     /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
+     *
+     * @throws RouteNotFoundException
+     * @throws RouteNotOwnedByDispatcherException
      */
     public function createForUser(
         User $user,
@@ -19,14 +24,17 @@ class RouteStopService implements RouteStopServiceContract
         int $numberOfTrucks,
         int $numberOfDrivers,
         array $services
-    ): ?RouteStop {
+    ): RouteStop {
         $route = DispatcherRoute::query()
             ->whereKey($routeId)
-            ->whereHas('dispatcher', fn ($query) => $query->where('user_id', $user->id))
             ->first();
 
         if (! $route) {
-            return null;
+            throw new RouteNotFoundException;
+        }
+
+        if ($route->dispatcher()->where('user_id', $user->id)->doesntExist()) {
+            throw new RouteNotOwnedByDispatcherException;
         }
 
         return DB::transaction(function () use ($route, $numberOfTrucks, $numberOfDrivers, $services): RouteStop {
@@ -52,8 +60,8 @@ class RouteStopService implements RouteStopServiceContract
         $serviceQuantities = [];
 
         foreach ($services as $service) {
-            $serviceQuantities[$service['service_id']] = [
-                'quantity' => $service['quantity'],
+            $serviceQuantities[(int) $service['service_id']] = [
+                'quantity' => (int) $service['quantity'],
             ];
         }
 

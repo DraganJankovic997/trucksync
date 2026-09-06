@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Contracts\RouteStopServiceContract;
 use App\Exceptions\RouteNotFoundException;
 use App\Exceptions\RouteNotOwnedByDispatcherException;
+use App\Exceptions\RouteStopNotFoundException;
+use App\Exceptions\RouteStopNotOwnedByDispatcherException;
 use App\Models\RouteStop;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
@@ -100,6 +102,67 @@ class RouteStopController extends Controller
 
             return response()->json([
                 'message' => 'Unable to create route stop.',
+            ], 500);
+        }
+    }
+
+    public function syncServices(Request $request, int $routeStopId): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can update route stop services.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'services' => ['required', 'array', 'min:1'],
+            'services.*.service_id' => ['required', 'integer', 'distinct', Rule::exists('services', 'id')],
+            'services.*.quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        try {
+            $routeStop = RouteStop::query()
+                ->with('route.dispatcher')
+                ->find($routeStopId);
+
+            if (! $routeStop) {
+                throw new RouteStopNotFoundException;
+            }
+
+            if ($routeStop->route?->dispatcher?->user_id !== $authenticatedUser->id) {
+                throw new RouteStopNotOwnedByDispatcherException;
+            }
+
+            $routeStop = $this->routeStopService->syncServicesForRouteStop(
+                $routeStop,
+                $validated['services'],
+            );
+
+            return response()->json([
+                'message' => 'Route stop services updated successfully.',
+                'data' => [
+                    'route_stop' => $this->routeStopPayload($routeStop),
+                ],
+            ]);
+        } catch (RouteStopNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteStopNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to update route stop services.', [
+                'user_id' => $authenticatedUser->id,
+                'route_stop_id' => $routeStopId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to update route stop services.',
             ], 500);
         }
     }

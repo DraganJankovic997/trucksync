@@ -74,6 +74,9 @@ Route::prefix('dispatcher')
                     ->name('dispatcher.route.close');
                 Route::post('/route-stop', [RouteStopController::class, 'store'])
                     ->name('dispatcher.route.route-stop.store');
+                Route::put('/route-stop/{routeStopId}/services', [RouteStopController::class, 'syncServices'])
+                    ->whereNumber('routeStopId')
+                    ->name('dispatcher.route.route-stop.services.update');
             });
     });
 

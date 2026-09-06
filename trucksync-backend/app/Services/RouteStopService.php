@@ -79,6 +79,22 @@ class RouteStopService implements RouteStopServiceContract
 
     /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
+     */
+    public function syncServicesForRouteStop(
+        RouteStop $routeStop,
+        array $services
+    ): RouteStop {
+        return DB::transaction(function () use ($routeStop, $services): RouteStop {
+            $routeStop->services()->sync($this->serviceQuantities($services));
+
+            return $routeStop->refresh()->load([
+                'services' => fn ($query) => $query->orderBy('services.id'),
+            ]);
+        });
+    }
+
+    /**
+     * @param  array<int, array{service_id: int, quantity: int}>  $services
      * @return array<int, array{quantity: int}>
      */
     private function serviceQuantities(array $services): array

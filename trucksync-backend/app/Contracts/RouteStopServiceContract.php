@@ -32,4 +32,12 @@ interface RouteStopServiceContract
         int $numberOfDrivers,
         array $services
     ): RouteStop;
+
+    /**
+     * @param  array<int, array{service_id: int, quantity: int}>  $services
+     */
+    public function syncServicesForRouteStop(
+        RouteStop $routeStop,
+        array $services
+    ): RouteStop;
 }

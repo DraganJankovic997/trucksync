@@ -6,6 +6,7 @@ use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RestStopController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\RouteStopController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserManagementController;
@@ -63,6 +64,8 @@ Route::prefix('dispatcher')
                 Route::post('/close/{routeId}', 'close')
                     ->whereNumber('routeId')
                     ->name('dispatcher.route.close');
+                Route::post('/route-stop', [RouteStopController::class, 'store'])
+                    ->name('dispatcher.route.route-stop.store');
             });
     });
 

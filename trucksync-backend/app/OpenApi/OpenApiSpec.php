@@ -794,6 +794,55 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/route/route-stop' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Create a route stop for a route owned by the authenticated dispatcher',
+                        'operationId' => 'createDispatcherRouteStop',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStopCreateRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '201' => [
+                                'description' => 'Route stop created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStopCreateResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher/route/{dispatcherId}' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -1473,6 +1522,73 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteStopService' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'name',
+                            'measurement_unit',
+                            'quantity',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'name' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Fuel',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'liter',
+                            ],
+                            'quantity' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 200,
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStop' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'route_id',
+                            'number_of_trucks',
+                            'number_of_drivers',
+                            'services',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'route_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'number_of_trucks' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'number_of_drivers' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 4,
+                            ],
+                            'services' => [
+                                'type' => 'array',
+                                'items' => [
+                                    '$ref' => '#/components/schemas/DispatcherRouteStopService',
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStop' => [
                         'type' => 'object',
                         'required' => [
@@ -1831,6 +1947,57 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteStopCreateRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'route_id',
+                            'number_of_trucks',
+                            'number_of_drivers',
+                            'services',
+                        ],
+                        'properties' => [
+                            'route_id' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'description' => 'Route ID owned by the authenticated dispatcher.',
+                                'example' => 1,
+                            ],
+                            'number_of_trucks' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'number_of_drivers' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 4,
+                            ],
+                            'services' => [
+                                'type' => 'array',
+                                'minItems' => 1,
+                                'items' => [
+                                    'type' => 'object',
+                                    'required' => [
+                                        'service_id',
+                                        'quantity',
+                                    ],
+                                    'properties' => [
+                                        'service_id' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'description' => 'Existing service ID. Each service_id must be unique in the request.',
+                                            'example' => 2,
+                                        ],
+                                        'quantity' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'example' => 200,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -2155,6 +2322,28 @@ class OpenApiSpec
                                 'properties' => [
                                     'route' => [
                                         '$ref' => '#/components/schemas/DispatcherRoute',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopCreateResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route stop created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStop',
                                     ],
                                 ],
                             ],
@@ -2575,6 +2764,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can close routes.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only dispatcher users can create route stops.',
                                 ],
                             ],
                         ],

@@ -21,6 +21,34 @@ export default {
     actions: {
       add: 'Dodaj novo'
     },
+    form: {
+      createTitle: 'Kreiraj stajaliste rute',
+      editTitle: 'Izmeni stajaliste rute',
+      createAriaLabel: 'Forma za kreiranje stajalista rute',
+      editAriaLabel: 'Forma za izmenu stajalista rute',
+      fields: {
+        location: {
+          label: 'Lokacija',
+          placeholder: 'Stajaliste za gorivo u Becu'
+        },
+        description: {
+          label: 'Opis',
+          placeholder: 'Dodajte detalje stajalista'
+        },
+        numberOfTrucks: {
+          label: 'Broj kamiona',
+          placeholder: '3'
+        },
+        numberOfDrivers: {
+          label: 'Broj vozaca',
+          placeholder: '4'
+        }
+      },
+      actions: {
+        close: 'Zatvori',
+        save: 'Sacuvaj'
+      }
+    },
     table: {
       id: 'ID',
       location: 'Lokacija',

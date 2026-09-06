@@ -71,6 +71,12 @@
     overflow: hidden;
   }
 
+  .dispatcher-route-stops-table {
+    .q-table tbody tr {
+      cursor: pointer;
+    }
+  }
+
   .dispatcher-route-stops-location {
     min-width: 160px;
     max-width: 260px;
@@ -106,6 +112,29 @@
   }
 }
 
+.dispatcher-route-stop-dialog {
+  width: min(100vw - 32px, 680px);
+  border-color: brand.$brand-border;
+  border-radius: brand.$brand-radius;
+
+  .dispatcher-route-stop-dialog-icon {
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-success-background;
+    color: brand.$brand-accent-dark;
+  }
+
+  .dispatcher-route-stop-dialog-body {
+    display: grid;
+    gap: 16px;
+  }
+
+  .dispatcher-route-stop-dialog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
 @media (max-width: 1023px) {
   .dispatcher-route-edit-page {
     .dispatcher-route-edit-details-grid {
@@ -117,6 +146,12 @@
 @media (max-width: 599px) {
   .dispatcher-route-edit-page {
     .dispatcher-route-edit-details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .dispatcher-route-stop-dialog {
+    .dispatcher-route-stop-dialog-grid {
       grid-template-columns: 1fr;
     }
   }

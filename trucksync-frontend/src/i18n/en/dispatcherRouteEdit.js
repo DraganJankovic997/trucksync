@@ -21,6 +21,34 @@ export default {
     actions: {
       add: 'Add new'
     },
+    form: {
+      createTitle: 'Create route stop',
+      editTitle: 'Edit route stop',
+      createAriaLabel: 'Create route stop form',
+      editAriaLabel: 'Edit route stop form',
+      fields: {
+        location: {
+          label: 'Location',
+          placeholder: 'Vienna fuel stop'
+        },
+        description: {
+          label: 'Description',
+          placeholder: 'Add stop details'
+        },
+        numberOfTrucks: {
+          label: 'Number of trucks',
+          placeholder: '3'
+        },
+        numberOfDrivers: {
+          label: 'Number of drivers',
+          placeholder: '4'
+        }
+      },
+      actions: {
+        close: 'Close',
+        save: 'Save'
+      }
+    },
     table: {
       id: 'ID',
       location: 'Location',

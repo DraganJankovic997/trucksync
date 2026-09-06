@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/boot/toast.js';
+import DispatcherRouteStopDialog from '@/components/dispatcher-routes/DispatcherRouteStopDialog.vue';
 import DispatcherRouteStopsTable from '@/components/dispatcher-routes/DispatcherRouteStopsTable.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
@@ -58,6 +59,9 @@ const routeDetails = computed(() => [
 ]);
 const isRouteAllowed = ref(false);
 const isFetchingRoute = ref(false);
+const routeStopDialogOpen = ref(false);
+const routeStopDialogMode = ref('create');
+const selectedRouteStop = ref(null);
 
 async function redirectToDashboardWithEditError() {
   await router.replace({ name: 'dashboard' });
@@ -117,6 +121,22 @@ function formatDate(value) {
 
 function goToRoutes() {
   void router.push({ name: 'dispatcher-routes' });
+}
+
+function openCreateRouteStopDialog() {
+  selectedRouteStop.value = null;
+  routeStopDialogMode.value = 'create';
+  routeStopDialogOpen.value = true;
+}
+
+function openEditRouteStopDialog(routeStop) {
+  selectedRouteStop.value = routeStop;
+  routeStopDialogMode.value = 'edit';
+  routeStopDialogOpen.value = true;
+}
+
+function handleRouteStopSave() {
+  routeStopDialogOpen.value = false;
 }
 
 onMounted(() => {
@@ -195,6 +215,15 @@ onMounted(() => {
       <DispatcherRouteStopsTable
         :route-stops="routeStops"
         :loading="isFetchingRoute"
+        @add="openCreateRouteStopDialog"
+        @edit="openEditRouteStopDialog"
+      />
+
+      <DispatcherRouteStopDialog
+        v-model="routeStopDialogOpen"
+        :mode="routeStopDialogMode"
+        :route-stop="selectedRouteStop"
+        @save="handleRouteStopSave"
       />
     </div>
   </q-page>

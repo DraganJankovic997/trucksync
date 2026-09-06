@@ -13,7 +13,10 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['add']);
+const emit = defineEmits({
+  add: () => true,
+  edit: routeStop => routeStop?.id !== undefined && routeStop?.id !== null
+});
 
 const { t } = useI18n();
 const tablePagination = { rowsPerPage: 0 };
@@ -64,6 +67,7 @@ const columns = computed(() => [
 const rows = computed(() =>
   props.routeStops.map(routeStop => ({
     id: routeStop.id,
+    routeStop: routeStop,
     location: formatValue(routeStop.location),
     description: formatValue(routeStop.description),
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
@@ -95,6 +99,14 @@ function formatServiceLabel(service) {
   const unit = service.measurement_unit ? ` ${service.measurement_unit}` : '';
 
   return `${formatValue(service.name)}: ${formatValue(service.quantity)}${unit}`;
+}
+
+function requestEdit(row) {
+  if (props.loading) {
+    return;
+  }
+
+  emit('edit', row.routeStop);
 }
 </script>
 
@@ -135,6 +147,7 @@ function formatServiceLabel(service) {
     </q-card-section>
 
     <q-table
+      class="dispatcher-route-stops-table"
       flat
       hide-bottom
       row-key="id"
@@ -142,6 +155,7 @@ function formatServiceLabel(service) {
       :columns="columns"
       :loading="props.loading"
       :pagination="tablePagination"
+      @row-click="(_event, row) => requestEdit(row)"
     >
       <template #body-cell-id="scope">
         <q-td :props="scope">

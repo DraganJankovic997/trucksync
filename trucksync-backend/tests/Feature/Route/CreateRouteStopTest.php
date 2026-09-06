@@ -30,6 +30,8 @@ it('creates a route stop with needed services for a route owned by the authentic
 
     $response = $this->postJson('/api/dispatcher/route/route-stop', [
         'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => 'Refuel and inspect tires before crossing into Germany.',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
         'services' => [
@@ -48,6 +50,8 @@ it('creates a route stop with needed services for a route owned by the authentic
         ->assertCreated()
         ->assertJsonPath('message', 'Route stop created successfully.')
         ->assertJsonPath('data.route_stop.route_id', $route->id)
+        ->assertJsonPath('data.route_stop.location', 'Vienna fuel stop')
+        ->assertJsonPath('data.route_stop.description', 'Refuel and inspect tires before crossing into Germany.')
         ->assertJsonPath('data.route_stop.number_of_trucks', 3)
         ->assertJsonPath('data.route_stop.number_of_drivers', 4)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
@@ -64,6 +68,8 @@ it('creates a route stop with needed services for a route owned by the authentic
     $this->assertDatabaseHas('route_stops', [
         'id' => $routeStopId,
         'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => 'Refuel and inspect tires before crossing into Germany.',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -97,6 +103,7 @@ it('forbids creating a route stop for a route owned by another dispatcher', func
 
     $this->postJson('/api/dispatcher/route/route-stop', [
         'route_id' => $otherRoute->id,
+        'location' => 'Vienna fuel stop',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
         'services' => [
@@ -145,6 +152,7 @@ it('returns not found when the route does not exist for the authenticated dispat
 
     $this->postJson('/api/dispatcher/route/route-stop', [
         'route_id' => 999,
+        'location' => 'Vienna fuel stop',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
         'services' => [
@@ -173,6 +181,7 @@ it('validates route stop payloads', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors([
             'route_id',
+            'location',
             'number_of_trucks',
             'number_of_drivers',
             'services',
@@ -180,6 +189,8 @@ it('validates route stop payloads', function () {
 
     $this->postJson('/api/dispatcher/route/route-stop', [
         'route_id' => 0,
+        'location' => '',
+        'description' => [],
         'number_of_trucks' => 0,
         'number_of_drivers' => 0,
         'services' => [
@@ -199,6 +210,8 @@ it('validates route stop payloads', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors([
             'route_id',
+            'location',
+            'description',
             'number_of_trucks',
             'number_of_drivers',
             'services.0.service_id',

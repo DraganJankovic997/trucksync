@@ -1665,6 +1665,8 @@ class OpenApiSpec
                         'required' => [
                             'id',
                             'route_id',
+                            'location',
+                            'description',
                             'number_of_trucks',
                             'number_of_drivers',
                             'services',
@@ -1677,6 +1679,17 @@ class OpenApiSpec
                             'route_id' => [
                                 'type' => 'integer',
                                 'example' => 1,
+                            ],
+                            'location' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'Vienna fuel stop',
+                            ],
+                            'description' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Refuel and inspect tires before crossing into Germany.',
                             ],
                             'number_of_trucks' => [
                                 'type' => 'integer',
@@ -2077,6 +2090,7 @@ class OpenApiSpec
                         'type' => 'object',
                         'required' => [
                             'route_id',
+                            'location',
                             'number_of_trucks',
                             'number_of_drivers',
                             'services',
@@ -2087,6 +2101,17 @@ class OpenApiSpec
                                 'minimum' => 1,
                                 'description' => 'Route ID owned by the authenticated dispatcher.',
                                 'example' => 1,
+                            ],
+                            'location' => [
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'Vienna fuel stop',
+                            ],
+                            'description' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'example' => 'Refuel and inspect tires before crossing into Germany.',
                             ],
                             'number_of_trucks' => [
                                 'type' => 'integer',

@@ -71,6 +71,20 @@
     overflow: hidden;
   }
 
+  .dispatcher-route-stops-location {
+    min-width: 160px;
+    max-width: 260px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .dispatcher-route-stops-description {
+    min-width: 220px;
+    max-width: 360px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .dispatcher-route-stops-services {
     display: flex;
     flex-wrap: wrap;

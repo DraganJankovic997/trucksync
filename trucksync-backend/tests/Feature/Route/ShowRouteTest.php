@@ -20,8 +20,20 @@ it('shows a route with route stops and needed services without authentication', 
         'name' => 'Tire replacement',
         'measurement_unit' => 'piece',
     ]);
-    $routeStop = createRouteStopForShowRouteEndpoint($route, 3, 4);
-    $secondRouteStop = createRouteStopForShowRouteEndpoint($route, 1, 2);
+    $routeStop = createRouteStopForShowRouteEndpoint(
+        $route,
+        'Vienna fuel stop',
+        'Refuel and inspect tires before crossing into Germany.',
+        3,
+        4
+    );
+    $secondRouteStop = createRouteStopForShowRouteEndpoint(
+        $route,
+        'Munich overnight stop',
+        null,
+        1,
+        2
+    );
 
     $routeStop->services()->attach([
         $fuel->id => ['quantity' => 200],
@@ -30,7 +42,13 @@ it('shows a route with route stops and needed services without authentication', 
     $secondRouteStop->services()->attach([
         $fuel->id => ['quantity' => 100],
     ]);
-    createRouteStopForShowRouteEndpoint($otherRoute, 9, 10);
+    createRouteStopForShowRouteEndpoint(
+        $otherRoute,
+        'Other dispatcher stop',
+        null,
+        9,
+        10
+    );
 
     $this->getJson("/api/route/{$route->id}")
         ->assertOk()
@@ -46,6 +64,8 @@ it('shows a route with route stops and needed services without authentication', 
         ->assertJsonCount(2, 'data.route.route_stops')
         ->assertJsonPath('data.route.route_stops.0.id', $routeStop->id)
         ->assertJsonPath('data.route.route_stops.0.route_id', $route->id)
+        ->assertJsonPath('data.route.route_stops.0.location', 'Vienna fuel stop')
+        ->assertJsonPath('data.route.route_stops.0.description', 'Refuel and inspect tires before crossing into Germany.')
         ->assertJsonPath('data.route.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route.route_stops.0.number_of_drivers', 4)
         ->assertJsonCount(2, 'data.route.route_stops.0.services')
@@ -59,6 +79,8 @@ it('shows a route with route stops and needed services without authentication', 
         ->assertJsonPath('data.route.route_stops.0.services.1.quantity', 2)
         ->assertJsonPath('data.route.route_stops.1.id', $secondRouteStop->id)
         ->assertJsonPath('data.route.route_stops.1.route_id', $route->id)
+        ->assertJsonPath('data.route.route_stops.1.location', 'Munich overnight stop')
+        ->assertJsonPath('data.route.route_stops.1.description', null)
         ->assertJsonPath('data.route.route_stops.1.services.0.id', $fuel->id)
         ->assertJsonPath('data.route.route_stops.1.services.0.quantity', 100);
 });
@@ -104,11 +126,15 @@ function createRouteForShowRouteEndpoint(): DispatcherRoute
 
 function createRouteStopForShowRouteEndpoint(
     DispatcherRoute $route,
+    string $location,
+    ?string $description,
     int $numberOfTrucks,
     int $numberOfDrivers
 ): RouteStop {
     return RouteStop::query()->create([
         'route_id' => $route->id,
+        'location' => $location,
+        'description' => $description,
         'number_of_trucks' => $numberOfTrucks,
         'number_of_drivers' => $numberOfDrivers,
     ]);

@@ -27,6 +27,19 @@ const columns = computed(() => [
     sortable: true
   },
   {
+    name: 'location',
+    label: t('dispatcherRouteEdit.routeStops.table.location'),
+    field: 'location',
+    align: 'left',
+    sortable: true
+  },
+  {
+    name: 'description',
+    label: t('dispatcherRouteEdit.routeStops.table.description'),
+    field: 'description',
+    align: 'left'
+  },
+  {
     name: 'numberOfTrucks',
     label: t('dispatcherRouteEdit.routeStops.table.numberOfTrucks'),
     field: 'numberOfTrucks',
@@ -51,6 +64,8 @@ const columns = computed(() => [
 const rows = computed(() =>
   props.routeStops.map(routeStop => ({
     id: routeStop.id,
+    location: formatValue(routeStop.location),
+    description: formatValue(routeStop.description),
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
     numberOfDrivers: formatValue(routeStop.number_of_drivers),
     services: formatServices(routeStop.services)
@@ -132,6 +147,22 @@ function formatServiceLabel(service) {
         <q-td :props="scope">
           <div class="text-weight-bold">
             {{ scope.row.id }}
+          </div>
+        </q-td>
+      </template>
+
+      <template #body-cell-location="scope">
+        <q-td :props="scope">
+          <div class="dispatcher-route-stops-location text-weight-bold">
+            {{ scope.row.location }}
+          </div>
+        </q-td>
+      </template>
+
+      <template #body-cell-description="scope">
+        <q-td :props="scope">
+          <div class="dispatcher-route-stops-description">
+            {{ scope.row.description }}
           </div>
         </q-td>
       </template>

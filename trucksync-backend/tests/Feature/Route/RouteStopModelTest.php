@@ -16,6 +16,8 @@ it('stores route stops for a route', function () {
 
     $routeStop = RouteStop::query()->create([
         'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => 'Refuel and inspect tires before crossing into Germany.',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -27,15 +29,21 @@ it('stores route stops for a route', function () {
         'number_of_drivers',
         'created_at',
         'updated_at',
+        'location',
+        'description',
     ])
         ->and($route->routeStops()->first()->is($routeStop))->toBeTrue()
         ->and($routeStop->route->is($route))->toBeTrue()
+        ->and($routeStop->location)->toBe('Vienna fuel stop')
+        ->and($routeStop->description)->toBe('Refuel and inspect tires before crossing into Germany.')
         ->and($routeStop->number_of_trucks)->toBe(3)
         ->and($routeStop->number_of_drivers)->toBe(4);
 
     $this->assertDatabaseHas('route_stops', [
         'id' => $routeStop->id,
         'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => 'Refuel and inspect tires before crossing into Germany.',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -45,6 +53,8 @@ it('stores needed services with quantity for a route stop', function () {
     $route = createRouteForRouteStopTest();
     $routeStop = RouteStop::query()->create([
         'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => null,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);

@@ -21,6 +21,8 @@ class RouteStop extends Model
         'route_id',
         'number_of_trucks',
         'number_of_drivers',
+        'location',
+        'description',
     ];
 
     /**

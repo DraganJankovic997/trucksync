@@ -31,6 +31,8 @@ export const useRouteStopStore = defineStore('route-stop', () => {
 
   async function createRouteStop(
     id,
+    location,
+    description,
     numberOfTrucks,
     numberOfDrivers,
     services
@@ -38,13 +40,15 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     try {
       const { data } = await api.post('/dispatcher/route/route-stop', {
         route_id: id,
+        location: location,
+        description: description,
         number_of_trucks: numberOfTrucks,
         number_of_drivers: numberOfDrivers,
         services: services
       });
 
       routeStop.value = data?.data?.route_stop ?? null;
-      await fetchRouteStops(routeStop.value.id);
+      await fetchRouteStops(id);
 
       toast.success(i18n.global.t('messages.routeStop.createSuccess'));
 

@@ -23,6 +23,8 @@ export default {
     },
     table: {
       id: 'ID',
+      location: 'Lokacija',
+      description: 'Opis',
       numberOfTrucks: 'Kamioni',
       numberOfDrivers: 'Vozaci',
       services: 'Usluge',

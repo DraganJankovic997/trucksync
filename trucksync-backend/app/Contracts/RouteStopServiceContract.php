@@ -26,6 +26,8 @@ interface RouteStopServiceContract
     public function createForUser(
         User $user,
         int $routeId,
+        string $location,
+        ?string $description,
         int $numberOfTrucks,
         int $numberOfDrivers,
         array $services

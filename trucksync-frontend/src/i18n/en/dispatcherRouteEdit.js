@@ -23,6 +23,8 @@ export default {
     },
     table: {
       id: 'ID',
+      location: 'Location',
+      description: 'Description',
       numberOfTrucks: 'Trucks',
       numberOfDrivers: 'Drivers',
       services: 'Services',

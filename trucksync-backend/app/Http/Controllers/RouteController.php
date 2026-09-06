@@ -188,7 +188,7 @@ class RouteController extends Controller
     }
 
     /**
-     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null, route_stops: array<int, array{id: int, route_id: int, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}>}
+     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null, route_stops: array<int, array{id: int, route_id: int, location: string|null, description: string|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}>}
      */
     private function routeWithStopsPayload(DispatcherRoute $route): array
     {
@@ -203,13 +203,15 @@ class RouteController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, location: string|null, description: string|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayload(RouteStop $routeStop): array
     {
         return [
             'id' => $routeStop->id,
             'route_id' => $routeStop->route_id,
+            'location' => $routeStop->location,
+            'description' => $routeStop->description,
             'number_of_trucks' => $routeStop->number_of_trucks,
             'number_of_drivers' => $routeStop->number_of_drivers,
             'services' => $routeStop

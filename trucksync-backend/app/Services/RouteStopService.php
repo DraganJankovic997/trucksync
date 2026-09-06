@@ -43,6 +43,8 @@ class RouteStopService implements RouteStopServiceContract
     public function createForUser(
         User $user,
         int $routeId,
+        string $location,
+        ?string $description,
         int $numberOfTrucks,
         int $numberOfDrivers,
         array $services
@@ -59,8 +61,10 @@ class RouteStopService implements RouteStopServiceContract
             throw new RouteNotOwnedByDispatcherException;
         }
 
-        return DB::transaction(function () use ($route, $numberOfTrucks, $numberOfDrivers, $services): RouteStop {
+        return DB::transaction(function () use ($route, $location, $description, $numberOfTrucks, $numberOfDrivers, $services): RouteStop {
             $routeStop = $route->routeStops()->create([
+                'location' => $location,
+                'description' => $description,
                 'number_of_trucks' => $numberOfTrucks,
                 'number_of_drivers' => $numberOfDrivers,
             ]);

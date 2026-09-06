@@ -20,8 +20,20 @@ it('lists route stops with needed services for a route without authentication', 
         'name' => 'Tire replacement',
         'measurement_unit' => 'piece',
     ]);
-    $routeStop = createRouteStopForRouteStopListEndpoint($route, 3, 4);
-    $secondRouteStop = createRouteStopForRouteStopListEndpoint($route, 1, 2);
+    $routeStop = createRouteStopForRouteStopListEndpoint(
+        $route,
+        'Vienna fuel stop',
+        'Refuel and inspect tires before crossing into Germany.',
+        3,
+        4
+    );
+    $secondRouteStop = createRouteStopForRouteStopListEndpoint(
+        $route,
+        'Munich overnight stop',
+        null,
+        1,
+        2
+    );
 
     $routeStop->services()->attach([
         $fuel->id => ['quantity' => 200],
@@ -30,13 +42,21 @@ it('lists route stops with needed services for a route without authentication', 
     $secondRouteStop->services()->attach([
         $fuel->id => ['quantity' => 100],
     ]);
-    createRouteStopForRouteStopListEndpoint($otherRoute, 9, 10);
+    createRouteStopForRouteStopListEndpoint(
+        $otherRoute,
+        'Other dispatcher stop',
+        null,
+        9,
+        10
+    );
 
     $this->getJson("/api/route/route-stops/{$route->id}")
         ->assertOk()
         ->assertJsonCount(2, 'data.route_stops')
         ->assertJsonPath('data.route_stops.0.id', $routeStop->id)
         ->assertJsonPath('data.route_stops.0.route_id', $route->id)
+        ->assertJsonPath('data.route_stops.0.location', 'Vienna fuel stop')
+        ->assertJsonPath('data.route_stops.0.description', 'Refuel and inspect tires before crossing into Germany.')
         ->assertJsonPath('data.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route_stops.0.number_of_drivers', 4)
         ->assertJsonPath('data.route_stops.0.services.0.id', $fuel->id)
@@ -49,6 +69,8 @@ it('lists route stops with needed services for a route without authentication', 
         ->assertJsonPath('data.route_stops.0.services.1.quantity', 2)
         ->assertJsonPath('data.route_stops.1.id', $secondRouteStop->id)
         ->assertJsonPath('data.route_stops.1.route_id', $route->id)
+        ->assertJsonPath('data.route_stops.1.location', 'Munich overnight stop')
+        ->assertJsonPath('data.route_stops.1.description', null)
         ->assertJsonPath('data.route_stops.1.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stops.1.services.0.quantity', 100);
 });
@@ -93,11 +115,15 @@ function createRouteForRouteStopListEndpoint(): DispatcherRoute
 
 function createRouteStopForRouteStopListEndpoint(
     DispatcherRoute $route,
+    string $location,
+    ?string $description,
     int $numberOfTrucks,
     int $numberOfDrivers
 ): RouteStop {
     return RouteStop::query()->create([
         'route_id' => $route->id,
+        'location' => $location,
+        'description' => $description,
         'number_of_trucks' => $numberOfTrucks,
         'number_of_drivers' => $numberOfDrivers,
     ]);

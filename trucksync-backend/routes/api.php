@@ -38,6 +38,10 @@ Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexService
     ->whereNumber('id')
     ->name('rest-stop.services.index');
 
+Route::get('/route/route-stops/{route_id}', [RouteStopController::class, 'index'])
+    ->whereNumber('route_id')
+    ->name('route.route-stops.index');
+
 Route::prefix('driver')
     ->middleware('auth:sanctum')
     ->controller(DriverController::class)

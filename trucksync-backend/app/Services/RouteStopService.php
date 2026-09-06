@@ -8,10 +8,32 @@ use App\Exceptions\RouteNotOwnedByDispatcherException;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RouteStopService implements RouteStopServiceContract
 {
+    /**
+     * @return Collection<int, RouteStop>
+     *
+     * @throws RouteNotFoundException
+     */
+    public function forRoute(int $routeId): Collection
+    {
+        $route = DispatcherRoute::query()->find($routeId);
+
+        if (! $route) {
+            throw new RouteNotFoundException;
+        }
+
+        return $route->routeStops()
+            ->with([
+                'services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->orderBy('id')
+            ->get();
+    }
+
     /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
      *

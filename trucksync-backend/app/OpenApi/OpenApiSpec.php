@@ -119,6 +119,43 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/route/route-stops/{route_id}' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List route stops with needed services for a route',
+                        'operationId' => 'listRouteStops',
+                        'parameters' => [
+                            [
+                                'name' => 'route_id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteStopsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/service' => [
                     'get' => [
                         'tags' => ['Services'],
@@ -1307,6 +1344,24 @@ class OpenApiSpec
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/Service',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteStopsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stops'],
+                                'properties' => [
+                                    'route_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStop',
                                         ],
                                     ],
                                 ],

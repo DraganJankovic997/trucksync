@@ -52,7 +52,8 @@ export default {
         },
         quantity: {
           label: 'Quantity',
-          placeholder: '200'
+          placeholder: '200',
+          defaultUnit: 'units'
         }
       },
       actions: {

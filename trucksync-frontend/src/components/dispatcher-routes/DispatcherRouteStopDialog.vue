@@ -276,11 +276,11 @@ function addServiceRow() {
 }
 
 function removeServiceRow(uid) {
-  if (form.services.length <= 1) {
-    return;
-  }
+  const remainingRows = form.services.filter(
+    serviceRow => serviceRow.uid !== uid
+  );
 
-  form.services = form.services.filter(serviceRow => serviceRow.uid !== uid);
+  form.services = remainingRows.length > 0 ? remainingRows : [makeServiceRow()];
   formRef.value?.resetValidation();
 }
 
@@ -315,14 +315,16 @@ function isUniqueServiceSelection(serviceRow, value) {
 }
 
 function selectedMeasurementUnit(serviceRow) {
-  if (!hasValue(serviceRow.serviceId)) {
-    return '';
-  }
-
   return (
     serviceRecords.value.get(String(serviceRow.serviceId))?.measurement_unit ??
-    ''
+    t('dispatcherRouteEdit.routeStops.form.fields.quantity.defaultUnit')
   );
+}
+
+function handleServiceChange(serviceRow, serviceId) {
+  if (!hasValue(serviceId)) {
+    serviceRow.quantity = '';
+  }
 }
 
 function servicesPayload() {
@@ -484,6 +486,10 @@ function hasValue(value) {
                 :loading="isFetchingServices"
                 :disable="serviceFieldsDisabled || !hasServiceOptions"
                 :rules="serviceRules(serviceRow)"
+                no-error-icon
+                @update:model-value="
+                  serviceId => handleServiceChange(serviceRow, serviceId)
+                "
               />
 
               <q-input
@@ -500,13 +506,18 @@ function hasValue(value) {
                     'dispatcherRouteEdit.routeStops.form.fields.quantity.placeholder'
                   )
                 "
-                :suffix="selectedMeasurementUnit(serviceRow)"
-                :disable="serviceFieldsDisabled"
+                :disable="serviceFieldsDisabled || !hasValue(serviceRow.serviceId)"
                 :rules="quantityRules"
-              />
+                no-error-icon
+              >
+                <template v-if="hasValue(serviceRow.serviceId)" #append>
+                  <span class="dispatcher-route-stop-quantity-unit">
+                    {{ selectedMeasurementUnit(serviceRow) }}
+                  </span>
+                </template>
+              </q-input>
 
               <q-btn
-                v-if="form.services.length > 1"
                 class="dispatcher-route-stop-service-remove"
                 flat
                 round

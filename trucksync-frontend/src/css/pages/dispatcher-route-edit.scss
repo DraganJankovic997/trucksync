@@ -159,6 +159,14 @@
     margin-top: 8px;
   }
 
+  .dispatcher-route-stop-quantity-unit {
+    color: brand.$brand-muted;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
   .dispatcher-route-stop-service-add {
     justify-self: center;
   }

@@ -52,7 +52,8 @@ export default {
         },
         quantity: {
           label: 'Kolicina',
-          placeholder: '200'
+          placeholder: '200',
+          defaultUnit: 'komada'
         }
       },
       actions: {

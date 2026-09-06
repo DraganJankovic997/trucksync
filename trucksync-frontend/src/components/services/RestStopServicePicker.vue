@@ -45,10 +45,17 @@ const selectedServiceId = computed({
 
 const serviceOptions = computed(() =>
   props.services.map(service => ({
-    label: service.name ?? '',
+    label: formatServiceOptionLabel(service),
     value: service.id
   }))
 );
+
+function formatServiceOptionLabel(service) {
+  const serviceName = service.name ?? '';
+  const measurementUnit = service.measurement_unit ?? '';
+
+  return measurementUnit ? `${serviceName} (${measurementUnit})` : serviceName;
+}
 
 const required = value =>
   (value !== null && value !== undefined && value !== '') ||

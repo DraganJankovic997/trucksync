@@ -5,8 +5,11 @@ import TextField from '@/components/form/TextField.vue';
 
 const props = defineProps({
   modelValue: {
-    type: String,
-    default: ''
+    type: Object,
+    default: () => ({
+      name: '',
+      measurementUnit: ''
+    })
   },
   loading: {
     type: Boolean,
@@ -15,8 +18,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-  'update:modelValue': value => typeof value === 'string',
-  create: value => typeof value === 'string'
+  'update:modelValue': value =>
+    typeof value?.name === 'string' &&
+    typeof value?.measurementUnit === 'string',
+  create: value =>
+    typeof value?.name === 'string' &&
+    (typeof value?.measurementUnit === 'string' ||
+      value?.measurementUnit === null)
 });
 
 const { t } = useI18n();
@@ -24,25 +32,50 @@ const formRef = ref(null);
 
 const serviceName = computed({
   get() {
-    return props.modelValue;
+    return props.modelValue.name;
   },
   set(value) {
-    emit('update:modelValue', value);
+    emit('update:modelValue', {
+      ...props.modelValue,
+      name: value
+    });
   }
 });
 
-const required = value =>
-  Boolean(String(value ?? '').trim()) ||
-  t('validation.required', { field: t('services.form.name.label') });
+const measurementUnit = computed({
+  get() {
+    return props.modelValue.measurementUnit;
+  },
+  set(value) {
+    emit('update:modelValue', {
+      ...props.modelValue,
+      measurementUnit: value
+    });
+  }
+});
 
-const maxLength = length => value =>
+const required = fieldLabel => value =>
+  Boolean(String(value ?? '').trim()) ||
+  t('validation.required', { field: fieldLabel });
+
+const maxLength = (fieldLabel, length) => value =>
   String(value ?? '').length <= length ||
   t('validation.maxLength', {
-    field: t('services.form.name.label'),
+    field: fieldLabel,
     length: length
   });
 
-const nameRules = [required, maxLength(255)];
+const nameLabel = computed(() => t('services.form.name.label'));
+const measurementUnitLabel = computed(() =>
+  t('services.form.measurementUnit.label')
+);
+const nameRules = computed(() => [
+  required(nameLabel.value),
+  maxLength(nameLabel.value, 255)
+]);
+const measurementUnitRules = computed(() => [
+  maxLength(measurementUnitLabel.value, 255)
+]);
 
 async function handleSubmit() {
   const isValid = await formRef.value?.validate();
@@ -51,7 +84,10 @@ async function handleSubmit() {
     return;
   }
 
-  emit('create', serviceName.value.trim());
+  emit('create', {
+    name: serviceName.value.trim(),
+    measurementUnit: measurementUnit.value.trim() || null
+  });
 }
 </script>
 
@@ -72,10 +108,19 @@ async function handleSubmit() {
       <q-card-section class="q-px-lg q-py-md">
         <TextField
           v-model="serviceName"
-          :label="t('services.form.name.label')"
+          :label="nameLabel"
           name="service_name"
           :placeholder="t('services.form.name.placeholder')"
           :rules="nameRules"
+          :maxlength="255"
+        />
+
+        <TextField
+          v-model="measurementUnit"
+          :label="measurementUnitLabel"
+          name="measurement_unit"
+          :placeholder="t('services.form.measurementUnit.placeholder')"
+          :rules="measurementUnitRules"
           :maxlength="255"
         />
       </q-card-section>

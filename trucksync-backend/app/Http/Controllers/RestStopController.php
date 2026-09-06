@@ -253,13 +253,14 @@ class RestStopController extends Controller
     }
 
     /**
-     * @return array{id: int, name: string}
+     * @return array{id: int, name: string, measurement_unit: string|null}
      */
     private function servicePayload(Service $service): array
     {
         return [
             'id' => $service->id,
             'name' => $service->name,
+            'measurement_unit' => $service->measurement_unit,
         ];
     }
 }

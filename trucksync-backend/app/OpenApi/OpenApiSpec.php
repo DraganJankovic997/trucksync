@@ -1208,6 +1208,7 @@ class OpenApiSpec
                         'required' => [
                             'id',
                             'name',
+                            'measurement_unit',
                         ],
                         'properties' => [
                             'id' => [
@@ -1218,6 +1219,12 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'maxLength' => 255,
                                 'example' => 'Tire replacement',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'piece',
                             ],
                         ],
                     ],
@@ -1878,6 +1885,13 @@ class OpenApiSpec
                                 'minLength' => 1,
                                 'maxLength' => 255,
                                 'example' => 'Tire replacement',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'minLength' => 1,
+                                'maxLength' => 255,
+                                'example' => 'piece',
                             ],
                         ],
                     ],

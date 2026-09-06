@@ -40,10 +40,11 @@ export const useServiceStore = defineStore('service', () => {
     }
   }
 
-  async function createService(name) {
+  async function createService(name, measurementUnit = null) {
     try {
       const { data } = await api.post('/service', {
-        name: name
+        name: name,
+        measurement_unit: measurementUnit
       });
 
       service.value = data?.data?.service ?? null;

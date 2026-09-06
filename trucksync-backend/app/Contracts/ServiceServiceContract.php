@@ -14,7 +14,7 @@ interface ServiceServiceContract
 
     public function find(int $id): ?Service;
 
-    public function create(string $name): Service;
+    public function create(string $name, ?string $measurementUnit): Service;
 
     public function delete(Service $service): void;
 }

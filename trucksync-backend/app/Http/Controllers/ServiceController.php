@@ -71,10 +71,16 @@ class ServiceController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('services', 'name')],
+            'measurement_unit' => ['nullable', 'string', 'max:255'],
         ]);
 
         try {
-            $service = $this->serviceService->create($validated['name']);
+            $service = $this->serviceService->create(
+                trim($validated['name']),
+                $request->filled('measurement_unit')
+                    ? trim($validated['measurement_unit'])
+                    : null,
+            );
 
             return response()->json([
                 'message' => 'Service created successfully.',
@@ -124,13 +130,14 @@ class ServiceController extends Controller
     }
 
     /**
-     * @return array{id: int, name: string}
+     * @return array{id: int, name: string, measurement_unit: string|null}
      */
     private function servicePayload(Service $service): array
     {
         return [
             'id' => $service->id,
             'name' => $service->name,
+            'measurement_unit' => $service->measurement_unit,
         ];
     }
 }

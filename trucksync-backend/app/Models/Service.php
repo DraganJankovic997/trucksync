@@ -20,6 +20,7 @@ class Service extends Model
      */
     protected $fillable = [
         'name',
+        'measurement_unit',
     ];
 
     public function restStopServices(): HasMany

@@ -13,12 +13,17 @@ export default {
       label: 'Naziv usluge',
       placeholder: 'Parking, tus, popravka...'
     },
+    measurementUnit: {
+      label: 'Jedinica mere',
+      placeholder: 'kamion, guma, sat...'
+    },
     submit: 'Dodaj uslugu'
   },
   table: {
     title: 'Sve usluge',
     id: 'ID',
     name: 'Naziv',
+    measurementUnit: 'Jedinica mere',
     actions: 'Akcije',
     delete: 'Obrisi',
     deleteAria: 'Obrisi {name}',

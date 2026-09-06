@@ -23,10 +23,11 @@ class ServiceService implements ServiceServiceContract
         return Service::query()->find($id);
     }
 
-    public function create(string $name): Service
+    public function create(string $name, ?string $measurementUnit): Service
     {
         return Service::query()->create([
             'name' => $name,
+            'measurement_unit' => $measurementUnit,
         ])->refresh();
     }
 

@@ -124,9 +124,14 @@ const required = fieldLabel => value =>
 const requiredSelect = fieldLabel => value =>
   hasValue(value) || t('validation.required', { field: fieldLabel });
 
-const integer = fieldLabel => value =>
-  /^\d+$/.test(String(value ?? '').trim()) ||
-  t('validation.integer', { field: fieldLabel });
+const integer = fieldLabel => value => {
+  const numberValue = Number(value);
+
+  return (
+    Number.isInteger(numberValue) ||
+    t('validation.integer', { field: fieldLabel })
+  );
+};
 
 const min = (fieldLabel, minimum) => value =>
   Number(value) >= minimum ||

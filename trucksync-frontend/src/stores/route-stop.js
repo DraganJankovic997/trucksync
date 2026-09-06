@@ -43,7 +43,8 @@ export const useRouteStopStore = defineStore('route-stop', () => {
         services: services
       });
 
-      await fetchRouteStops(id);
+      routeStop.value = data?.data?.route_stop ?? null;
+      await fetchRouteStops(routeStop.value.id);
 
       toast.success(i18n.global.t('messages.routeStop.createSuccess'));
 

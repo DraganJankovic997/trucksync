@@ -52,7 +52,8 @@ export default {
     createSuccess: 'Route created successfully',
     createError: 'Failed to create route',
     closeSuccess: 'Route closed successfully',
-    closeError: 'Failed to close route'
+    closeError: 'Failed to close route',
+    editForbidden: 'You are not allowed to edit this route'
   },
   routeStop: {
     fetchError: 'Failed to fetch route stops',

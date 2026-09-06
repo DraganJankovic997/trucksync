@@ -52,7 +52,8 @@ export default {
     createSuccess: 'Ruta je uspesno kreirana',
     createError: 'Kreiranje rute nije uspelo',
     closeSuccess: 'Ruta je uspesno zatvorena',
-    closeError: 'Zatvaranje rute nije uspelo'
+    closeError: 'Zatvaranje rute nije uspelo',
+    editForbidden: 'Nemate dozvolu da izmenite ovu rutu'
   },
   routeStop: {
     fetchError: 'Preuzimanje stajalista rute nije uspelo',

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import { toast } from '@/boot/toast.js';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 import { useRouteStore } from '@/stores/route.js';
 
@@ -14,11 +15,16 @@ const routeStore = useRouteStore();
 const routeId = computed(() => route.params.routeId);
 const isRouteAllowed = ref(false);
 
+async function redirectToDashboardWithEditError() {
+  toast.error(t('messages.route.editForbidden'));
+  await router.replace({ name: 'dashboard' });
+}
+
 async function validateRouteOwnership() {
   const currentDispatcher = await dispatcherStore.fetchDispatcher();
 
   if (!currentDispatcher?.id) {
-    await router.replace({ name: 'dispatcher-routes' });
+    await redirectToDashboardWithEditError();
     return;
   }
 
@@ -31,7 +37,7 @@ async function validateRouteOwnership() {
   );
 
   if (!ownsRoute) {
-    await router.replace({ name: 'dispatcher-routes' });
+    await redirectToDashboardWithEditError();
     return;
   }
 

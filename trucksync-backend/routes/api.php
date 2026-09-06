@@ -38,6 +38,10 @@ Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexService
     ->whereNumber('id')
     ->name('rest-stop.services.index');
 
+Route::get('/route/{route_id}', [RouteController::class, 'show'])
+    ->whereNumber('route_id')
+    ->name('route.show');
+
 Route::get('/route/route-stops/{route_id}', [RouteStopController::class, 'index'])
     ->whereNumber('route_id')
     ->name('route.route-stops.index');

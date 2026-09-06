@@ -119,6 +119,43 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/route/{route_id}' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Show a route with route stops and needed services',
+                        'operationId' => 'showRoute',
+                        'parameters' => [
+                            [
+                                'name' => 'route_id',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route details.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteShowResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/route/route-stops/{route_id}' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -1350,6 +1387,21 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RouteShowResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route'],
+                                'properties' => [
+                                    'route' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteWithStops',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RouteStopsIndexResponse' => [
                         'type' => 'object',
                         'required' => ['data'],
@@ -1640,6 +1692,25 @@ class OpenApiSpec
                                 'type' => 'array',
                                 'items' => [
                                     '$ref' => '#/components/schemas/DispatcherRouteStopService',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteWithStops' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/DispatcherRoute',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['route_stops'],
+                                'properties' => [
+                                    'route_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStop',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

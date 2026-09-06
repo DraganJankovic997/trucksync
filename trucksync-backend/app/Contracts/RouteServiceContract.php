@@ -24,4 +24,6 @@ interface RouteServiceContract
     ): ?DispatcherRoute;
 
     public function closeForUser(User $user, int $routeId): ?DispatcherRoute;
+
+    public function findWithStops(int $routeId): ?DispatcherRoute;
 }

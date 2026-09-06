@@ -1,26 +1,35 @@
 <script setup>
+import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/boot/toast.js';
+import { useAuthStore } from '@/stores/auth.js';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 import { useRouteStore } from '@/stores/route.js';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 const dispatcherStore = useDispatcherStore();
 const routeStore = useRouteStore();
+const { user } = storeToRefs(authStore);
 
 const routeId = computed(() => route.params.routeId);
 const isRouteAllowed = ref(false);
 
 async function redirectToDashboardWithEditError() {
-  toast.error(t('messages.route.editForbidden'));
   await router.replace({ name: 'dashboard' });
+  toast.error(t('messages.route.editForbidden'));
 }
 
 async function validateRouteOwnership() {
+  if (user.value?.profile_type !== 'dispatcher') {
+    await redirectToDashboardWithEditError();
+    return;
+  }
+
   const currentDispatcher = await dispatcherStore.fetchDispatcher();
 
   if (!currentDispatcher?.id) {
@@ -28,13 +37,9 @@ async function validateRouteOwnership() {
     return;
   }
 
-  const dispatcherRoutes = await routeStore.fetchRoutesForDispatcher(
-    currentDispatcher.id
-  );
-
-  const ownsRoute = dispatcherRoutes.some(
-    route => String(route.id) === String(routeId.value)
-  );
+  const currentRoute = await routeStore.fetchRoute(routeId.value);
+  const ownsRoute =
+    String(currentRoute?.dispatcher_id) === String(currentDispatcher.id);
 
   if (!ownsRoute) {
     await redirectToDashboardWithEditError();

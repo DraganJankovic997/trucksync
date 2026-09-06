@@ -76,6 +76,16 @@ class RouteService implements RouteServiceContract
         return $route->refresh();
     }
 
+    public function findWithStops(int $routeId): ?DispatcherRoute
+    {
+        return DispatcherRoute::query()
+            ->with([
+                'routeStops' => fn ($query) => $query->orderBy('id'),
+                'routeStops.services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->find($routeId);
+    }
+
     private function dispatcherForUser(User $user): ?Dispatcher
     {
         return Dispatcher::query()

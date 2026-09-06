@@ -49,6 +49,7 @@ export default {
   },
   route: {
     fetchError: 'Failed to fetch routes',
+    fetchOneError: 'Failed to fetch route',
     createSuccess: 'Route created successfully',
     createError: 'Failed to create route',
     closeSuccess: 'Route closed successfully',

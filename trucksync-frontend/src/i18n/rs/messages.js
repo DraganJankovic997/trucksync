@@ -49,6 +49,7 @@ export default {
   },
   route: {
     fetchError: 'Preuzimanje ruta nije uspelo',
+    fetchOneError: 'Preuzimanje rute nije uspelo',
     createSuccess: 'Ruta je uspesno kreirana',
     createError: 'Kreiranje rute nije uspelo',
     closeSuccess: 'Ruta je uspesno zatvorena',

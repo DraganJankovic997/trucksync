@@ -36,8 +36,7 @@ const routes = [
         name: 'dispatcher-route-edit',
         component: () => import('@/pages/DispatcherRouteEditPage.vue'),
         meta: {
-          requiresAuth: true,
-          requiresDispatcher: true
+          requiresAuth: true
         }
       },
       {

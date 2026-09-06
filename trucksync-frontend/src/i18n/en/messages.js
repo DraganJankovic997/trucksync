@@ -54,6 +54,11 @@ export default {
     closeSuccess: 'Route closed successfully',
     closeError: 'Failed to close route'
   },
+  routeStop: {
+    fetchError: 'Failed to fetch route stops',
+    createSuccess: 'Route stop created successfully',
+    createError: 'Failed to create route stop'
+  },
   service: {
     fetchError: 'Failed to fetch services',
     fetchOneError: 'Failed to fetch service',

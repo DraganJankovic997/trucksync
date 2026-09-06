@@ -54,6 +54,11 @@ export default {
     closeSuccess: 'Ruta je uspesno zatvorena',
     closeError: 'Zatvaranje rute nije uspelo'
   },
+  routeStop: {
+    fetchError: 'Preuzimanje stajalista rute nije uspelo',
+    createSuccess: 'Stajaliste rute je uspesno kreirano',
+    createError: 'Kreiranje stajalista rute nije uspelo'
+  },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',
     fetchOneError: 'Preuzimanje usluge nije uspelo',

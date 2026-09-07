@@ -37,6 +37,10 @@
     overflow: hidden;
   }
 
+  .route-stops-table tbody tr {
+    cursor: pointer;
+  }
+
   .route-stops-search {
     width: min(100vw - 64px, 320px);
   }

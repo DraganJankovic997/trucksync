@@ -1,9 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import { useRouteStopStore } from '@/stores/route-stop.js';
 
 const { t } = useI18n();
+const router = useRouter();
 const routeStopStore = useRouteStopStore();
 const rowsPerPageOptions = [10, 15, 25, 50, 100];
 
@@ -140,6 +142,17 @@ function refreshRouteStops() {
   void loadRouteStops();
 }
 
+function openRouteStop(row) {
+  if (row?.id === undefined || row.id === null) {
+    return;
+  }
+
+  void router.push({
+    name: 'rest-stop-route-stop',
+    params: { id: row.id }
+  });
+}
+
 function formatDateTime(value) {
   if (!value) {
     return value;
@@ -192,6 +205,7 @@ function formatServiceLabel(service) {
       :loading="isFetching"
       :rows-per-page-options="rowsPerPageOptions"
       @request="loadRouteStops"
+      @row-click="(_event, row) => openRouteStop(row)"
     >
       <template #top-left>
         <div>

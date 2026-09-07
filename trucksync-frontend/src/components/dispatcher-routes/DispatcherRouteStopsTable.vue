@@ -67,6 +67,7 @@ const columns = computed(() => [
     name: 'services',
     label: t('dispatcherRouteEdit.routeStops.table.services'),
     field: 'services',
+    format: formatServiceNames,
     align: 'left'
   }
 ]);
@@ -80,7 +81,7 @@ const rows = computed(() =>
     description: formatValue(routeStop.description),
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
     numberOfDrivers: formatValue(routeStop.number_of_drivers),
-    services: formatServices(routeStop.services)
+    services: routeStop.services
   }))
 );
 
@@ -92,15 +93,12 @@ function formatValue(value) {
     : value;
 }
 
-function formatServices(services) {
-  if (!Array.isArray(services)) {
-    return [];
+function formatServiceNames(services) {
+  if (!Array.isArray(services) || services.length === 0) {
+    return t('dispatcherRouteEdit.routeStops.table.emptyValue');
   }
 
-  return services.map(service => ({
-    id: service.id,
-    label: formatServiceLabel(service)
-  }));
+  return services.map(service => formatValue(service.name)).join(', ');
 }
 
 function formatDateTime(value) {
@@ -121,12 +119,6 @@ function formatDateTime(value) {
     hour: '2-digit',
     minute: '2-digit'
   }).format(dateValue);
-}
-
-function formatServiceLabel(service) {
-  const unit = service.measurement_unit ? ` ${service.measurement_unit}` : '';
-
-  return `${formatValue(service.name)}: ${formatValue(service.quantity)}${unit}`;
 }
 
 function requestEdit(row) {
@@ -211,22 +203,7 @@ function requestEdit(row) {
 
       <template #body-cell-services="scope">
         <q-td :props="scope">
-          <div
-            v-if="scope.row.services.length > 0"
-            class="dispatcher-route-stops-services"
-          >
-            <q-badge
-              v-for="service in scope.row.services"
-              :key="`${scope.row.id}-${service.id}`"
-              class="dispatcher-route-stops-service"
-              outline
-            >
-              {{ service.label }}
-            </q-badge>
-          </div>
-          <span v-else>
-            {{ t('dispatcherRouteEdit.routeStops.table.emptyValue') }}
-          </span>
+          <span>{{ scope.value }}</span>
         </q-td>
       </template>
 

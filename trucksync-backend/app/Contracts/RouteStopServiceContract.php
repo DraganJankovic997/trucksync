@@ -18,6 +18,11 @@ interface RouteStopServiceContract
     public function forRoute(int $routeId): Collection;
 
     /**
+     * @return Collection<int, RouteStop>
+     */
+    public function unfulfilled(): Collection;
+
+    /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
      *
      * @throws RouteNotFoundException

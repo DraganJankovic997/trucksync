@@ -156,6 +156,36 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/route/route-stops' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List unfulfilled route stops with needed services',
+                        'operationId' => 'listUnfulfilledRouteStops',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Unfulfilled route stop list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/UnfulfilledRouteStopsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/route/route-stops/{route_id}' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -1481,6 +1511,24 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'UnfulfilledRouteStopsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stops'],
+                                'properties' => [
+                                    'route_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/UnfulfilledRouteStop',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'User' => [
                         'type' => 'object',
                         'required' => [
@@ -1786,6 +1834,25 @@ class OpenApiSpec
                                 'type' => 'array',
                                 'items' => [
                                     '$ref' => '#/components/schemas/DispatcherRouteStopService',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'UnfulfilledRouteStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/DispatcherRouteStop',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['dispatcher_company_name'],
+                                'properties' => [
+                                    'dispatcher_company_name' => [
+                                        'type' => 'string',
+                                        'nullable' => true,
+                                        'description' => 'Company name for the dispatcher that created the route this stop belongs to.',
+                                        'example' => 'Acme Dispatch',
+                                    ],
                                 ],
                             ],
                         ],

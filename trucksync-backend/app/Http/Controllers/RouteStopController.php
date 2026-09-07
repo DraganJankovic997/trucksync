@@ -47,6 +47,31 @@ class RouteStopController extends Controller
         }
     }
 
+    public function indexUnfulfilled(Request $request): JsonResponse
+    {
+        try {
+            $routeStops = $this->routeStopService->unfulfilled();
+
+            return response()->json([
+                'data' => [
+                    'route_stops' => $routeStops
+                        ->map(fn (RouteStop $routeStop): array => $this->routeStopPayloadWithDispatcher($routeStop))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch unfulfilled route stops.', [
+                'user_id' => $request->user()->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch route stops.',
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $authenticatedUser = $request->user();
@@ -194,6 +219,17 @@ class RouteStopController extends Controller
                 ])
                 ->values()
                 ->all(),
+        ];
+    }
+
+    /**
+     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     */
+    private function routeStopPayloadWithDispatcher(RouteStop $routeStop): array
+    {
+        return [
+            ...$this->routeStopPayload($routeStop),
+            'dispatcher_company_name' => $routeStop->route?->dispatcher?->company_name,
         ];
     }
 }

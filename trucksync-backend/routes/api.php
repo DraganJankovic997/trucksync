@@ -42,6 +42,10 @@ Route::get('/route/{route_id}', [RouteController::class, 'show'])
     ->whereNumber('route_id')
     ->name('route.show');
 
+Route::middleware('auth:sanctum')
+    ->get('/route/route-stops', [RouteStopController::class, 'indexUnfulfilled'])
+    ->name('route.route-stops.unfulfilled');
+
 Route::get('/route/route-stops/{route_id}', [RouteStopController::class, 'index'])
     ->whereNumber('route_id')
     ->name('route.route-stops.index');

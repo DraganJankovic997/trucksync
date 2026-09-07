@@ -35,6 +35,21 @@ class RouteStopService implements RouteStopServiceContract
     }
 
     /**
+     * @return Collection<int, RouteStop>
+     */
+    public function unfulfilled(): Collection
+    {
+        return RouteStop::query()
+            ->with([
+                'route.dispatcher',
+                'services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->whereNull('fulfiled_at')
+            ->orderByDesc('stop_at')
+            ->get();
+    }
+
+    /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
      *
      * @throws RouteNotFoundException

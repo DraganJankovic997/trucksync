@@ -40,8 +40,14 @@ const linksList = [
   },
   {
     labelKey: 'layout.navigation.profileServices',
-    link: '/profile/services',
+    link: '/rest-stop/services',
     icon: 'miscellaneous_services',
+    restStopOnly: true
+  },
+  {
+    labelKey: 'layout.navigation.routeStops',
+    link: '/route-stops',
+    icon: 'pin_drop',
     restStopOnly: true
   },
   {

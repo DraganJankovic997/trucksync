@@ -20,9 +20,21 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: '/profile/services',
-        name: 'profile-services',
+        path: '/rest-stop/services',
+        name: 'rest-stop-services',
         component: () => import('@/pages/RestStopServicesPage.vue'),
+        meta: { requiresAuth: true, requiresRestStop: true }
+      },
+      {
+        path: '/route-stops',
+        name: 'route-stops',
+        component: () => import('@/pages/RouteStopsPage.vue'),
+        meta: { requiresAuth: true, requiresRestStop: true }
+      },
+      {
+        path: '/rest-stop/route-stop/:id(\\d+)',
+        name: 'rest-stop-route-stop',
+        component: () => import('@/pages/RestStopRouteStopPage.vue'),
         meta: { requiresAuth: true, requiresRestStop: true }
       },
       {

@@ -1,5 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia';
+import { date as quasarDate } from 'quasar';
 import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TextField from '@/components/form/TextField.vue';
@@ -34,11 +35,14 @@ const { services: catalogServices } = storeToRefs(serviceStore);
 const formRef = ref(null);
 const isFetchingServices = ref(false);
 const isSavingRouteStop = ref(false);
+const { addToDate, extractDate, formatDate } = quasarDate;
+const stopAtInputMask = 'YYYY-MM-DDTHH:mm';
 let serviceRowId = 0;
 
 const form = reactive({
   location: '',
   description: '',
+  stopAt: '',
   numberOfTrucks: '',
   numberOfDrivers: '',
   services: [makeServiceRow()]
@@ -76,6 +80,9 @@ const locationLabel = computed(() =>
 );
 const descriptionLabel = computed(() =>
   t('dispatcherRouteEdit.routeStops.form.fields.description.label')
+);
+const stopAtLabel = computed(() =>
+  t('dispatcherRouteEdit.routeStops.form.fields.stopAt.label')
 );
 const numberOfTrucksLabel = computed(() =>
   t('dispatcherRouteEdit.routeStops.form.fields.numberOfTrucks.label')
@@ -116,6 +123,9 @@ const canAddServiceRow = computed(
     !isFetchingServices.value &&
     form.services.length < serviceOptions.value.length
 );
+const minimumStopAt = computed(() =>
+  formatDate(addToDate(new Date(), { minutes: 1 }), stopAtInputMask)
+);
 
 const required = fieldLabel => value =>
   Boolean(String(value ?? '').trim()) ||
@@ -144,12 +154,36 @@ const maxLength = (fieldLabel, length) => value =>
     length: length
   });
 
+const dateTime = fieldLabel => value =>
+  !value ||
+  isValidDateTimeValue(value) ||
+  t('validation.dateTime', { field: fieldLabel });
+
+const futureDateTime = fieldLabel => value => {
+  const parsedDate = parseDateTimeInputValue(value);
+
+  return (
+    !value ||
+    parsedDate === null ||
+    parsedDate > new Date() ||
+    t('validation.futureDateTime', { field: fieldLabel })
+  );
+};
+
 const locationRules = computed(() => [
   required(locationLabel.value),
   maxLength(locationLabel.value, 255)
 ]);
 const activeLocationRules = computed(() =>
   isEditMode.value ? [] : locationRules.value
+);
+const stopAtRules = computed(() => [
+  required(stopAtLabel.value),
+  dateTime(stopAtLabel.value),
+  futureDateTime(stopAtLabel.value)
+]);
+const activeStopAtRules = computed(() =>
+  isEditMode.value ? [] : stopAtRules.value
 );
 const numberOfTrucksRules = computed(() => [
   required(numberOfTrucksLabel.value),
@@ -212,6 +246,7 @@ async function handleSubmit() {
         props.routeId,
         form.location.trim(),
         form.description.trim() || null,
+        form.stopAt,
         Number(form.numberOfTrucks),
         Number(form.numberOfDrivers),
         servicesPayload()
@@ -242,6 +277,7 @@ async function loadServices() {
 function hydrateForm() {
   form.location = props.routeStop?.location ?? '';
   form.description = props.routeStop?.description ?? '';
+  form.stopAt = dateTimeInputValueFromPayload(props.routeStop?.stop_at);
   form.numberOfTrucks = props.routeStop?.number_of_trucks ?? '';
   form.numberOfDrivers = props.routeStop?.number_of_drivers ?? '';
   form.services = serviceRowsFromRouteStop();
@@ -251,6 +287,7 @@ function hydrateForm() {
 function resetForm() {
   form.location = '';
   form.description = '';
+  form.stopAt = '';
   form.numberOfTrucks = '';
   form.numberOfDrivers = '';
   form.services = [makeServiceRow()];
@@ -359,6 +396,37 @@ function formatServiceOptionLabel(service) {
   return measurementUnit ? `${serviceName} (${measurementUnit})` : serviceName;
 }
 
+function dateTimeInputValueFromPayload(value) {
+  if (!value) {
+    return '';
+  }
+
+  const dateValue = new Date(value);
+
+  if (Number.isNaN(dateValue.getTime())) {
+    return '';
+  }
+
+  return formatDate(dateValue, stopAtInputMask);
+}
+
+function isValidDateTimeValue(value) {
+  return parseDateTimeInputValue(value) !== null;
+}
+
+function parseDateTimeInputValue(value) {
+  const stringValue = String(value ?? '');
+  const parsedDate = extractDate(stringValue, stopAtInputMask);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  const isExactInput = formatDate(parsedDate, stopAtInputMask) === stringValue;
+
+  return isExactInput ? parsedDate : null;
+}
+
 function hasValue(value) {
   return value !== null && value !== undefined && value !== '';
 }
@@ -420,6 +488,17 @@ function hasValue(value) {
               "
               :rules="activeLocationRules"
               :maxlength="255"
+              :disable="topFieldsDisabled"
+            />
+
+            <TextField
+              v-model="form.stopAt"
+              type="datetime-local"
+              stack-label
+              :min="minimumStopAt"
+              :label="stopAtLabel"
+              name="stop_at"
+              :rules="activeStopAtRules"
               :disable="topFieldsDisabled"
             />
 

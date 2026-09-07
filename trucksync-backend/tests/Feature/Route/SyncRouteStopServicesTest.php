@@ -244,6 +244,7 @@ function createRouteStopForRouteStopServicesEndpoint(DispatcherRoute $route): Ro
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
+        'stop_at' => '2026-10-02 10:30:00',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);

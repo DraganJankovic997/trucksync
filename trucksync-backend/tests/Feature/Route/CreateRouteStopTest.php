@@ -25,6 +25,7 @@ it('creates a route stop with needed services for a route owned by the authentic
         'name' => 'Tire replacement',
         'measurement_unit' => 'piece',
     ]);
+    $stopAt = now()->addDays(7)->setSeconds(0)->setMicroseconds(0);
 
     Sanctum::actingAs($user);
 
@@ -32,6 +33,7 @@ it('creates a route stop with needed services for a route owned by the authentic
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
+        'stop_at' => $stopAt->toDateTimeString(),
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
         'services' => [
@@ -52,6 +54,9 @@ it('creates a route stop with needed services for a route owned by the authentic
         ->assertJsonPath('data.route_stop.route_id', $route->id)
         ->assertJsonPath('data.route_stop.location', 'Vienna fuel stop')
         ->assertJsonPath('data.route_stop.description', 'Refuel and inspect tires before crossing into Germany.')
+        ->assertJsonPath('data.route_stop.stop_at', $stopAt->toJSON())
+        ->assertJsonPath('data.route_stop.fulfiled_at', null)
+        ->assertJsonPath('data.route_stop.fulfiled_by', null)
         ->assertJsonPath('data.route_stop.number_of_trucks', 3)
         ->assertJsonPath('data.route_stop.number_of_drivers', 4)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
@@ -70,6 +75,9 @@ it('creates a route stop with needed services for a route owned by the authentic
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
+        'stop_at' => $stopAt->toDateTimeString(),
+        'fulfiled_at' => null,
+        'fulfiled_by' => null,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -104,6 +112,7 @@ it('forbids creating a route stop for a route owned by another dispatcher', func
     $this->postJson('/api/dispatcher/route/route-stop', [
         'route_id' => $otherRoute->id,
         'location' => 'Vienna fuel stop',
+        'stop_at' => now()->addDays(7)->toDateTimeString(),
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
         'services' => [
@@ -153,6 +162,7 @@ it('returns not found when the route does not exist for the authenticated dispat
     $this->postJson('/api/dispatcher/route/route-stop', [
         'route_id' => 999,
         'location' => 'Vienna fuel stop',
+        'stop_at' => now()->addDays(7)->toDateTimeString(),
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
         'services' => [
@@ -182,6 +192,7 @@ it('validates route stop payloads', function () {
         ->assertJsonValidationErrors([
             'route_id',
             'location',
+            'stop_at',
             'number_of_trucks',
             'number_of_drivers',
             'services',
@@ -191,6 +202,7 @@ it('validates route stop payloads', function () {
         'route_id' => 0,
         'location' => '',
         'description' => [],
+        'stop_at' => now()->subMinute()->toDateTimeString(),
         'number_of_trucks' => 0,
         'number_of_drivers' => 0,
         'services' => [
@@ -212,6 +224,7 @@ it('validates route stop payloads', function () {
             'route_id',
             'location',
             'description',
+            'stop_at',
             'number_of_trucks',
             'number_of_drivers',
             'services.0.service_id',

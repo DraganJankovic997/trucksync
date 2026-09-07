@@ -11,6 +11,7 @@ export default {
     dashboard: 'Kontrolna tabla',
     profile: 'Profil',
     profileServices: 'Moje usluge',
+    routeStops: 'Stajalista ruta',
     dispatcherRoutes: 'Rute',
     adminApproval: 'Odobravanje',
     adminServices: 'Usluge'

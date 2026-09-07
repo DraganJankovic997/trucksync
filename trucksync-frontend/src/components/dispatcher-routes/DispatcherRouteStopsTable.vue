@@ -37,6 +37,13 @@ const columns = computed(() => [
     sortable: true
   },
   {
+    name: 'stopAt',
+    label: t('dispatcherRouteEdit.routeStops.table.stopAt'),
+    field: 'stopAt',
+    align: 'left',
+    sortable: true
+  },
+  {
     name: 'description',
     label: t('dispatcherRouteEdit.routeStops.table.description'),
     field: 'description',
@@ -69,6 +76,7 @@ const rows = computed(() =>
     id: routeStop.id,
     routeStop: routeStop,
     location: formatValue(routeStop.location),
+    stopAt: formatDateTime(routeStop.stop_at),
     description: formatValue(routeStop.description),
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
     numberOfDrivers: formatValue(routeStop.number_of_drivers),
@@ -93,6 +101,26 @@ function formatServices(services) {
     id: service.id,
     label: formatServiceLabel(service)
   }));
+}
+
+function formatDateTime(value) {
+  if (!value) {
+    return formatValue(value);
+  }
+
+  const dateValue = new Date(value);
+
+  if (Number.isNaN(dateValue.getTime())) {
+    return formatValue(value);
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(dateValue);
 }
 
 function formatServiceLabel(service) {

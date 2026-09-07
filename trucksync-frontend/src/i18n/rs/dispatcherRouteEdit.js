@@ -37,6 +37,9 @@ export default {
           label: 'Opis',
           placeholder: 'Dodajte detalje stajalista'
         },
+        stopAt: {
+          label: 'Vreme stajanja'
+        },
         numberOfTrucks: {
           label: 'Broj kamiona',
           placeholder: '3'
@@ -66,6 +69,7 @@ export default {
     table: {
       id: 'ID',
       location: 'Lokacija',
+      stopAt: 'Vreme stajanja',
       description: 'Opis',
       numberOfTrucks: 'Kamioni',
       numberOfDrivers: 'Vozaci',

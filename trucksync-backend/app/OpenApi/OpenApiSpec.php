@@ -166,6 +166,72 @@ class OpenApiSpec
                                 'sanctumBearer' => [],
                             ],
                         ],
+                        'parameters' => [
+                            [
+                                'name' => 'search',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Case-insensitive search term matched against route stop location and description.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'maxLength' => 255,
+                                    'example' => 'fuel',
+                                ],
+                            ],
+                            [
+                                'name' => 'page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Page number.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'default' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'per_page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Number of route stops per page.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'maximum' => 100,
+                                    'default' => 15,
+                                ],
+                            ],
+                            [
+                                'name' => 'sortBy.key',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Field to sort route stops by.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'enum' => [
+                                        'id',
+                                        'route_id',
+                                        'location',
+                                        'description',
+                                        'stop_at',
+                                        'number_of_trucks',
+                                        'number_of_drivers',
+                                    ],
+                                    'default' => 'stop_at',
+                                ],
+                            ],
+                            [
+                                'name' => 'sortBy.order',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Sort direction.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'enum' => ['asc', 'desc'],
+                                    'default' => 'desc',
+                                ],
+                            ],
+                        ],
                         'responses' => [
                             '200' => [
                                 'description' => 'Unfulfilled route stop list.',
@@ -179,6 +245,9 @@ class OpenApiSpec
                             ],
                             '401' => [
                                 '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -1513,7 +1582,7 @@ class OpenApiSpec
                     ],
                     'UnfulfilledRouteStopsIndexResponse' => [
                         'type' => 'object',
-                        'required' => ['data'],
+                        'required' => ['data', 'links', 'meta'],
                         'properties' => [
                             'data' => [
                                 'type' => 'object',
@@ -1524,6 +1593,84 @@ class OpenApiSpec
                                         'items' => [
                                             '$ref' => '#/components/schemas/UnfulfilledRouteStop',
                                         ],
+                                    ],
+                                ],
+                            ],
+                            'links' => [
+                                'type' => 'object',
+                                'required' => ['first', 'last', 'prev', 'next'],
+                                'properties' => [
+                                    'first' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/route/route-stops?page=1',
+                                    ],
+                                    'last' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/route/route-stops?page=3',
+                                    ],
+                                    'prev' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => null,
+                                    ],
+                                    'next' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => 'http://localhost/api/route/route-stops?page=2',
+                                    ],
+                                ],
+                            ],
+                            'meta' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'current_page',
+                                    'from',
+                                    'last_page',
+                                    'path',
+                                    'per_page',
+                                    'to',
+                                    'total',
+                                ],
+                                'properties' => [
+                                    'current_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 1,
+                                    ],
+                                    'from' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 1,
+                                    ],
+                                    'last_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 3,
+                                    ],
+                                    'path' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/route/route-stops',
+                                    ],
+                                    'per_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'maximum' => 100,
+                                        'example' => 15,
+                                    ],
+                                    'to' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 15,
+                                    ],
+                                    'total' => [
+                                        'type' => 'integer',
+                                        'minimum' => 0,
+                                        'example' => 35,
                                     ],
                                 ],
                             ],

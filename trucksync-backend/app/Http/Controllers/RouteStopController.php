@@ -16,6 +16,19 @@ use Throwable;
 
 class RouteStopController extends Controller
 {
+    /**
+     * @var list<string>
+     */
+    private const UNFULFILLED_SORT_KEYS = [
+        'id',
+        'route_id',
+        'location',
+        'description',
+        'stop_at',
+        'number_of_trucks',
+        'number_of_drivers',
+    ];
+
     public function __construct(private readonly RouteStopServiceContract $routeStopService) {}
 
     public function index(int $route_id): JsonResponse
@@ -49,15 +62,47 @@ class RouteStopController extends Controller
 
     public function indexUnfulfilled(Request $request): JsonResponse
     {
+        $queryParameters = $this->unfulfilledRouteStopsQueryParameters($request);
+
+        validator($queryParameters, [
+            'search' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'page' => ['required', 'integer', 'min:1'],
+            'per_page' => ['required', 'integer', 'min:1', 'max:100'],
+            'sortBy\.key' => ['required', 'string', Rule::in(self::UNFULFILLED_SORT_KEYS)],
+            'sortBy\.order' => ['required', 'string', Rule::in(['asc', 'desc'])],
+        ])->validate();
+
         try {
-            $routeStops = $this->routeStopService->unfulfilled();
+            $routeStops = $this->routeStopService->unfulfilled(
+                $queryParameters['search'],
+                (int) $queryParameters['per_page'],
+                (int) $queryParameters['page'],
+                $queryParameters['sortBy.key'],
+                $queryParameters['sortBy.order'],
+            );
+            $routeStops->appends($request->query());
 
             return response()->json([
                 'data' => [
-                    'route_stops' => $routeStops
+                    'route_stops' => $routeStops->getCollection()
                         ->map(fn (RouteStop $routeStop): array => $this->routeStopPayloadWithDispatcher($routeStop))
                         ->values()
                         ->all(),
+                ],
+                'links' => [
+                    'first' => $routeStops->url(1),
+                    'last' => $routeStops->url($routeStops->lastPage()),
+                    'prev' => $routeStops->previousPageUrl(),
+                    'next' => $routeStops->nextPageUrl(),
+                ],
+                'meta' => [
+                    'current_page' => $routeStops->currentPage(),
+                    'from' => $routeStops->firstItem(),
+                    'last_page' => $routeStops->lastPage(),
+                    'path' => $routeStops->path(),
+                    'per_page' => $routeStops->perPage(),
+                    'to' => $routeStops->lastItem(),
+                    'total' => $routeStops->total(),
                 ],
             ]);
         } catch (Throwable $throwable) {
@@ -231,5 +276,48 @@ class RouteStopController extends Controller
             ...$this->routeStopPayload($routeStop),
             'dispatcher_company_name' => $routeStop->route?->dispatcher?->company_name,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function unfulfilledRouteStopsQueryParameters(Request $request): array
+    {
+        $queryParameters = $request->query();
+        $sortBy = $queryParameters['sortBy'] ?? null;
+
+        $queryParameters['sortBy.key'] ??= $queryParameters['sortBy_key'] ?? null;
+        $queryParameters['sortBy.order'] ??= $queryParameters['sortBy_order'] ?? null;
+
+        if (is_array($sortBy)) {
+            $queryParameters['sortBy.key'] ??= $sortBy['key'] ?? null;
+            $queryParameters['sortBy.order'] ??= $sortBy['order'] ?? null;
+        }
+
+        if (! array_key_exists('search', $queryParameters) || $queryParameters['search'] === null) {
+            $queryParameters['search'] = null;
+        } elseif (is_string($queryParameters['search'])) {
+            $queryParameters['search'] = trim($queryParameters['search']);
+            $queryParameters['search'] = $queryParameters['search'] !== '' ? $queryParameters['search'] : null;
+        }
+
+        $queryParameters['page'] ??= 1;
+        $queryParameters['per_page'] ??= 15;
+
+        if (! array_key_exists('sortBy.key', $queryParameters) || $queryParameters['sortBy.key'] === null) {
+            $queryParameters['sortBy.key'] = 'stop_at';
+        } elseif (is_string($queryParameters['sortBy.key'])) {
+            $queryParameters['sortBy.key'] = strtolower(trim($queryParameters['sortBy.key']));
+            $queryParameters['sortBy.key'] = $queryParameters['sortBy.key'] !== '' ? $queryParameters['sortBy.key'] : 'stop_at';
+        }
+
+        if (! array_key_exists('sortBy.order', $queryParameters) || $queryParameters['sortBy.order'] === null) {
+            $queryParameters['sortBy.order'] = 'desc';
+        } elseif (is_string($queryParameters['sortBy.order'])) {
+            $queryParameters['sortBy.order'] = strtolower(trim($queryParameters['sortBy.order']));
+            $queryParameters['sortBy.order'] = $queryParameters['sortBy.order'] !== '' ? $queryParameters['sortBy.order'] : 'desc';
+        }
+
+        return $queryParameters;
     }
 }

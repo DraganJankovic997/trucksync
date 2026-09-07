@@ -40,6 +40,13 @@ const columns = computed(() => [
     sortable: true
   },
   {
+    name: 'price_per_unit',
+    label: t('restStopServices.table.pricePerUnit'),
+    field: 'pricePerUnitValue',
+    align: 'left',
+    sortable: true
+  },
+  {
     name: 'actions',
     label: t('restStopServices.table.actions'),
     field: 'actions',
@@ -51,7 +58,9 @@ const rows = computed(() =>
   props.services.map(service => ({
     id: service.id,
     name: service.name ?? '',
-    measurement_unit: service.measurement_unit ?? ''
+    measurement_unit: service.measurement_unit ?? '',
+    pricePerUnit: formatPricePerUnit(service.price_per_unit),
+    pricePerUnitValue: Number(service.price_per_unit ?? 0)
   }))
 );
 
@@ -63,6 +72,19 @@ function isRemoving(service) {
 
 function hasPendingRemove() {
   return props.removingId !== undefined && props.removingId !== null;
+}
+
+function formatPricePerUnit(value) {
+  const numberValue = Number(value ?? 0);
+
+  if (Number.isNaN(numberValue)) {
+    return '';
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numberValue);
 }
 </script>
 
@@ -102,6 +124,12 @@ function hasPendingRemove() {
       <template #body-cell-measurement_unit="scope">
         <q-td :props="scope">
           <span>{{ scope.row.measurement_unit }}</span>
+        </q-td>
+      </template>
+
+      <template #body-cell-price_per_unit="scope">
+        <q-td :props="scope">
+          <span>{{ scope.row.pricePerUnit }}</span>
         </q-td>
       </template>
 

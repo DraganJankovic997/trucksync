@@ -1368,7 +1368,7 @@ class OpenApiSpec
                             'content' => [
                                 'application/json' => [
                                     'schema' => [
-                                        '$ref' => '#/components/schemas/RestStopServiceStoreRequest',
+                                        '$ref' => '#/components/schemas/RestStopServiceRemoveRequest',
                                     ],
                                 ],
                             ],
@@ -1548,6 +1548,38 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStopServiceListItem' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'name',
+                            'measurement_unit',
+                            'price_per_unit',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'name' => [
+                                'type' => 'string',
+                                'maxLength' => 255,
+                                'example' => 'Tire replacement',
+                            ],
+                            'measurement_unit' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 255,
+                                'example' => 'piece',
+                            ],
+                            'price_per_unit' => [
+                                'type' => 'string',
+                                'description' => 'Decimal unit price stored with the rest stop service.',
+                                'pattern' => '^\\d+(\\.\\d{2})$',
+                                'example' => '12.50',
+                            ],
+                        ],
+                    ],
                     'ServicesIndexResponse' => [
                         'type' => 'object',
                         'required' => ['data'],
@@ -1577,7 +1609,7 @@ class OpenApiSpec
                                     'services' => [
                                         'type' => 'array',
                                         'items' => [
-                                            '$ref' => '#/components/schemas/Service',
+                                            '$ref' => '#/components/schemas/RestStopServiceListItem',
                                         ],
                                     ],
                                 ],
@@ -2314,6 +2346,7 @@ class OpenApiSpec
                         'required' => [
                             'rest_stop_id',
                             'service_id',
+                            'price_per_unit',
                         ],
                         'properties' => [
                             'rest_stop_id' => [
@@ -2323,6 +2356,12 @@ class OpenApiSpec
                             'service_id' => [
                                 'type' => 'integer',
                                 'example' => 2,
+                            ],
+                            'price_per_unit' => [
+                                'type' => 'string',
+                                'description' => 'Decimal unit price stored with the rest stop service.',
+                                'pattern' => '^\\d+(\\.\\d{2})$',
+                                'example' => '12.50',
                             ],
                         ],
                     ],
@@ -2601,6 +2640,27 @@ class OpenApiSpec
                         ],
                     ],
                     'RestStopServiceStoreRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'service_id',
+                            'price_per_unit',
+                        ],
+                        'properties' => [
+                            'service_id' => [
+                                'type' => 'integer',
+                                'description' => 'Existing service ID.',
+                                'minimum' => 1,
+                                'example' => 2,
+                            ],
+                            'price_per_unit' => [
+                                'type' => 'string',
+                                'description' => 'Non-negative decimal unit price with up to two decimal places.',
+                                'pattern' => '^\\d+(\\.\\d{1,2})?$',
+                                'example' => '12.50',
+                            ],
+                        ],
+                    ],
+                    'RestStopServiceRemoveRequest' => [
                         'type' => 'object',
                         'required' => [
                             'service_id',

@@ -26,7 +26,7 @@ interface RestStopServiceContract
         string $worksTo
     ): RestStop;
 
-    public function addServiceForUser(User $user, int $serviceId): ?RestStopServiceModel;
+    public function addServiceForUser(User $user, int $serviceId, string $pricePerUnit): ?RestStopServiceModel;
 
     public function removeServiceForUser(User $user, int $serviceId): ?RestStopServiceModel;
 }

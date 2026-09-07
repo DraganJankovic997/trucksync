@@ -56,6 +56,7 @@ class RestStop extends Model
 
     public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Service::class, 'rest_stop_services');
+        return $this->belongsToMany(Service::class, 'rest_stop_services')
+            ->withPivot('price_per_unit');
     }
 }

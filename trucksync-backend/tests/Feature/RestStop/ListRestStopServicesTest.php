@@ -27,14 +27,17 @@ it('returns services for a rest stop without authentication', function () {
     RestStopService::query()->create([
         'rest_stop_id' => $restStop->id,
         'service_id' => $washout->id,
+        'price_per_unit' => '42.10',
     ]);
     RestStopService::query()->create([
         'rest_stop_id' => $restStop->id,
         'service_id' => $tireReplacement->id,
+        'price_per_unit' => '18.75',
     ]);
     RestStopService::query()->create([
         'rest_stop_id' => $otherRestStop->id,
         'service_id' => $parking->id,
+        'price_per_unit' => '9.99',
     ]);
 
     $this->getJson("/api/rest-stop/services/{$restStop->id}")
@@ -43,9 +46,11 @@ it('returns services for a rest stop without authentication', function () {
         ->assertJsonPath('data.services.0.id', $tireReplacement->id)
         ->assertJsonPath('data.services.0.name', 'Tire replacement')
         ->assertJsonPath('data.services.0.measurement_unit', 'tire')
+        ->assertJsonPath('data.services.0.price_per_unit', '18.75')
         ->assertJsonPath('data.services.1.id', $washout->id)
         ->assertJsonPath('data.services.1.name', 'Washout')
         ->assertJsonPath('data.services.1.measurement_unit', 'bay')
+        ->assertJsonPath('data.services.1.price_per_unit', '42.10')
         ->assertJsonMissingPath('data.services.0.rest_stop_id')
         ->assertJsonMissingPath('data.services.0.service_id');
 });

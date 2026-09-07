@@ -35,10 +35,11 @@ export const useRestStopServiceStore = defineStore('rest-stop-service', () => {
     }
   }
 
-  async function addRestStopService(serviceId) {
+  async function addRestStopService(serviceId, pricePerUnit) {
     try {
       const { data } = await api.post('/rest-stop/services/add', {
-        service_id: serviceId
+        service_id: serviceId,
+        price_per_unit: pricePerUnit
       });
 
       restStopService.value = data?.data?.rest_stop_service ?? null;

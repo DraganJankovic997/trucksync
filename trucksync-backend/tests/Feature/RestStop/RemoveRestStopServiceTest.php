@@ -20,6 +20,7 @@ it('removes a service from the authenticated rest stop', function () {
     RestStopService::query()->create([
         'rest_stop_id' => $restStop->id,
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ]);
 
     Sanctum::actingAs($user);
@@ -33,6 +34,7 @@ it('removes a service from the authenticated rest stop', function () {
         ->assertJsonPath('message', 'Rest stop service removed successfully.')
         ->assertJsonPath('data.rest_stop_service.rest_stop_id', $restStop->id)
         ->assertJsonPath('data.rest_stop_service.service_id', $service->id)
+        ->assertJsonPath('data.rest_stop_service.price_per_unit', '12.50')
         ->assertJsonMissingPath('data.rest_stop_service.id');
 
     $this->assertDatabaseMissing('rest_stop_services', [

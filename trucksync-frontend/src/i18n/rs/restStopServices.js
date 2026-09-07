@@ -12,6 +12,11 @@ export default {
       label: 'Usluga',
       placeholder: 'Izaberite uslugu'
     },
+    pricePerUnit: {
+      label: 'Cena po jedinici',
+      placeholder: '0.00',
+      decimal: 'Cena po jedinici mora imati najvise 2 decimale'
+    },
     noOptions: 'Sve dostupne usluge su vec dodate.',
     submit: 'Dodaj uslugu'
   },
@@ -20,6 +25,7 @@ export default {
     serviceCount: 'Izabrane usluge: {count}',
     name: 'Naziv',
     measurementUnit: 'Jedinica mere',
+    pricePerUnit: 'Cena po jedinici',
     actions: 'Akcije',
     remove: 'Ukloni',
     removeAria: 'Ukloni {name}',

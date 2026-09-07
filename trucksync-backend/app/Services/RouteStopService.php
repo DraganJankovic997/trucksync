@@ -48,6 +48,15 @@ class RouteStopService implements RouteStopServiceContract
             ->get();
     }
 
+    public function findWithServices(int $routeStopId): ?RouteStop
+    {
+        return RouteStop::query()
+            ->with([
+                'services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->find($routeStopId);
+    }
+
     /**
      * @return LengthAwarePaginator<int, RouteStop>
      */

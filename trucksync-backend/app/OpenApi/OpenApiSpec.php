@@ -156,6 +156,43 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/route-stop/{routeStopId}' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Show a route stop with needed services',
+                        'operationId' => 'showRouteStop',
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop details.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteStopShowResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/route/route-stops' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -1557,6 +1594,21 @@ class OpenApiSpec
                                 'properties' => [
                                     'route' => [
                                         '$ref' => '#/components/schemas/DispatcherRouteWithStops',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteStopShowResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStop',
                                     ],
                                 ],
                             ],

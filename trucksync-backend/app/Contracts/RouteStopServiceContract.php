@@ -18,6 +18,8 @@ interface RouteStopServiceContract
      */
     public function forRoute(int $routeId): Collection;
 
+    public function findWithServices(int $routeStopId): ?RouteStop;
+
     /**
      * @return LengthAwarePaginator<int, RouteStop>
      */

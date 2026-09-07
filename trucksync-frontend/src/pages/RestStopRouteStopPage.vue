@@ -1,12 +1,17 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
-import { useRoute as useRouterRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useRoute as useRouterRoute, useRouter } from 'vue-router';
+import RouteDetailsCard from '@/components/bidding/RouteDetailsCard.vue';
+import RouteStopServicesSection from '@/components/bidding/RouteStopServicesSection.vue';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 import { useRouteStore } from '@/stores/route.js';
 import { useRouteStopStore } from '@/stores/route-stop.js';
 
+const { t } = useI18n();
 const routerRoute = useRouterRoute();
+const router = useRouter();
 const dispatcherStore = useDispatcherStore();
 const routeStore = useRouteStore();
 const routeStopStore = useRouteStopStore();
@@ -28,16 +33,6 @@ const dispatcher = computed(
       dispatcherRecord =>
         String(dispatcherRecord.id) === String(routeRecord.value?.dispatcher_id)
     ) ?? null
-);
-
-const pageData = computed(() => ({
-  route_stop: routeStop.value,
-  route: routeRecord.value,
-  dispatcher: dispatcher.value
-}));
-
-const formattedPageData = computed(() =>
-  JSON.stringify(pageData.value, null, 2)
 );
 
 async function loadRouteStopDetails() {
@@ -67,13 +62,87 @@ async function loadRouteStopDetails() {
   }
 }
 
+function goToRouteStops() {
+  void router.push({ name: 'route-stops' });
+}
+
 onMounted(() => {
   void loadRouteStopDetails();
 });
 </script>
 
 <template>
-  <q-page class="q-pa-lg">
-    <pre>{{ formattedPageData }}</pre>
+  <q-page
+    class="bidding-page q-pa-lg"
+    :aria-label="t('bidding.page.ariaLabel', { id: routeStopId })"
+  >
+    <div class="bidding-shell">
+      <header class="row items-start justify-between q-col-gutter-md q-mb-lg">
+        <div class="col-12 col-md">
+          <p class="bidding-eyebrow text-caption text-weight-bold q-mb-xs">
+            {{ t('bidding.page.eyebrow') }}
+          </p>
+          <h1 class="text-h4 text-weight-bold q-my-none">
+            {{ t('bidding.page.title', { id: routeStopId }) }}
+          </h1>
+          <p class="bidding-description q-mt-sm q-mb-none">
+            {{ t('bidding.page.description') }}
+          </p>
+        </div>
+
+        <div class="col-12 col-md-auto row q-col-gutter-sm">
+          <div class="col-auto">
+            <q-btn
+              color="primary"
+              icon="arrow_back"
+              outline
+              no-caps
+              class="text-weight-bold"
+              :label="t('bidding.page.actions.back')"
+              @click="goToRouteStops"
+            />
+          </div>
+          <div class="col-auto">
+            <q-btn
+              color="primary"
+              icon="refresh"
+              outline
+              no-caps
+              class="text-weight-bold"
+              :label="t('bidding.page.actions.refresh')"
+              :loading="isFetching"
+              @click="loadRouteStopDetails"
+            />
+          </div>
+        </div>
+      </header>
+
+      <q-banner
+        v-if="!isFetching && !routeStop"
+        class="bidding-unavailable bidding-empty-state q-pa-xl"
+      >
+        <div class="row items-center q-gutter-md">
+          <q-icon class="bidding-empty-icon" name="pin_drop" size="34px" />
+          <div class="column">
+            <strong>{{ t('bidding.page.emptyTitle') }}</strong>
+            <span>{{ t('bidding.page.emptyDescription') }}</span>
+          </div>
+        </div>
+      </q-banner>
+
+      <template v-else>
+        <RouteDetailsCard
+          class="q-mb-lg"
+          :route="routeRecord"
+          :dispatcher="dispatcher"
+          :loading="isFetching"
+        />
+
+        <RouteStopServicesSection
+          :route-stop="routeStop"
+          :loading="isFetching"
+        />
+      </template>
+    </div>
   </q-page>
 </template>

@@ -54,6 +54,11 @@ class RestStop extends Model
         return $this->hasMany(RestStopService::class);
     }
 
+    public function routeStopBids(): HasMany
+    {
+        return $this->hasMany(RouteStopBid::class);
+    }
+
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'rest_stop_services')

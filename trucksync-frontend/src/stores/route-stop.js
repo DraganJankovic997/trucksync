@@ -29,6 +29,37 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     }
   }
 
+  async function fetchUnfulfilledRouteStops(
+    search = null,
+    page = 1,
+    perPage = 15,
+    sortByKey = 'stop_at',
+    sortByOrder = 'desc'
+  ) {
+    try {
+      const { data } = await api.get('/route/route-stops', {
+        params: {
+          search: search,
+          page: page,
+          per_page: perPage,
+          'sortBy.key': sortByKey,
+          'sortBy.order': sortByOrder
+        }
+      });
+
+      return data ?? null;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.routeStop.fetchError'));
+
+      console.error(
+        'Unfulfilled route stops request failed.',
+        requestError.response
+      );
+
+      return null;
+    }
+  }
+
   async function createRouteStop(
     id,
     location,
@@ -98,6 +129,7 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     clearRouteStops,
     createRouteStop,
     fetchRouteStops,
+    fetchUnfulfilledRouteStops,
     routeStop,
     routeStops,
     syncRouteStopServices

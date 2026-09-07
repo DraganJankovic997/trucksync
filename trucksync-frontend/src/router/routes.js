@@ -26,6 +26,12 @@ const routes = [
         meta: { requiresAuth: true, requiresRestStop: true }
       },
       {
+        path: '/route-stops',
+        name: 'route-stops',
+        component: () => import('@/pages/RouteStopsPage.vue'),
+        meta: { requiresAuth: true, requiresRestStop: true }
+      },
+      {
         path: '/dispatcher/routes',
         name: 'dispatcher-routes',
         component: () => import('@/pages/DispatcherRoutesPage.vue'),

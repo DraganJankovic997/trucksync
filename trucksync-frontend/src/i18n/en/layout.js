@@ -11,6 +11,7 @@ export default {
     dashboard: 'Dashboard',
     profile: 'Profile',
     profileServices: 'My services',
+    routeStops: 'Route stops',
     dispatcherRoutes: 'Routes',
     adminApproval: 'Approval',
     adminServices: 'Services'

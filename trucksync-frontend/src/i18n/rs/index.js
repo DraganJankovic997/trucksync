@@ -11,6 +11,7 @@ import profile from './profile.js';
 import profileCompletionWarning from './profileCompletionWarning.js';
 import register from './register.js';
 import restStopServices from './restStopServices.js';
+import routeStops from './routeStops.js';
 import serverError from './serverError.js';
 import services from './services.js';
 import validation from './validation.js';
@@ -29,6 +30,7 @@ export default {
   profileCompletionWarning,
   register,
   restStopServices,
+  routeStops,
   serverError,
   services,
   validation

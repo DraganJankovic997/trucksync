@@ -1,0 +1,86 @@
+@use '../quasar.variables' as brand;
+
+.route-stops-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .route-stops-shell {
+    width: min(100%, 1320px);
+    margin: 0 auto;
+  }
+
+  .route-stops-eyebrow {
+    color: brand.$brand-accent-dark;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .route-stops-description {
+    max-width: 640px;
+  }
+
+  .route-stops-description,
+  .route-stops-muted,
+  .route-stops-empty-state {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .route-stops-card {
+    border-color: brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    box-shadow: 0 18px 48px brand.$brand-shadow;
+  }
+
+  .route-stops-table-card {
+    overflow: hidden;
+  }
+
+  .route-stops-search {
+    width: min(100vw - 64px, 320px);
+  }
+
+  .route-stops-location,
+  .route-stops-description-cell {
+    min-width: 220px;
+    max-width: 360px;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .route-stops-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 220px;
+    max-width: 420px;
+  }
+
+  .route-stops-service {
+    border-radius: brand.$brand-radius;
+    color: brand.$brand-accent-dark;
+    font-weight: 700;
+    white-space: normal;
+  }
+
+  .route-stops-empty-state {
+    min-height: 220px;
+
+    strong {
+      color: brand.$brand-ink;
+    }
+  }
+
+  .route-stops-empty-icon {
+    color: brand.$brand-accent-dark;
+  }
+}
+
+@media (max-width: 599px) {
+  .route-stops-page {
+    .route-stops-search {
+      width: 100%;
+    }
+  }
+}

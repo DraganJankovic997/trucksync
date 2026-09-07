@@ -45,6 +45,12 @@ const linksList = [
     restStopOnly: true
   },
   {
+    labelKey: 'layout.navigation.routeStops',
+    link: '/route-stops',
+    icon: 'pin_drop',
+    restStopOnly: true
+  },
+  {
     labelKey: 'layout.navigation.dispatcherRoutes',
     link: '/dispatcher/routes',
     icon: 'route',

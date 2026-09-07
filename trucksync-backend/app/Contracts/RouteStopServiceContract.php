@@ -28,6 +28,7 @@ interface RouteStopServiceContract
         int $routeId,
         string $location,
         ?string $description,
+        string $stopAt,
         int $numberOfTrucks,
         int $numberOfDrivers,
         array $services

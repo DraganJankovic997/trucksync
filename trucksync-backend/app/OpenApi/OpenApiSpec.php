@@ -1728,6 +1728,9 @@ class OpenApiSpec
                             'route_id',
                             'location',
                             'description',
+                            'stop_at',
+                            'fulfiled_at',
+                            'fulfiled_by',
                             'number_of_trucks',
                             'number_of_drivers',
                             'services',
@@ -1751,6 +1754,23 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'nullable' => true,
                                 'example' => 'Refuel and inspect tires before crossing into Germany.',
+                            ],
+                            'stop_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'example' => '2026-10-02T10:30:00Z',
+                            ],
+                            'fulfiled_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'nullable' => true,
+                                'example' => null,
+                            ],
+                            'fulfiled_by' => [
+                                'type' => 'integer',
+                                'nullable' => true,
+                                'description' => 'Rest stop ID that fulfilled this route stop.',
+                                'example' => null,
                             ],
                             'number_of_trucks' => [
                                 'type' => 'integer',
@@ -2152,6 +2172,7 @@ class OpenApiSpec
                         'required' => [
                             'route_id',
                             'location',
+                            'stop_at',
                             'number_of_trucks',
                             'number_of_drivers',
                             'services',
@@ -2173,6 +2194,12 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'nullable' => true,
                                 'example' => 'Refuel and inspect tires before crossing into Germany.',
+                            ],
+                            'stop_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'description' => 'Must be in the future.',
+                                'example' => '2026-10-02T10:30:00Z',
                             ],
                             'number_of_trucks' => [
                                 'type' => 'integer',

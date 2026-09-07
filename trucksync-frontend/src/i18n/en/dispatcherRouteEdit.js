@@ -37,6 +37,9 @@ export default {
           label: 'Description',
           placeholder: 'Add stop details'
         },
+        stopAt: {
+          label: 'Stop at'
+        },
         numberOfTrucks: {
           label: 'Number of trucks',
           placeholder: '3'
@@ -66,6 +69,7 @@ export default {
     table: {
       id: 'ID',
       location: 'Location',
+      stopAt: 'Stop at',
       description: 'Description',
       numberOfTrucks: 'Trucks',
       numberOfDrivers: 'Drivers',

@@ -33,6 +33,7 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     id,
     location,
     description,
+    stopAt,
     numberOfTrucks,
     numberOfDrivers,
     services
@@ -42,6 +43,7 @@ export const useRouteStopStore = defineStore('route-stop', () => {
         route_id: id,
         location: location,
         description: description,
+        stop_at: stopAt,
         number_of_trucks: numberOfTrucks,
         number_of_drivers: numberOfDrivers,
         services: services

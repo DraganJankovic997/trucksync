@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Dispatcher;
+use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopService;
@@ -13,18 +14,25 @@ uses(RefreshDatabase::class);
 
 it('stores route stops for a route', function () {
     $route = createRouteForRouteStopTest();
+    $restStop = createRestStopForRouteStopTest();
 
     $routeStop = RouteStop::query()->create([
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
+        'stop_at' => '2026-10-02 10:30:00',
+        'fulfiled_at' => '2026-10-02 11:15:00',
+        'fulfiled_by' => $restStop->id,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
 
-    expect(Schema::getColumnListing('route_stops'))->toBe([
+    expect(Schema::getColumnListing('route_stops'))->toEqualCanonicalizing([
         'id',
         'route_id',
+        'stop_at',
+        'fulfiled_at',
+        'fulfiled_by',
         'number_of_trucks',
         'number_of_drivers',
         'created_at',
@@ -34,8 +42,12 @@ it('stores route stops for a route', function () {
     ])
         ->and($route->routeStops()->first()->is($routeStop))->toBeTrue()
         ->and($routeStop->route->is($route))->toBeTrue()
+        ->and($routeStop->fulfiledBy->is($restStop))->toBeTrue()
         ->and($routeStop->location)->toBe('Vienna fuel stop')
         ->and($routeStop->description)->toBe('Refuel and inspect tires before crossing into Germany.')
+        ->and($routeStop->stop_at->toDateTimeString())->toBe('2026-10-02 10:30:00')
+        ->and($routeStop->fulfiled_at->toDateTimeString())->toBe('2026-10-02 11:15:00')
+        ->and($routeStop->fulfiled_by)->toBe($restStop->id)
         ->and($routeStop->number_of_trucks)->toBe(3)
         ->and($routeStop->number_of_drivers)->toBe(4);
 
@@ -44,6 +56,9 @@ it('stores route stops for a route', function () {
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
+        'stop_at' => '2026-10-02 10:30:00',
+        'fulfiled_at' => '2026-10-02 11:15:00',
+        'fulfiled_by' => $restStop->id,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -55,6 +70,7 @@ it('stores needed services with quantity for a route stop', function () {
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => null,
+        'stop_at' => '2026-10-02 10:30:00',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -109,5 +125,19 @@ function createRouteForRouteStopTest(): DispatcherRoute
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+    ]);
+}
+
+function createRestStopForRouteStopTest(): RestStop
+{
+    return RestStop::query()->create([
+        'user_id' => User::factory()->create([
+            'profile_type' => 'rest_stop',
+        ])->id,
+        'city' => 'Vienna',
+        'address' => 'Ring Road 12',
+        'post_code' => '1010',
+        'works_from' => '08:00',
+        'works_to' => '22:00',
     ]);
 }

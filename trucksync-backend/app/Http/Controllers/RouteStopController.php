@@ -61,6 +61,7 @@ class RouteStopController extends Controller
             'route_id' => ['required', 'integer', 'min:1'],
             'location' => ['required', 'string', 'min:1', 'max:255'],
             'description' => ['nullable', 'string'],
+            'stop_at' => ['required', 'date', 'after:now'],
             'number_of_trucks' => ['required', 'integer', 'min:1'],
             'number_of_drivers' => ['required', 'integer', 'min:1'],
             'services' => ['required', 'array', 'min:1'],
@@ -74,6 +75,7 @@ class RouteStopController extends Controller
                 $validated['route_id'],
                 trim($validated['location']),
                 isset($validated['description']) ? trim($validated['description']) : null,
+                $validated['stop_at'],
                 $validated['number_of_trucks'],
                 $validated['number_of_drivers'],
                 $validated['services'],
@@ -168,7 +170,7 @@ class RouteStopController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, location: string|null, description: string|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayload(RouteStop $routeStop): array
     {
@@ -177,6 +179,9 @@ class RouteStopController extends Controller
             'route_id' => $routeStop->route_id,
             'location' => $routeStop->location,
             'description' => $routeStop->description,
+            'stop_at' => $routeStop->stop_at->toJSON(),
+            'fulfiled_at' => $routeStop->fulfiled_at?->toJSON(),
+            'fulfiled_by' => $routeStop->fulfiled_by,
             'number_of_trucks' => $routeStop->number_of_trucks,
             'number_of_drivers' => $routeStop->number_of_drivers,
             'services' => $routeStop

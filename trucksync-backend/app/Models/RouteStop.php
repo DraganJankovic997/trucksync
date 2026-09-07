@@ -19,6 +19,9 @@ class RouteStop extends Model
      */
     protected $fillable = [
         'route_id',
+        'stop_at',
+        'fulfiled_at',
+        'fulfiled_by',
         'number_of_trucks',
         'number_of_drivers',
         'location',
@@ -34,6 +37,9 @@ class RouteStop extends Model
     {
         return [
             'route_id' => 'integer',
+            'stop_at' => 'datetime',
+            'fulfiled_at' => 'datetime',
+            'fulfiled_by' => 'integer',
             'number_of_trucks' => 'integer',
             'number_of_drivers' => 'integer',
         ];
@@ -42,6 +48,11 @@ class RouteStop extends Model
     public function route(): BelongsTo
     {
         return $this->belongsTo(Route::class);
+    }
+
+    public function fulfiledBy(): BelongsTo
+    {
+        return $this->belongsTo(RestStop::class, 'fulfiled_by');
     }
 
     public function routeStopServices(): HasMany

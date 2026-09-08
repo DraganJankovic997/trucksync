@@ -16,7 +16,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-  'update:modelValue': value => typeof value === 'boolean'
+  'update:modelValue': value => typeof value === 'boolean',
+  submit: bid => bid !== undefined && bid !== null
 });
 
 const { t } = useI18n();
@@ -24,6 +25,7 @@ const bidStore = useBidStore();
 const { routeStopBids } = storeToRefs(bidStore);
 const tablePagination = { rowsPerPage: 0 };
 const isFetching = ref(false);
+const selectedBidRowId = ref(null);
 
 const dialogOpen = computed({
   get: () => props.modelValue,
@@ -103,6 +105,7 @@ const rows = computed(() =>
 
     return {
       id: `${bid.route_stop_id}:${bid.rest_stop_id}:${index}`,
+      bid: bid,
       contact: formatContactName(user),
       email: formatValue(user.email),
       phone: formatValue(user.phone_number),
@@ -119,20 +122,20 @@ const rows = computed(() =>
 );
 
 const bidCount = computed(() => routeStopBids.value.length);
-const routeStopTitle = computed(() =>
-  t('dispatcherRouteEdit.routeStops.bidsDialog.title', {
-    id: formatValue(props.routeStopId)
-  })
+const selectedBidRow = computed(
+  () => rows.value.find(row => row.id === selectedBidRowId.value) ?? null
 );
 
 watch(
   () => [dialogOpen.value, props.routeStopId],
   ([isOpen]) => {
     if (!isOpen) {
+      selectedBidRowId.value = null;
       bidStore.clearRouteStopBids();
       return;
     }
 
+    selectedBidRowId.value = null;
     bidStore.clearRouteStopBids();
     void loadRouteStopBids();
   }
@@ -171,11 +174,32 @@ function sortablePrice(value) {
   return Number.isFinite(numberValue) ? numberValue : -1;
 }
 
+function isRowSelected(row) {
+  return selectedBidRowId.value === row.id;
+}
+
+function selectBidRow(row) {
+  selectedBidRowId.value = row.id;
+}
+
+function closeDialog() {
+  dialogOpen.value = false;
+}
+
+function submitSelectedBid() {
+  if (!selectedBidRow.value) {
+    return;
+  }
+
+  emit('submit', selectedBidRow.value.bid);
+}
+
 async function loadRouteStopBids() {
   if (!props.routeStopId || isFetching.value) {
     return;
   }
 
+  selectedBidRowId.value = null;
   isFetching.value = true;
 
   try {
@@ -187,7 +211,7 @@ async function loadRouteStopBids() {
 </script>
 
 <template>
-  <q-dialog v-model="dialogOpen">
+  <q-dialog v-model="dialogOpen" full-width>
     <q-card class="dispatcher-route-stop-bids-dialog" bordered flat>
       <q-card-section
         class="row items-start justify-between q-col-gutter-md q-pa-lg q-pb-md"
@@ -202,9 +226,6 @@ async function loadRouteStopBids() {
               })
             }}
           </p>
-          <h2 class="text-h6 text-weight-bold q-my-none">
-            {{ routeStopTitle }}
-          </h2>
         </div>
 
         <div class="col-12 col-sm-auto row justify-end q-gutter-sm">
@@ -244,7 +265,9 @@ async function loadRouteStopBids() {
 
       <q-separator />
 
-      <q-card-section class="q-pa-none">
+      <q-card-section
+        class="dispatcher-route-stop-bids-table-section q-pa-none"
+      >
         <q-table
           class="dispatcher-route-stop-bids-table"
           flat
@@ -255,32 +278,51 @@ async function loadRouteStopBids() {
           :loading="isFetching"
           :pagination="tablePagination"
         >
-          <template #body-cell-contact="scope">
-            <q-td :props="scope">
-              <div class="dispatcher-route-stop-bids-contact text-weight-bold">
-                {{ scope.row.contact }}
-              </div>
-            </q-td>
-          </template>
-
-          <template #body-cell-address="scope">
-            <q-td :props="scope">
-              <div class="dispatcher-route-stop-bids-address">
-                {{ scope.row.address }}
-              </div>
-            </q-td>
-          </template>
-
-          <template #body-cell-originalPrice="scope">
-            <q-td :props="scope">
-              {{ scope.row.originalPrice }}
-            </q-td>
-          </template>
-
-          <template #body-cell-price="scope">
-            <q-td :props="scope">
-              <strong>{{ scope.row.price }}</strong>
-            </q-td>
+          <template #body="scope">
+            <q-tr
+              :props="scope"
+              :aria-selected="isRowSelected(scope.row)"
+              :class="{
+                'dispatcher-route-stop-bids-row-selected': isRowSelected(
+                  scope.row
+                )
+              }"
+              @click="selectBidRow(scope.row)"
+            >
+              <q-td key="contact" :props="scope">
+                <div
+                  class="dispatcher-route-stop-bids-contact text-weight-bold"
+                >
+                  {{ scope.row.contact }}
+                </div>
+              </q-td>
+              <q-td key="email" :props="scope">
+                {{ scope.row.email }}
+              </q-td>
+              <q-td key="phone" :props="scope">
+                {{ scope.row.phone }}
+              </q-td>
+              <q-td key="country" :props="scope">
+                {{ scope.row.country }}
+              </q-td>
+              <q-td key="city" :props="scope">
+                {{ scope.row.city }}
+              </q-td>
+              <q-td key="address" :props="scope">
+                <div class="dispatcher-route-stop-bids-address">
+                  {{ scope.row.address }}
+                </div>
+              </q-td>
+              <q-td key="postCode" :props="scope">
+                {{ scope.row.postCode }}
+              </q-td>
+              <q-td key="originalPrice" :props="scope">
+                {{ scope.row.originalPrice }}
+              </q-td>
+              <q-td key="price" :props="scope">
+                <strong>{{ scope.row.price }}</strong>
+              </q-td>
+            </q-tr>
           </template>
 
           <template #no-data>
@@ -310,6 +352,29 @@ async function loadRouteStopBids() {
           </template>
         </q-table>
       </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions
+        class="dispatcher-route-stop-bids-actions q-pa-lg"
+        align="right"
+      >
+        <q-btn
+          flat
+          no-caps
+          color="grey-8"
+          :label="t('dispatcherRouteEdit.routeStops.bidsDialog.actions.close')"
+          @click="closeDialog"
+        />
+        <q-btn
+          color="primary"
+          no-caps
+          unelevated
+          :disable="!selectedBidRow"
+          :label="t('dispatcherRouteEdit.routeStops.bidsDialog.actions.submit')"
+          @click="submitSelectedBid"
+        />
+      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>

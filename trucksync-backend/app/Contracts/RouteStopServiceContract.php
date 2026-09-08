@@ -4,6 +4,8 @@ namespace App\Contracts;
 
 use App\Exceptions\RouteNotFoundException;
 use App\Exceptions\RouteNotOwnedByDispatcherException;
+use App\Exceptions\RouteStopNotFoundException;
+use App\Exceptions\RouteStopNotOwnedByDispatcherException;
 use App\Models\RouteStop;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -55,4 +57,10 @@ interface RouteStopServiceContract
         RouteStop $routeStop,
         array $services
     ): RouteStop;
+
+    /**
+     * @throws RouteStopNotFoundException
+     * @throws RouteStopNotOwnedByDispatcherException
+     */
+    public function fulfillForUser(User $user, int $routeStopId, int $restStopId): RouteStop;
 }

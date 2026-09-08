@@ -83,11 +83,11 @@ export default {
       emptyDescription: 'Stajalista rute ce biti prikazana ovde.'
     },
     bidsDialog: {
-      title: 'Ponude za stajaliste #{id}',
       bidCount: 'Ponude: {count}',
       actions: {
         close: 'Zatvori',
-        refresh: 'Osvezi ponude'
+        refresh: 'Osvezi ponude',
+        submit: 'Potvrdi'
       },
       table: {
         contact: 'Kontakt',

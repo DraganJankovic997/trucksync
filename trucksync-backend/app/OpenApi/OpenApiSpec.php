@@ -1114,6 +1114,67 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/route/route-stop/{routeStopId}/fulfill' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Fulfill a route stop with a selected rest stop',
+                        'operationId' => 'fulfillDispatcherRouteStop',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStopFulfillRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop fulfilled successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStopFulfillResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopFulfillForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher/route/route-stop/{routeStopId}/bids' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -2847,6 +2908,20 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteStopFulfillRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'rest_stop_id',
+                        ],
+                        'properties' => [
+                            'rest_stop_id' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'description' => 'Existing rest stop ID that fulfilled this route stop.',
+                                'example' => 1,
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -3257,6 +3332,28 @@ class OpenApiSpec
                             'message' => [
                                 'type' => 'string',
                                 'example' => 'Route stop services updated successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStop',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopFulfillResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route stop fulfilled successfully.',
                             ],
                             'data' => [
                                 'type' => 'object',
@@ -3820,6 +3917,30 @@ class OpenApiSpec
                                         'summary' => 'Route stop belongs to another dispatcher route',
                                         'value' => [
                                             'message' => 'You cannot update route stop services for a route you did not create.',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopFulfillForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route stop belongs to a route created by another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can fulfill route stops.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route stop belongs to another dispatcher route',
+                                        'value' => [
+                                            'message' => 'You cannot fulfill a route stop for a route you did not create.',
                                         ],
                                     ],
                                 ],

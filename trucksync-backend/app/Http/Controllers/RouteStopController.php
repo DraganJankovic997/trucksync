@@ -267,6 +267,55 @@ class RouteStopController extends Controller
         }
     }
 
+    public function fulfill(Request $request, int $routeStopId): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can fulfill route stops.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'rest_stop_id' => ['required', 'integer', 'min:1', Rule::exists('rest_stops', 'id')],
+        ]);
+
+        try {
+            $routeStop = $this->routeStopService->fulfillForUser(
+                $authenticatedUser,
+                $routeStopId,
+                $validated['rest_stop_id'],
+            );
+
+            return response()->json([
+                'message' => 'Route stop fulfilled successfully.',
+                'data' => [
+                    'route_stop' => $this->routeStopPayload($routeStop),
+                ],
+            ]);
+        } catch (RouteStopNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteStopNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fulfill route stop.', [
+                'user_id' => $authenticatedUser->id,
+                'route_stop_id' => $routeStopId,
+                'rest_stop_id' => $validated['rest_stop_id'],
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fulfill route stop.',
+            ], 500);
+        }
+    }
+
     /**
      * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */

@@ -83,11 +83,11 @@ export default {
       emptyDescription: 'Route stops will appear here.'
     },
     bidsDialog: {
-      title: 'Bids for route stop #{id}',
       bidCount: 'Bids: {count}',
       actions: {
         close: 'Close',
-        refresh: 'Refresh bids'
+        refresh: 'Refresh bids',
+        submit: 'Submit'
       },
       table: {
         contact: 'Contact',

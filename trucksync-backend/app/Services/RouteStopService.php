@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Contracts\RouteStopServiceContract;
 use App\Exceptions\RouteNotFoundException;
 use App\Exceptions\RouteNotOwnedByDispatcherException;
+use App\Exceptions\RouteStopNotFoundException;
+use App\Exceptions\RouteStopNotOwnedByDispatcherException;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\User;
@@ -151,6 +153,38 @@ class RouteStopService implements RouteStopServiceContract
                 ])
                 ->loadCount(['routeStopBids as bids_count']);
         });
+    }
+
+    /**
+     * @throws RouteStopNotFoundException
+     * @throws RouteStopNotOwnedByDispatcherException
+     */
+    public function fulfillForUser(User $user, int $routeStopId, int $restStopId): RouteStop
+    {
+        $routeStop = RouteStop::query()
+            ->with('route.dispatcher')
+            ->find($routeStopId);
+
+        if (! $routeStop) {
+            throw new RouteStopNotFoundException;
+        }
+
+        if ($routeStop->route?->dispatcher?->user_id !== $user->id) {
+            throw new RouteStopNotOwnedByDispatcherException(
+                'You cannot fulfill a route stop for a route you did not create.'
+            );
+        }
+
+        $routeStop->fulfiled_by = $restStopId;
+        $routeStop->fulfiled_at = now();
+        $routeStop->save();
+
+        return $routeStop
+            ->refresh()
+            ->load([
+                'services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->loadCount(['routeStopBids as bids_count']);
     }
 
     /**

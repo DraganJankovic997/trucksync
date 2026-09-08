@@ -113,8 +113,12 @@
   }
 }
 
-.dispatcher-route-stop-bids-dialog {
-  width: min(100vw - 32px, 980px);
+.q-card.dispatcher-route-stop-bids-dialog {
+  display: flex;
+  flex-direction: column;
+  height: min(720px, calc(100vh - 48px));
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
   border-color: brand.$brand-border;
   border-radius: brand.$brand-radius;
 
@@ -144,6 +148,34 @@
 
   .dispatcher-route-stop-bids-empty-icon {
     color: brand.$brand-accent-dark;
+  }
+
+  .dispatcher-route-stop-bids-table-section {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .dispatcher-route-stop-bids-table {
+    .q-table tbody tr {
+      cursor: pointer;
+    }
+
+    .dispatcher-route-stop-bids-row-selected > td {
+      background: brand.$brand-success-background;
+    }
+
+    .dispatcher-route-stop-bids-row-selected:hover > td {
+      background: #e2f6e8;
+    }
+  }
+
+  .dispatcher-route-stop-bids-actions {
+    flex: 0 0 auto;
+
+    .q-btn {
+      min-width: 128px;
+    }
   }
 }
 

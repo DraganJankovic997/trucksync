@@ -109,18 +109,25 @@
   }
 
   .bidding-bid-total {
+    display: flex;
     min-height: 56px;
-    padding: 12px;
+    padding: 7px 12px;
     border: 1px solid brand.$brand-border;
     border-radius: brand.$brand-radius;
     background: brand.$brand-page-background;
+    flex-direction: column;
+    justify-content: center;
+
+    .bidding-section-label {
+      line-height: 1.2;
+    }
 
     strong {
       display: block;
-      margin-top: 4px;
+      margin-top: 2px;
       color: brand.$brand-ink;
-      font-size: 24px;
-      line-height: 1.2;
+      font-size: 22px;
+      line-height: 1.1;
     }
   }
 

@@ -360,7 +360,7 @@ async function handleBidSubmit() {
           {{ bidUnavailableMessage }}
         </q-banner>
 
-        <div v-show="showBidControls" class="row q-col-gutter-md items-end">
+        <div v-show="showBidControls" class="row q-col-gutter-md items-center">
           <div class="col-12 col-md">
             <div class="bidding-bid-total">
               <span class="bidding-section-label">
@@ -373,7 +373,6 @@ async function handleBidSubmit() {
           <div class="col-12 col-md-4">
             <q-input
               v-model="customBidPrice"
-              outlined
               lazy-rules
               type="number"
               min="0"
@@ -383,6 +382,8 @@ async function handleBidSubmit() {
               :placeholder="t('bidding.bidForm.fields.customPrice.placeholder')"
               :disable="isBidFormDisabled"
               :rules="bidPriceRules"
+              hide-bottom-space
+              class="full-height"
             >
               <template #prepend>
                 <q-icon name="payments" />

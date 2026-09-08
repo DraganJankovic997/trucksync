@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Contracts\BidServiceContract;
 use App\Contracts\RestStopServiceContract;
 use App\Exceptions\RouteStopNotFoundException;
+use App\Exceptions\RouteStopNotOwnedByDispatcherException;
+use App\Models\RestStop;
+use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +19,61 @@ class BidController extends Controller
         private readonly BidServiceContract $bidService,
         private readonly RestStopServiceContract $restStopService
     ) {}
+
+    public function indexForDispatcherRouteStop(Request $request, int $routeStopId): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can view route stop bids.',
+            ], 403);
+        }
+
+        try {
+            $routeStop = RouteStop::query()
+                ->with('route.dispatcher')
+                ->find($routeStopId);
+
+            if (! $routeStop) {
+                throw new RouteStopNotFoundException;
+            }
+
+            if ($routeStop->route?->dispatcher?->user_id !== $authenticatedUser->id) {
+                throw new RouteStopNotOwnedByDispatcherException(
+                    'You cannot view bids for a route stop on a route you did not create.'
+                );
+            }
+
+            return response()->json([
+                'data' => [
+                    'bids' => $this->bidService
+                        ->forRouteStop($routeStop)
+                        ->map(fn (RouteStopBid $bid): array => $this->bidWithRestStopPayload($bid))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (RouteStopNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteStopNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch route stop bids.', [
+                'user_id' => $authenticatedUser->id,
+                'route_stop_id' => $routeStopId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch route stop bids.',
+            ], 500);
+        }
+    }
 
     public function show(Request $request, int $routeStopId): JsonResponse
     {
@@ -195,8 +253,40 @@ class BidController extends Controller
         ];
     }
 
+    /**
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string}}
+     */
+    private function bidWithRestStopPayload(RouteStopBid $bid): array
+    {
+        return [
+            ...$this->bidPayload($bid),
+            'rest_stop' => $this->restStopPayload($bid->restStop),
+        ];
+    }
+
+    /**
+     * @return array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string}
+     */
+    private function restStopPayload(RestStop $restStop): array
+    {
+        return [
+            'id' => $restStop->id,
+            'user_id' => $restStop->user_id,
+            'city' => $restStop->city,
+            'address' => $restStop->address,
+            'post_code' => $restStop->post_code,
+            'works_from' => $this->timePayload($restStop->works_from),
+            'works_to' => $this->timePayload($restStop->works_to),
+        ];
+    }
+
     private function pricePayload(mixed $price): string
     {
         return number_format((float) $price, 2, '.', '');
+    }
+
+    private function timePayload(string $time): string
+    {
+        return substr($time, 0, 5);
     }
 }

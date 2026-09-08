@@ -7,6 +7,7 @@ use App\Exceptions\RouteStopNotFoundException;
 use App\Models\RestStop;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
+use Illuminate\Database\Eloquent\Collection;
 
 class BidService implements BidServiceContract
 {
@@ -51,6 +52,18 @@ class BidService implements BidServiceContract
             ->delete();
 
         return $bid;
+    }
+
+    /**
+     * @return Collection<int, RouteStopBid>
+     */
+    public function forRouteStop(RouteStop $routeStop): Collection
+    {
+        return $routeStop
+            ->routeStopBids()
+            ->with('restStop')
+            ->orderBy('rest_stop_id')
+            ->get();
     }
 
     private function bidForRestStop(RestStop $restStop, int $routeStopId): ?RouteStopBid

@@ -1114,6 +1114,54 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/route/route-stop/{routeStopId}/bids' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List bids for a route stop owned by the authenticated dispatcher',
+                        'operationId' => 'listDispatcherRouteStopBids',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop bid list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/BidIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopBidsForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher/route/{dispatcherId}' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -2540,7 +2588,7 @@ class OpenApiSpec
                             ],
                             'rest_stop_id' => [
                                 'type' => 'integer',
-                                'description' => 'Resolved from the authenticated rest stop user.',
+                                'description' => 'Rest stop ID that submitted the bid.',
                                 'example' => 2,
                             ],
                             'original_price' => [
@@ -2554,6 +2602,22 @@ class OpenApiSpec
                                 'description' => 'Bid price stored with two decimal places.',
                                 'pattern' => '^\\d+(\\.\\d{2})$',
                                 'example' => '250.75',
+                            ],
+                        ],
+                    ],
+                    'BidWithRestStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/Bid',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['rest_stop'],
+                                'properties' => [
+                                    'rest_stop' => [
+                                        '$ref' => '#/components/schemas/RestStop',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -3319,6 +3383,24 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'BidIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bids'],
+                                'properties' => [
+                                    'bids' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/BidWithRestStop',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'BidDeleteResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -3750,6 +3832,30 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only rest stop users can add rest stop services.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopBidsForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route stop belongs to a route created by another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can view route stop bids.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route stop belongs to another dispatcher route',
+                                        'value' => [
+                                            'message' => 'You cannot view bids for a route stop on a route you did not create.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

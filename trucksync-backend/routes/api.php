@@ -86,6 +86,9 @@ Route::prefix('dispatcher')
                 Route::put('/route-stop/{routeStopId}/services', [RouteStopController::class, 'syncServices'])
                     ->whereNumber('routeStopId')
                     ->name('dispatcher.route.route-stop.services.update');
+                Route::get('/route-stop/{routeStopId}/bids', [BidController::class, 'indexForDispatcherRouteStop'])
+                    ->whereNumber('routeStopId')
+                    ->name('dispatcher.route.route-stop.bids.index');
             });
     });
 

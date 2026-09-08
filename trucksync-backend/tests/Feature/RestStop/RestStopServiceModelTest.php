@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
-it('stores rest stop services with only rest stop and service ids', function () {
+it('stores rest stop services with rest stop, service ids, and unit price', function () {
     $user = User::factory()->create([
         'profile_type' => 'rest_stop',
     ]);
@@ -28,18 +28,27 @@ it('stores rest stop services with only rest stop and service ids', function () 
     $restStopService = RestStopService::query()->create([
         'rest_stop_id' => $restStop->id,
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ]);
 
     expect(Schema::getColumnListing('rest_stop_services'))->toBe([
         'rest_stop_id',
         'service_id',
+        'price_per_unit',
     ]);
 
     $this->assertDatabaseHas('rest_stop_services', [
         'rest_stop_id' => $restStop->id,
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ]);
 
+    $listedService = $restStop->services()->first();
+    $listedRestStop = $service->restStops()->first();
+
     expect($restStopService->restStop->is($restStop))->toBeTrue()
-        ->and($restStopService->service->is($service))->toBeTrue();
+        ->and($restStopService->service->is($service))->toBeTrue()
+        ->and($restStopService->price_per_unit)->toBe('12.50')
+        ->and($listedService?->pivot->price_per_unit)->toBe('12.50')
+        ->and($listedRestStop?->pivot->price_per_unit)->toBe('12.50');
 });

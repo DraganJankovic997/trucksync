@@ -22,6 +22,7 @@ it('adds a service to the authenticated rest stop', function () {
 
     $response = $this->postJson('/api/rest-stop/services/add', [
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ]);
 
     $response
@@ -29,11 +30,13 @@ it('adds a service to the authenticated rest stop', function () {
         ->assertJsonPath('message', 'Rest stop service added successfully.')
         ->assertJsonPath('data.rest_stop_service.rest_stop_id', $restStop->id)
         ->assertJsonPath('data.rest_stop_service.service_id', $service->id)
+        ->assertJsonPath('data.rest_stop_service.price_per_unit', '12.50')
         ->assertJsonMissingPath('data.rest_stop_service.id');
 
     $this->assertDatabaseHas('rest_stop_services', [
         'rest_stop_id' => $restStop->id,
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ]);
 });
 
@@ -49,17 +52,20 @@ it('does not create duplicate rest stop services', function () {
     RestStopService::query()->create([
         'rest_stop_id' => $restStop->id,
         'service_id' => $service->id,
+        'price_per_unit' => '8.25',
     ]);
 
     Sanctum::actingAs($user);
 
     $this->postJson('/api/rest-stop/services/add', [
         'service_id' => $service->id,
+        'price_per_unit' => '9.00',
     ])
         ->assertOk()
         ->assertJsonPath('message', 'Rest stop service already exists.')
         ->assertJsonPath('data.rest_stop_service.rest_stop_id', $restStop->id)
-        ->assertJsonPath('data.rest_stop_service.service_id', $service->id);
+        ->assertJsonPath('data.rest_stop_service.service_id', $service->id)
+        ->assertJsonPath('data.rest_stop_service.price_per_unit', '8.25');
 
     expect(RestStopService::query()->count())->toBe(1);
 });
@@ -71,6 +77,7 @@ it('requires authentication to add a rest stop service', function () {
 
     $this->postJson('/api/rest-stop/services/add', [
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ])
         ->assertUnauthorized()
         ->assertJsonPath('message', 'Unauthenticated.');
@@ -99,6 +106,7 @@ it('returns not found when the authenticated rest stop user has no rest stop pro
 
     $this->postJson('/api/rest-stop/services/add', [
         'service_id' => $service->id,
+        'price_per_unit' => '12.50',
     ])
         ->assertNotFound()
         ->assertJsonPath('message', 'Rest stop profile not found.');
@@ -114,19 +122,46 @@ it('validates rest stop service payloads', function () {
 
     $this->postJson('/api/rest-stop/services/add', [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['service_id']);
+        ->assertJsonValidationErrors(['service_id', 'price_per_unit']);
 
     $this->postJson('/api/rest-stop/services/add', [
         'service_id' => 'not-an-id',
+        'price_per_unit' => '12.50',
     ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['service_id']);
 
     $this->postJson('/api/rest-stop/services/add', [
         'service_id' => 999,
+        'price_per_unit' => '12.50',
     ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['service_id']);
+
+    $service = Service::query()->create([
+        'name' => 'Tire replacement',
+    ]);
+
+    $this->postJson('/api/rest-stop/services/add', [
+        'service_id' => $service->id,
+        'price_per_unit' => '-1',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['price_per_unit']);
+
+    $this->postJson('/api/rest-stop/services/add', [
+        'service_id' => $service->id,
+        'price_per_unit' => '10.999',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['price_per_unit']);
+
+    $this->postJson('/api/rest-stop/services/add', [
+        'service_id' => $service->id,
+        'price_per_unit' => '100000000',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['price_per_unit']);
 });
 
 function createRestStopForUser(User $user): RestStop

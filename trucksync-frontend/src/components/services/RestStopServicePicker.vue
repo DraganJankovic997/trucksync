@@ -7,6 +7,10 @@ const props = defineProps({
     type: [Number, String],
     default: null
   },
+  pricePerUnit: {
+    type: [Number, String],
+    default: ''
+  },
   services: {
     type: Array,
     default: () => []
@@ -28,7 +32,13 @@ const props = defineProps({
 const emit = defineEmits({
   'update:modelValue': value =>
     ['number', 'string'].includes(typeof value) || value === null,
-  add: value => ['number', 'string'].includes(typeof value)
+  'update:pricePerUnit': value =>
+    ['number', 'string'].includes(typeof value) || value === null,
+  add: payload =>
+    payload?.serviceId !== undefined &&
+    payload?.serviceId !== null &&
+    payload?.pricePerUnit !== undefined &&
+    payload?.pricePerUnit !== null
 });
 
 const { t } = useI18n();
@@ -43,11 +53,33 @@ const selectedServiceId = computed({
   }
 });
 
+const selectedPricePerUnit = computed({
+  get() {
+    return props.pricePerUnit;
+  },
+  set(value) {
+    emit('update:pricePerUnit', value);
+  }
+});
+
 const serviceOptions = computed(() =>
   props.services.map(service => ({
     label: formatServiceOptionLabel(service),
     value: service.id
   }))
+);
+
+const selectedService = computed(
+  () =>
+    props.services.find(
+      service => String(service.id) === String(selectedServiceId.value)
+    ) ?? null
+);
+
+const pricePerUnitSuffix = computed(() =>
+  selectedService.value?.measurement_unit
+    ? `/ ${selectedService.value.measurement_unit}`
+    : ''
 );
 
 function formatServiceOptionLabel(service) {
@@ -63,7 +95,27 @@ const required = value =>
     field: t('restStopServices.form.service.label')
   });
 
+const min = value =>
+  Number(value) >= 0 ||
+  t('validation.min', {
+    field: t('restStopServices.form.pricePerUnit.label'),
+    min: 0
+  });
+
+const decimal = value =>
+  /^\d+(\.\d{1,2})?$/.test(String(value ?? '').trim()) ||
+  t('restStopServices.form.pricePerUnit.decimal');
+
 const serviceRules = [required];
+const pricePerUnitRules = [
+  value =>
+    (value !== null && value !== undefined && String(value).trim() !== '') ||
+    t('validation.required', {
+      field: t('restStopServices.form.pricePerUnit.label')
+    }),
+  decimal,
+  min
+];
 
 const isDisabled = computed(
   () =>
@@ -84,7 +136,10 @@ async function handleSubmit() {
     return;
   }
 
-  emit('add', selectedServiceId.value);
+  emit('add', {
+    serviceId: selectedServiceId.value,
+    pricePerUnit: String(selectedPricePerUnit.value).trim()
+  });
 }
 </script>
 
@@ -118,6 +173,25 @@ async function handleSubmit() {
           :disable="props.disable || props.loading || props.optionsLoading"
           :rules="serviceRules"
         />
+
+        <q-input
+          v-model="selectedPricePerUnit"
+          outlined
+          lazy-rules
+          type="number"
+          min="0"
+          step="0.01"
+          name="price_per_unit"
+          :label="t('restStopServices.form.pricePerUnit.label')"
+          :placeholder="t('restStopServices.form.pricePerUnit.placeholder')"
+          :suffix="pricePerUnitSuffix"
+          :disable="props.disable || props.loading || props.optionsLoading"
+          :rules="pricePerUnitRules"
+        >
+          <template #prepend>
+            <q-icon name="payments" />
+          </template>
+        </q-input>
 
         <q-banner
           v-if="!props.optionsLoading && serviceOptions.length === 0"

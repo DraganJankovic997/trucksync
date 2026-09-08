@@ -47,6 +47,13 @@ export default {
     removeSuccess: 'Service removed from rest stop successfully',
     removeError: 'Failed to remove service from rest stop'
   },
+  bid: {
+    fetchError: 'Failed to fetch bid',
+    saveSuccess: 'Bid saved successfully',
+    saveError: 'Failed to save bid',
+    deleteSuccess: 'Bid deleted successfully',
+    deleteError: 'Failed to delete bid'
+  },
   route: {
     fetchError: 'Failed to fetch routes',
     fetchOneError: 'Failed to fetch route',

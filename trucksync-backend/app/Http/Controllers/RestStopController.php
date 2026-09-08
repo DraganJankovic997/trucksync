@@ -134,12 +134,14 @@ class RestStopController extends Controller
 
         $validated = $request->validate([
             'service_id' => ['required', 'integer', Rule::exists('services', 'id')],
+            'price_per_unit' => ['required', 'numeric', 'min:0', 'max:99999999.99', 'regex:/^\d+(\.\d{1,2})?$/'],
         ]);
 
         try {
             $restStopService = $this->restStopService->addServiceForUser(
                 $authenticatedUser,
                 $validated['service_id'],
+                (string) $validated['price_per_unit'],
             );
 
             if (! $restStopService) {
@@ -242,18 +244,19 @@ class RestStopController extends Controller
     }
 
     /**
-     * @return array{rest_stop_id: int, service_id: int}
+     * @return array{rest_stop_id: int, service_id: int, price_per_unit: string}
      */
     private function restStopServicePayload(RestStopServiceModel $restStopService): array
     {
         return [
             'rest_stop_id' => $restStopService->rest_stop_id,
             'service_id' => $restStopService->service_id,
+            'price_per_unit' => $this->pricePerUnitPayload($restStopService->price_per_unit),
         ];
     }
 
     /**
-     * @return array{id: int, name: string, measurement_unit: string|null}
+     * @return array{id: int, name: string, measurement_unit: string|null, price_per_unit: string}
      */
     private function servicePayload(Service $service): array
     {
@@ -261,6 +264,12 @@ class RestStopController extends Controller
             'id' => $service->id,
             'name' => $service->name,
             'measurement_unit' => $service->measurement_unit,
+            'price_per_unit' => $this->pricePerUnitPayload($service->pivot->price_per_unit),
         ];
+    }
+
+    private function pricePerUnitPayload(mixed $pricePerUnit): string
+    {
+        return number_format((float) $pricePerUnit, 2, '.', '');
     }
 }

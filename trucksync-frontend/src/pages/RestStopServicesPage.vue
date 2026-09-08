@@ -23,6 +23,7 @@ const { services: restStopServices } = storeToRefs(restStopServiceStore);
 
 const currentRestStop = ref(null);
 const selectedServiceId = ref(null);
+const selectedPricePerUnit = ref('');
 const isFetching = ref(false);
 const isAdding = ref(false);
 const isRemoving = ref(false);
@@ -59,6 +60,7 @@ async function loadServices() {
       await restStopServiceStore.fetchRestStopServices(currentRestStopId.value);
     } else {
       selectedServiceId.value = null;
+      selectedPricePerUnit.value = '';
       restStopServiceStore.clearRestStopServices();
     }
   } finally {
@@ -70,7 +72,7 @@ onMounted(() => {
   void loadServices();
 });
 
-async function handleAdd(serviceId) {
+async function handleAdd({ serviceId, pricePerUnit }) {
   if (!hasRestStopProfile.value) {
     return;
   }
@@ -78,11 +80,14 @@ async function handleAdd(serviceId) {
   isAdding.value = true;
 
   try {
-    const addedService =
-      await restStopServiceStore.addRestStopService(serviceId);
+    const addedService = await restStopServiceStore.addRestStopService(
+      serviceId,
+      pricePerUnit
+    );
 
     if (addedService) {
       selectedServiceId.value = null;
+      selectedPricePerUnit.value = '';
     }
   } finally {
     isAdding.value = false;
@@ -162,6 +167,7 @@ async function handleRemove() {
         <div class="col-12 col-md-4">
           <RestStopServicePicker
             v-model="selectedServiceId"
+            v-model:price-per-unit="selectedPricePerUnit"
             :services="availableServices"
             :loading="isAdding"
             :options-loading="isFetching"

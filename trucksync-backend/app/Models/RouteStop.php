@@ -60,6 +60,11 @@ class RouteStop extends Model
         return $this->hasMany(RouteStopService::class);
     }
 
+    public function routeStopBids(): HasMany
+    {
+        return $this->hasMany(RouteStopBid::class);
+    }
+
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'route_stop_services')

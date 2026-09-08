@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BidController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
@@ -41,6 +42,10 @@ Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexService
 Route::get('/route/{route_id}', [RouteController::class, 'show'])
     ->whereNumber('route_id')
     ->name('route.show');
+
+Route::get('/route-stop/{routeStopId}', [RouteStopController::class, 'show'])
+    ->whereNumber('routeStopId')
+    ->name('route-stop.show');
 
 Route::middleware('auth:sanctum')
     ->get('/route/route-stops', [RouteStopController::class, 'indexUnfulfilled'])
@@ -90,8 +95,26 @@ Route::prefix('rest-stop')
     ->group(function () {
         Route::get('/', 'show')->name('rest-stop.show');
         Route::post('/', 'store')->name('rest-stop.store');
-        Route::post('/services/add', 'storeService')->name('rest-stop.services.add');
-        Route::post('/services/remove', 'destroyService')->name('rest-stop.services.remove');
+
+        Route::prefix('bids')
+            ->name('rest-stop.bids.')
+            ->controller(BidController::class)
+            ->group(function () {
+                Route::post('/', 'store')->name('store');
+                Route::get('/{routeStopId}', 'show')
+                    ->whereNumber('routeStopId')
+                    ->name('show');
+                Route::delete('/{routeStopId}', 'destroy')
+                    ->whereNumber('routeStopId')
+                    ->name('destroy');
+            });
+
+        Route::prefix('services')
+            ->name('rest-stop.services.')
+            ->group(function () {
+                Route::post('/add', 'storeService')->name('add');
+                Route::post('/remove', 'destroyService')->name('remove');
+            });
     });
 
 Route::prefix('service')

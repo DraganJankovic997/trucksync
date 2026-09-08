@@ -47,6 +47,13 @@ export default {
     removeSuccess: 'Usluga je uspesno uklonjena sa odmorista',
     removeError: 'Uklanjanje usluge sa odmorista nije uspelo'
   },
+  bid: {
+    fetchError: 'Preuzimanje ponude nije uspelo',
+    saveSuccess: 'Ponuda je uspesno sacuvana',
+    saveError: 'Cuvanje ponude nije uspelo',
+    deleteSuccess: 'Ponuda je uspesno obrisana',
+    deleteError: 'Brisanje ponude nije uspelo'
+  },
   route: {
     fetchError: 'Preuzimanje ruta nije uspelo',
     fetchOneError: 'Preuzimanje rute nije uspelo',

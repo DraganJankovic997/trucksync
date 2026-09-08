@@ -4,6 +4,7 @@ use App\Models\Dispatcher;
 use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\RouteStopService;
 use App\Models\Service;
 use App\Models\User;
@@ -101,6 +102,46 @@ it('stores needed services with quantity for a route stop', function () {
         'route_stop_id' => $routeStop->id,
         'service_id' => $service->id,
         'quantity' => 2,
+    ]);
+});
+
+it('stores rest stop bids for a route stop', function () {
+    $route = createRouteForRouteStopTest();
+    $routeStop = RouteStop::query()->create([
+        'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => null,
+        'stop_at' => '2026-10-02 10:30:00',
+        'number_of_trucks' => 3,
+        'number_of_drivers' => 4,
+    ]);
+    $restStop = createRestStopForRouteStopTest();
+
+    $routeStopBid = RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'price' => '250.75',
+        'original_price' => '300.00',
+    ]);
+
+    expect(Schema::getColumnListing('route_stop_bids'))->toBe([
+        'route_stop_id',
+        'rest_stop_id',
+        'price',
+        'original_price',
+    ])
+        ->and($routeStopBid->routeStop->is($routeStop))->toBeTrue()
+        ->and($routeStopBid->restStop->is($restStop))->toBeTrue()
+        ->and($routeStop->routeStopBids()->first()->is($routeStopBid))->toBeTrue()
+        ->and($restStop->routeStopBids()->first()->is($routeStopBid))->toBeTrue()
+        ->and($routeStopBid->price)->toBe('250.75')
+        ->and($routeStopBid->original_price)->toBe('300.00');
+
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'price' => '250.75',
+        'original_price' => '300.00',
     ]);
 });
 

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Contracts\AuthServiceContract;
+use App\Contracts\BidServiceContract;
 use App\Contracts\DispatcherServiceContract;
 use App\Contracts\DriverServiceContract;
 use App\Contracts\RestStopServiceContract;
@@ -12,6 +13,7 @@ use App\Contracts\ServiceServiceContract;
 use App\Contracts\UserManagementServiceContract;
 use App\Contracts\UserServiceContract;
 use App\Services\AuthService;
+use App\Services\BidService;
 use App\Services\DispatcherService;
 use App\Services\DriverService;
 use App\Services\RestStopService;
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(AuthServiceContract::class, AuthService::class);
+        $this->app->bind(BidServiceContract::class, BidService::class);
         $this->app->bind(DispatcherServiceContract::class, DispatcherService::class);
         $this->app->bind(DriverServiceContract::class, DriverService::class);
         $this->app->bind(RestStopServiceContract::class, RestStopService::class);

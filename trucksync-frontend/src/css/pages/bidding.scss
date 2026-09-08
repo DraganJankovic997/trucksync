@@ -1,0 +1,177 @@
+@use '../quasar.variables' as brand;
+
+.bidding-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .bidding-shell {
+    width: min(100%, 1280px);
+    margin: 0 auto;
+  }
+
+  .bidding-eyebrow {
+    color: brand.$brand-accent-dark;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .bidding-description {
+    max-width: 680px;
+  }
+
+  .bidding-description,
+  .bidding-muted,
+  .bidding-empty-state {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .bidding-card,
+  .bidding-unavailable {
+    border-color: brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    background: #ffffff;
+    box-shadow: 0 18px 48px brand.$brand-shadow;
+  }
+
+  .bidding-route-stop-services-card {
+    overflow: hidden;
+  }
+
+  .bidding-section-label,
+  .bidding-detail-label {
+    color: brand.$brand-muted;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .bidding-details-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .bidding-route-details-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bidding-detail {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-page-background;
+
+    strong {
+      display: block;
+      margin-top: 4px;
+      color: brand.$brand-ink;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .bidding-detail-wide {
+    grid-column: 1 / -1;
+  }
+
+  .bidding-status,
+  .bidding-service-quantity {
+    border-radius: brand.$brand-radius;
+    color: brand.$brand-accent-dark;
+    font-weight: 700;
+  }
+
+  .bidding-route-stop-services-table {
+    .q-table__top,
+    .q-table thead tr {
+      background: #ffffff;
+    }
+  }
+
+  .bidding-service-name {
+    min-width: 180px;
+    max-width: 360px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .bidding-service-unavailable {
+    color: #c10015 !important;
+  }
+
+  .bidding-bid-form {
+    background: #ffffff;
+  }
+
+  .bidding-bid-total {
+    display: flex;
+    min-height: 56px;
+    padding: 7px 12px;
+    border: 1px solid brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-page-background;
+    flex-direction: column;
+    justify-content: center;
+
+    .bidding-section-label {
+      line-height: 1.2;
+    }
+
+    strong {
+      display: block;
+      margin-top: 2px;
+      color: brand.$brand-ink;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+  }
+
+  .bidding-bid-warning {
+    color: brand.$brand-muted;
+    background: brand.$brand-page-background;
+    border: 1px solid brand.$brand-border;
+  }
+
+  .bidding-bid-unavailable {
+    color: brand.$brand-muted;
+    background: brand.$brand-page-background;
+    border: 1px solid brand.$brand-border;
+  }
+
+  .bidding-bid-submit {
+    min-height: 56px;
+  }
+
+  .bidding-empty-state {
+    min-height: 180px;
+
+    strong {
+      color: brand.$brand-ink;
+    }
+  }
+
+  .bidding-empty-icon {
+    color: brand.$brand-accent-dark;
+  }
+}
+
+@media (max-width: 1023px) {
+  .bidding-page {
+    .bidding-details-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 599px) {
+  .bidding-page {
+    .bidding-details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

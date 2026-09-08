@@ -17,6 +17,10 @@ const props = defineProps({
     type: [Number, String],
     required: true
   },
+  convoySize: {
+    type: [Number, String],
+    default: ''
+  },
   routeStop: {
     type: Object,
     default: null
@@ -218,7 +222,7 @@ watch(dialogOpen, isOpen => {
 });
 
 watch(
-  () => props.routeStop,
+  () => [props.routeStop, props.convoySize],
   () => {
     if (dialogOpen.value) {
       hydrateForm();
@@ -275,11 +279,15 @@ async function loadServices() {
 }
 
 function hydrateForm() {
+  const routeStopCountDefault = defaultRouteStopCount();
+
   form.location = props.routeStop?.location ?? '';
   form.description = props.routeStop?.description ?? '';
   form.stopAt = dateTimeInputValueFromPayload(props.routeStop?.stop_at);
-  form.numberOfTrucks = props.routeStop?.number_of_trucks ?? '';
-  form.numberOfDrivers = props.routeStop?.number_of_drivers ?? '';
+  form.numberOfTrucks =
+    props.routeStop?.number_of_trucks ?? routeStopCountDefault;
+  form.numberOfDrivers =
+    props.routeStop?.number_of_drivers ?? routeStopCountDefault;
   form.services = serviceRowsFromRouteStop();
   formRef.value?.resetValidation();
 }
@@ -309,6 +317,14 @@ function serviceRowsFromRouteStop() {
   );
 
   return rows.length > 0 ? rows : [makeServiceRow()];
+}
+
+function defaultRouteStopCount() {
+  if (isEditMode.value || !hasValue(props.convoySize)) {
+    return '';
+  }
+
+  return props.convoySize;
 }
 
 function makeServiceRow({ serviceId = null, quantity = '' } = {}) {

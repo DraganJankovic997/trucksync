@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/boot/toast.js';
+import DispatcherRouteDetail from '@/components/dispatcher-routes/DispatcherRouteDetail.vue';
 import DispatcherRouteStopDialog from '@/components/dispatcher-routes/DispatcherRouteStopDialog.vue';
 import DispatcherRouteStopsTable from '@/components/dispatcher-routes/DispatcherRouteStopsTable.vue';
 import { useAuthStore } from '@/stores/auth.js';
@@ -34,27 +35,29 @@ const routeDetails = computed(() => [
   {
     key: 'origin',
     label: t('dispatcherRouteEdit.details.origin'),
-    value: formatValue(routeRecord.value?.origin)
+    value: routeRecord.value?.origin
   },
   {
     key: 'destination',
     label: t('dispatcherRouteEdit.details.destination'),
-    value: formatValue(routeRecord.value?.destination)
+    value: routeRecord.value?.destination
   },
   {
     key: 'convoySize',
     label: t('dispatcherRouteEdit.details.convoySize'),
-    value: formatValue(routeRecord.value?.convoy_size)
+    value: routeRecord.value?.convoy_size
   },
   {
     key: 'startDate',
     label: t('dispatcherRouteEdit.details.startDate'),
-    value: formatDate(routeRecord.value?.start_date)
+    value: routeRecord.value?.start_date,
+    format: 'date'
   },
   {
     key: 'endDate',
     label: t('dispatcherRouteEdit.details.endDate'),
-    value: formatDate(routeRecord.value?.end_date)
+    value: routeRecord.value?.end_date,
+    format: 'date'
   }
 ]);
 const isRouteAllowed = ref(false);
@@ -98,24 +101,6 @@ async function validateRouteOwnership() {
   } finally {
     isFetchingRoute.value = false;
   }
-}
-
-function formatValue(value) {
-  return value === undefined || value === null || value === ''
-    ? t('dispatcherRouteEdit.details.emptyValue')
-    : value;
-}
-
-function formatDate(value) {
-  if (!value) {
-    return t('dispatcherRouteEdit.details.emptyValue');
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(`${value}T00:00:00`));
 }
 
 function goToRoutes() {
@@ -181,27 +166,19 @@ onMounted(() => {
         </div>
 
         <div class="dispatcher-route-edit-details-grid">
-          <div
+          <DispatcherRouteDetail
             v-for="detail in routeDetails"
             :key="detail.key"
-            class="dispatcher-route-edit-detail"
-          >
-            <span class="dispatcher-route-edit-detail-label">
-              {{ detail.label }}
-            </span>
-            <strong>{{ detail.value }}</strong>
-          </div>
+            :label="detail.label"
+            :value="detail.value"
+            :format="detail.format"
+          />
 
-          <div
-            class="dispatcher-route-edit-detail dispatcher-route-edit-detail-wide"
-          >
-            <span class="dispatcher-route-edit-detail-label">
-              {{ t('dispatcherRouteEdit.details.plannedTravelDetails') }}
-            </span>
-            <strong>{{
-              formatValue(routeRecord.planned_travel_details)
-            }}</strong>
-          </div>
+          <DispatcherRouteDetail
+            :label="t('dispatcherRouteEdit.details.plannedTravelDetails')"
+            :value="routeRecord.planned_travel_details"
+            wide
+          />
         </div>
       </section>
 
@@ -215,6 +192,7 @@ onMounted(() => {
       <DispatcherRouteStopDialog
         v-model="routeStopDialogOpen"
         :route-id="routeId"
+        :convoy-size="routeRecord.convoy_size"
         :route-stop="selectedRouteStop"
       />
     </div>

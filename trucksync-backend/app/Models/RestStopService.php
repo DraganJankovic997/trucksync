@@ -21,6 +21,7 @@ class RestStopService extends Model
     protected $fillable = [
         'rest_stop_id',
         'service_id',
+        'price_per_unit',
     ];
 
     /**
@@ -33,6 +34,7 @@ class RestStopService extends Model
         return [
             'rest_stop_id' => 'integer',
             'service_id' => 'integer',
+            'price_per_unit' => 'decimal:2',
         ];
     }
 

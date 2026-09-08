@@ -31,6 +31,34 @@ class RouteStopController extends Controller
 
     public function __construct(private readonly RouteStopServiceContract $routeStopService) {}
 
+    public function show(int $routeStopId): JsonResponse
+    {
+        try {
+            $routeStop = $this->routeStopService->findWithServices($routeStopId);
+
+            if (! $routeStop) {
+                return response()->json([
+                    'message' => 'Route stop not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'route_stop' => $this->routeStopPayload($routeStop),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch route stop.', [
+                'route_stop_id' => $routeStopId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch route stop.',
+            ], 500);
+        }
+    }
+
     public function index(int $route_id): JsonResponse
     {
         try {

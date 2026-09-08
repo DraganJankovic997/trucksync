@@ -13,6 +13,22 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     routeStops.value = [];
   }
 
+  async function fetchRouteStop(id) {
+    try {
+      const { data } = await api.get(`/route-stop/${id}`);
+
+      routeStop.value = data?.data?.route_stop ?? null;
+
+      return routeStop.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.routeStop.fetchError'));
+
+      console.error('Route stop request failed.', requestError.response);
+
+      return null;
+    }
+  }
+
   async function fetchRouteStops(id) {
     try {
       const { data } = await api.get(`/route/route-stops/${id}`);
@@ -128,6 +144,7 @@ export const useRouteStopStore = defineStore('route-stop', () => {
   return {
     clearRouteStops,
     createRouteStop,
+    fetchRouteStop,
     fetchRouteStops,
     fetchUnfulfilledRouteStops,
     routeStop,

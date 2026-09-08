@@ -12,6 +12,11 @@ export default {
       label: 'Service',
       placeholder: 'Select a service'
     },
+    pricePerUnit: {
+      label: 'Price per unit',
+      placeholder: '0.00',
+      decimal: 'Price per unit must use up to 2 decimal places'
+    },
     noOptions: 'All available services are already added.',
     submit: 'Add service'
   },
@@ -20,6 +25,7 @@ export default {
     serviceCount: 'Selected services: {count}',
     name: 'Name',
     measurementUnit: 'Measurement unit',
+    pricePerUnit: 'Price per unit',
     actions: 'Actions',
     remove: 'Remove',
     removeAria: 'Remove {name}',

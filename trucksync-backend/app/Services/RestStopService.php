@@ -64,7 +64,7 @@ class RestStopService implements RestStopServiceContract
         return $restStop->refresh();
     }
 
-    public function addServiceForUser(User $user, int $serviceId): ?RestStopServiceModel
+    public function addServiceForUser(User $user, int $serviceId, string $pricePerUnit): ?RestStopServiceModel
     {
         $restStop = $this->findForUser($user);
 
@@ -75,6 +75,8 @@ class RestStopService implements RestStopServiceContract
         return RestStopServiceModel::query()->firstOrCreate([
             'rest_stop_id' => $restStop->id,
             'service_id' => $serviceId,
+        ], [
+            'price_per_unit' => $pricePerUnit,
         ]);
     }
 

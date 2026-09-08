@@ -95,9 +95,26 @@ Route::prefix('rest-stop')
     ->group(function () {
         Route::get('/', 'show')->name('rest-stop.show');
         Route::post('/', 'store')->name('rest-stop.store');
-        Route::post('/bids', [BidController::class, 'store'])->name('rest-stop.bids.store');
-        Route::post('/services/add', 'storeService')->name('rest-stop.services.add');
-        Route::post('/services/remove', 'destroyService')->name('rest-stop.services.remove');
+
+        Route::prefix('bids')
+            ->name('rest-stop.bids.')
+            ->controller(BidController::class)
+            ->group(function () {
+                Route::post('/', 'store')->name('store');
+                Route::get('/{routeStopId}', 'show')
+                    ->whereNumber('routeStopId')
+                    ->name('show');
+                Route::delete('/{routeStopId}', 'destroy')
+                    ->whereNumber('routeStopId')
+                    ->name('destroy');
+            });
+
+        Route::prefix('services')
+            ->name('rest-stop.services.')
+            ->group(function () {
+                Route::post('/add', 'storeService')->name('add');
+                Route::post('/remove', 'destroyService')->name('remove');
+            });
     });
 
 Route::prefix('service')

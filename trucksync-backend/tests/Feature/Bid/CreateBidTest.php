@@ -57,7 +57,7 @@ it('creates a bid for the authenticated rest stop', function () {
     ]);
 });
 
-it('does not create duplicate bids for the same route stop and rest stop', function () {
+it('updates an existing bid for the same route stop and rest stop', function () {
     $user = User::factory()->create([
         'profile_type' => 'rest_stop',
     ]);
@@ -85,13 +85,19 @@ it('does not create duplicate bids for the same route stop and rest stop', funct
         'price' => '260.00',
     ])
         ->assertOk()
-        ->assertJsonPath('message', 'Bid already exists.')
+        ->assertJsonPath('message', 'Bid updated successfully.')
         ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
         ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
-        ->assertJsonPath('data.bid.original_price', '300.00')
-        ->assertJsonPath('data.bid.price', '250.75');
+        ->assertJsonPath('data.bid.original_price', '320.00')
+        ->assertJsonPath('data.bid.price', '260.00');
 
     expect(RouteStopBid::query()->count())->toBe(1);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '320.00',
+        'price' => '260.00',
+    ]);
 });
 
 it('requires authentication to create a bid', function () {
@@ -130,6 +136,18 @@ it('returns not found when the authenticated rest stop user has no rest stop pro
         'original_price' => '300.00',
         'price' => '250.75',
     ])
+        ->assertNotFound()
+        ->assertJsonPath('message', 'Rest stop profile not found.');
+
+    expect(RouteStopBid::query()->count())->toBe(0);
+});
+
+it('returns not found for a rest stop user without a rest stop profile before validating bid creation payloads', function () {
+    Sanctum::actingAs(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    $this->postJson('/api/rest-stop/bids', [])
         ->assertNotFound()
         ->assertJsonPath('message', 'Rest stop profile not found.');
 
@@ -198,6 +216,210 @@ it('validates bid payloads', function () {
     ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['route_stop_id', 'original_price', 'price']);
+});
+
+it('shows the authenticated rest stops bid by route stop id', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForBidEndpointUser($user);
+    $otherRestStop = createRestStopForBidEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ]))
+        )
+    );
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $otherRestStop->id,
+        'original_price' => '400.00',
+        'price' => '350.00',
+    ]);
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->getJson("/api/rest-stop/bids/{$routeStop->id}")
+        ->assertOk()
+        ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
+        ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
+        ->assertJsonPath('data.bid.original_price', '300.00')
+        ->assertJsonPath('data.bid.price', '250.75');
+});
+
+it('returns not found when showing a bid the authenticated rest stop did not create', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    createRestStopForBidEndpointUser($user);
+    $otherRestStop = createRestStopForBidEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ]))
+        )
+    );
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $otherRestStop->id,
+        'original_price' => '400.00',
+        'price' => '350.00',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->getJson("/api/rest-stop/bids/{$routeStop->id}")
+        ->assertNotFound()
+        ->assertJsonPath('message', 'Bid not found.');
+});
+
+it('requires authentication to show a bid', function () {
+    $this->getJson('/api/rest-stop/bids/1')
+        ->assertUnauthorized()
+        ->assertJsonPath('message', 'Unauthenticated.');
+});
+
+it('forbids non-rest-stop users from showing bids', function () {
+    Sanctum::actingAs(User::factory()->create([
+        'profile_type' => 'driver',
+    ]));
+
+    $this->getJson('/api/rest-stop/bids/1')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Only rest stop users can view bids.');
+});
+
+it('returns not found when showing a bid for a rest stop user without a rest stop profile', function () {
+    Sanctum::actingAs(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    $this->getJson('/api/rest-stop/bids/1')
+        ->assertNotFound()
+        ->assertJsonPath('message', 'Rest stop profile not found.');
+});
+
+it('deletes the authenticated rest stops bid by route stop id', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForBidEndpointUser($user);
+    $otherRestStop = createRestStopForBidEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ]))
+        )
+    );
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $otherRestStop->id,
+        'original_price' => '400.00',
+        'price' => '350.00',
+    ]);
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->deleteJson("/api/rest-stop/bids/{$routeStop->id}")
+        ->assertOk()
+        ->assertJsonPath('message', 'Bid deleted successfully.')
+        ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
+        ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
+        ->assertJsonPath('data.bid.original_price', '300.00')
+        ->assertJsonPath('data.bid.price', '250.75');
+
+    $this->assertDatabaseMissing('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $otherRestStop->id,
+        'original_price' => '400.00',
+        'price' => '350.00',
+    ]);
+});
+
+it('returns not found when deleting a bid the authenticated rest stop did not create', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    createRestStopForBidEndpointUser($user);
+    $otherRestStop = createRestStopForBidEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ]))
+        )
+    );
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $otherRestStop->id,
+        'original_price' => '400.00',
+        'price' => '350.00',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->deleteJson("/api/rest-stop/bids/{$routeStop->id}")
+        ->assertNotFound()
+        ->assertJsonPath('message', 'Bid not found.');
+
+    expect(RouteStopBid::query()->count())->toBe(1);
+});
+
+it('requires authentication to delete a bid', function () {
+    $this->deleteJson('/api/rest-stop/bids/1')
+        ->assertUnauthorized()
+        ->assertJsonPath('message', 'Unauthenticated.');
+});
+
+it('forbids non-rest-stop users from deleting bids', function () {
+    Sanctum::actingAs(User::factory()->create([
+        'profile_type' => 'driver',
+    ]));
+
+    $this->deleteJson('/api/rest-stop/bids/1')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Only rest stop users can delete bids.');
+});
+
+it('returns not found when deleting a bid for a rest stop user without a rest stop profile', function () {
+    Sanctum::actingAs(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    $this->deleteJson('/api/rest-stop/bids/1')
+        ->assertNotFound()
+        ->assertJsonPath('message', 'Rest stop profile not found.');
 });
 
 function createDispatcherForBidEndpointUser(User $user): Dispatcher

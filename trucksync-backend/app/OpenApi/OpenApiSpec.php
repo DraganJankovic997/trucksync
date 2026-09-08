@@ -1375,7 +1375,7 @@ class OpenApiSpec
                         ],
                         'responses' => [
                             '200' => [
-                                'description' => 'Bid already exists.',
+                                'description' => 'Bid updated successfully.',
                                 'content' => [
                                     'application/json' => [
                                         'schema' => [
@@ -1405,6 +1405,100 @@ class OpenApiSpec
                             ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/rest-stop/bids/{routeStopId}' => [
+                    'get' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Show the authenticated rest stop bid for a route stop',
+                        'operationId' => 'showAuthenticatedRestStopBid',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID for the bid.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Bid details.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/BidShowResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/BidViewForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/BidNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                    'delete' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Delete the authenticated rest stop bid for a route stop',
+                        'operationId' => 'deleteAuthenticatedRestStopBid',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID for the bid.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Bid deleted successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/BidDeleteResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/BidDeleteForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/BidNotFound',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -3203,6 +3297,43 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'BidShowResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bid'],
+                                'properties' => [
+                                    'bid' => [
+                                        '$ref' => '#/components/schemas/Bid',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidDeleteResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Bid deleted successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bid'],
+                                'properties' => [
+                                    'bid' => [
+                                        '$ref' => '#/components/schemas/Bid',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopServiceRemoveResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -3629,8 +3760,34 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'BidViewForbidden' => [
+                        'description' => 'The authenticated user is not a rest stop.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only rest stop users can view bids.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidDeleteForbidden' => [
+                        'description' => 'The authenticated user is not a rest stop.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only rest stop users can delete bids.',
+                                ],
+                            ],
+                        ],
+                    ],
                     'BidNotFound' => [
-                        'description' => 'The rest stop profile or route stop was not found.',
+                        'description' => 'The rest stop profile, route stop, or bid was not found.',
                         'content' => [
                             'application/json' => [
                                 'schema' => [
@@ -3647,6 +3804,12 @@ class OpenApiSpec
                                         'summary' => 'Missing route stop',
                                         'value' => [
                                             'message' => 'Route stop not found.',
+                                        ],
+                                    ],
+                                    'bid' => [
+                                        'summary' => 'Missing bid for authenticated rest stop',
+                                        'value' => [
+                                            'message' => 'Bid not found.',
                                         ],
                                     ],
                                 ],

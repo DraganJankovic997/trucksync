@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -48,5 +49,16 @@ class RouteStopBid extends Model
     public function restStop(): BelongsTo
     {
         return $this->belongsTo(RestStop::class);
+    }
+
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    protected function setKeysForSaveQuery($query)
+    {
+        return $query
+            ->where('route_stop_id', $this->getOriginal('route_stop_id') ?? $this->getAttribute('route_stop_id'))
+            ->where('rest_stop_id', $this->getOriginal('rest_stop_id') ?? $this->getAttribute('rest_stop_id'));
     }
 }

@@ -81,6 +81,28 @@ export default {
       emptyValue: '-',
       emptyTitle: 'Nema dodatih stajalista',
       emptyDescription: 'Stajalista rute ce biti prikazana ovde.'
+    },
+    bidsDialog: {
+      title: 'Ponude za stajaliste #{id}',
+      bidCount: 'Ponude: {count}',
+      actions: {
+        close: 'Zatvori',
+        refresh: 'Osvezi ponude'
+      },
+      table: {
+        contact: 'Kontakt',
+        email: 'Email',
+        phone: 'Telefon',
+        country: 'Drzava',
+        city: 'Grad',
+        address: 'Adresa',
+        postCode: 'Postanski broj',
+        originalPrice: 'Originalna cena',
+        price: 'Cena ponude',
+        emptyValue: '-'
+      },
+      emptyTitle: 'Jos nema ponuda',
+      emptyDescription: 'Poslate ponude ce biti prikazane ovde.'
     }
   }
 };

@@ -19,12 +19,24 @@ it('lists all bids for a route stop owned by the authenticated dispatcher', func
     $route = createRouteForRouteStopBidsEndpointDispatcher($dispatcher);
     $routeStop = createRouteStopForRouteStopBidsEndpointRoute($route);
     $otherRouteStop = createRouteStopForRouteStopBidsEndpointRoute($route);
-    $firstRestStop = createRestStopForRouteStopBidsEndpointUser(User::factory()->create([
+    $firstRestStopUser = User::factory()->create([
+        'first_name' => 'Mina',
+        'last_name' => 'Petrovic',
+        'email' => 'mina.petrovic@example.com',
+        'country' => 'Serbia',
+        'phone_number' => '+381601111222',
         'profile_type' => 'rest_stop',
-    ]));
-    $secondRestStop = createRestStopForRouteStopBidsEndpointUser(User::factory()->create([
+    ]);
+    $secondRestStopUser = User::factory()->create([
+        'first_name' => 'Luka',
+        'last_name' => 'Ilic',
+        'email' => 'luka.ilic@example.com',
+        'country' => 'Serbia',
+        'phone_number' => '+381602222333',
         'profile_type' => 'rest_stop',
-    ]));
+    ]);
+    $firstRestStop = createRestStopForRouteStopBidsEndpointUser($firstRestStopUser);
+    $secondRestStop = createRestStopForRouteStopBidsEndpointUser($secondRestStopUser);
 
     RouteStopBid::query()->create([
         'route_stop_id' => $routeStop->id,
@@ -61,12 +73,22 @@ it('lists all bids for a route stop owned by the authenticated dispatcher', func
         ->assertJsonPath('data.bids.0.rest_stop.post_code', '18000')
         ->assertJsonPath('data.bids.0.rest_stop.works_from', '08:00')
         ->assertJsonPath('data.bids.0.rest_stop.works_to', '22:00')
+        ->assertJsonPath('data.bids.0.rest_stop.user.id', $firstRestStopUser->id)
+        ->assertJsonPath('data.bids.0.rest_stop.user.first_name', 'Mina')
+        ->assertJsonPath('data.bids.0.rest_stop.user.last_name', 'Petrovic')
+        ->assertJsonPath('data.bids.0.rest_stop.user.email', 'mina.petrovic@example.com')
+        ->assertJsonPath('data.bids.0.rest_stop.user.country', 'Serbia')
+        ->assertJsonPath('data.bids.0.rest_stop.user.phone_number', '+381601111222')
+        ->assertJsonPath('data.bids.0.rest_stop.user.profile_type', 'rest_stop')
         ->assertJsonPath('data.bids.1.route_stop_id', $routeStop->id)
         ->assertJsonPath('data.bids.1.rest_stop_id', $secondRestStop->id)
         ->assertJsonPath('data.bids.1.original_price', '400.00')
         ->assertJsonPath('data.bids.1.price', '350.00')
         ->assertJsonPath('data.bids.1.rest_stop.id', $secondRestStop->id)
         ->assertJsonPath('data.bids.1.rest_stop.city', 'Novi Sad')
+        ->assertJsonPath('data.bids.1.rest_stop.user.id', $secondRestStopUser->id)
+        ->assertJsonPath('data.bids.1.rest_stop.user.first_name', 'Luka')
+        ->assertJsonPath('data.bids.1.rest_stop.user.email', 'luka.ilic@example.com')
         ->assertJsonMissing([
             'price' => '450.00',
         ]);

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/boot/toast.js';
 import DispatcherRouteDetail from '@/components/dispatcher-routes/DispatcherRouteDetail.vue';
+import DispatcherRouteStopBidsDialog from '@/components/dispatcher-routes/DispatcherRouteStopBidsDialog.vue';
 import DispatcherRouteStopDialog from '@/components/dispatcher-routes/DispatcherRouteStopDialog.vue';
 import DispatcherRouteStopsTable from '@/components/dispatcher-routes/DispatcherRouteStopsTable.vue';
 import { useAuthStore } from '@/stores/auth.js';
@@ -63,7 +64,9 @@ const routeDetails = computed(() => [
 const isRouteAllowed = ref(false);
 const isFetchingRoute = ref(false);
 const routeStopDialogOpen = ref(false);
+const routeStopBidsDialogOpen = ref(false);
 const selectedRouteStop = ref(null);
+const selectedBidsRouteStopId = ref(null);
 
 async function redirectToDashboardWithEditError() {
   await router.replace({ name: 'dashboard' });
@@ -115,6 +118,15 @@ function openCreateRouteStopDialog() {
 function openEditRouteStopDialog(routeStop) {
   selectedRouteStop.value = routeStop;
   routeStopDialogOpen.value = true;
+}
+
+function openRouteStopBidsDialog(routeStop) {
+  if (!routeStop?.id) {
+    return;
+  }
+
+  selectedBidsRouteStopId.value = routeStop.id;
+  routeStopBidsDialogOpen.value = true;
 }
 
 onMounted(() => {
@@ -187,6 +199,7 @@ onMounted(() => {
         :loading="isFetchingRoute"
         @add="openCreateRouteStopDialog"
         @edit="openEditRouteStopDialog"
+        @bids="openRouteStopBidsDialog"
       />
 
       <DispatcherRouteStopDialog
@@ -194,6 +207,11 @@ onMounted(() => {
         :route-id="routeId"
         :convoy-size="routeRecord.convoy_size"
         :route-stop="selectedRouteStop"
+      />
+
+      <DispatcherRouteStopBidsDialog
+        v-model="routeStopBidsDialogOpen"
+        :route-stop-id="selectedBidsRouteStopId"
       />
     </div>
   </q-page>

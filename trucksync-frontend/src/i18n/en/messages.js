@@ -49,6 +49,7 @@ export default {
   },
   bid: {
     fetchError: 'Failed to fetch bid',
+    fetchRouteStopBidsError: 'Failed to fetch route stop bids',
     saveSuccess: 'Bid saved successfully',
     saveError: 'Failed to save bid',
     deleteSuccess: 'Bid deleted successfully',

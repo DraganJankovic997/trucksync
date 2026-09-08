@@ -49,6 +49,7 @@ export default {
   },
   bid: {
     fetchError: 'Preuzimanje ponude nije uspelo',
+    fetchRouteStopBidsError: 'Preuzimanje ponuda za stajaliste nije uspelo',
     saveSuccess: 'Ponuda je uspesno sacuvana',
     saveError: 'Cuvanje ponude nije uspelo',
     deleteSuccess: 'Ponuda je uspesno obrisana',

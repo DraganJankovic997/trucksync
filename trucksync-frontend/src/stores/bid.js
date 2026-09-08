@@ -6,9 +6,37 @@ import { ref } from 'vue';
 
 export const useBidStore = defineStore('bid', () => {
   const bid = ref(null);
+  const routeStopBids = ref([]);
 
   function clearBid() {
     bid.value = null;
+  }
+
+  function clearRouteStopBids() {
+    routeStopBids.value = [];
+  }
+
+  async function fetchDispatcherRouteStopBids(routeStopId) {
+    try {
+      const { data } = await api.get(
+        `/dispatcher/route/route-stop/${routeStopId}/bids`
+      );
+
+      routeStopBids.value = data?.data?.bids ?? [];
+
+      return routeStopBids.value;
+    } catch (requestError) {
+      routeStopBids.value = [];
+
+      toast.error(i18n.global.t('messages.bid.fetchRouteStopBidsError'));
+
+      console.error(
+        'Dispatcher route stop bids request failed.',
+        requestError.response
+      );
+
+      return [];
+    }
   }
 
   async function fetchBid(routeStopId, options = {}) {
@@ -79,8 +107,11 @@ export const useBidStore = defineStore('bid', () => {
   return {
     bid,
     clearBid,
+    clearRouteStopBids,
     deleteBid,
+    fetchDispatcherRouteStopBids,
     fetchBid,
+    routeStopBids,
     saveBid
   };
 });

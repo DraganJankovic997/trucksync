@@ -2362,6 +2362,22 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RestStopWithUser' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/RestStop',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['user'],
+                                'properties' => [
+                                    'user' => [
+                                        '$ref' => '#/components/schemas/User',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'PendingDispatcherApproval' => [
                         'type' => 'object',
                         'required' => [
@@ -2615,7 +2631,7 @@ class OpenApiSpec
                                 'required' => ['rest_stop'],
                                 'properties' => [
                                     'rest_stop' => [
-                                        '$ref' => '#/components/schemas/RestStop',
+                                        '$ref' => '#/components/schemas/RestStopWithUser',
                                     ],
                                 ],
                             ],

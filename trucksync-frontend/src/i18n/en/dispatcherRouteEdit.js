@@ -81,6 +81,28 @@ export default {
       emptyValue: '-',
       emptyTitle: 'No route stops added',
       emptyDescription: 'Route stops will appear here.'
+    },
+    bidsDialog: {
+      title: 'Bids for route stop #{id}',
+      bidCount: 'Bids: {count}',
+      actions: {
+        close: 'Close',
+        refresh: 'Refresh bids'
+      },
+      table: {
+        contact: 'Contact',
+        email: 'Email',
+        phone: 'Phone',
+        country: 'Country',
+        city: 'City',
+        address: 'Address',
+        postCode: 'Post code',
+        originalPrice: 'Original price',
+        price: 'Bid price',
+        emptyValue: '-'
+      },
+      emptyTitle: 'No bids yet',
+      emptyDescription: 'Submitted bids will appear here.'
     }
   }
 };

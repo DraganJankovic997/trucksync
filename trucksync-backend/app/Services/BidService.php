@@ -61,7 +61,7 @@ class BidService implements BidServiceContract
     {
         return $routeStop
             ->routeStopBids()
-            ->with('restStop')
+            ->with('restStop.user')
             ->orderBy('rest_stop_id')
             ->get();
     }

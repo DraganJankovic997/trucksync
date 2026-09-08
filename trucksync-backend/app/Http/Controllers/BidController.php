@@ -9,6 +9,7 @@ use App\Exceptions\RouteStopNotOwnedByDispatcherException;
 use App\Models\RestStop;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
@@ -254,7 +255,7 @@ class BidController extends Controller
     }
 
     /**
-     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string}}
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}
      */
     private function bidWithRestStopPayload(RouteStopBid $bid): array
     {
@@ -265,7 +266,7 @@ class BidController extends Controller
     }
 
     /**
-     * @return array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string}
+     * @return array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}
      */
     private function restStopPayload(RestStop $restStop): array
     {
@@ -277,6 +278,23 @@ class BidController extends Controller
             'post_code' => $restStop->post_code,
             'works_from' => $this->timePayload($restStop->works_from),
             'works_to' => $this->timePayload($restStop->works_to),
+            'user' => $this->userPayload($restStop->user),
+        ];
+    }
+
+    /**
+     * @return array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}
+     */
+    private function userPayload(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'country' => $user->country,
+            'phone_number' => $user->phone_number,
+            'profile_type' => $user->profile_type,
         ];
     }
 

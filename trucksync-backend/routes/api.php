@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BidController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\DriverController;
@@ -94,6 +95,7 @@ Route::prefix('rest-stop')
     ->group(function () {
         Route::get('/', 'show')->name('rest-stop.show');
         Route::post('/', 'store')->name('rest-stop.store');
+        Route::post('/bids', [BidController::class, 'store'])->name('rest-stop.bids.store');
         Route::post('/services/add', 'storeService')->name('rest-stop.services.add');
         Route::post('/services/remove', 'destroyService')->name('rest-stop.services.remove');
     });

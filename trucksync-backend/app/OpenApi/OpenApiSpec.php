@@ -1353,6 +1353,65 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/rest-stop/bids' => [
+                    'post' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'Create a bid for the authenticated rest stop',
+                        'operationId' => 'createAuthenticatedRestStopBid',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/BidStoreRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Bid already exists.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/BidStoreResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '201' => [
+                                'description' => 'Bid created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/BidStoreResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/BidForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/BidNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/rest-stop/services/remove' => [
                     'post' => [
                         'tags' => ['Rest Stops'],
@@ -2365,6 +2424,38 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'Bid' => [
+                        'type' => 'object',
+                        'required' => [
+                            'route_stop_id',
+                            'rest_stop_id',
+                            'original_price',
+                            'price',
+                        ],
+                        'properties' => [
+                            'route_stop_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'rest_stop_id' => [
+                                'type' => 'integer',
+                                'description' => 'Resolved from the authenticated rest stop user.',
+                                'example' => 2,
+                            ],
+                            'original_price' => [
+                                'type' => 'string',
+                                'description' => 'Original bid price stored with two decimal places.',
+                                'pattern' => '^\\d+(\\.\\d{2})$',
+                                'example' => '300.00',
+                            ],
+                            'price' => [
+                                'type' => 'string',
+                                'description' => 'Bid price stored with two decimal places.',
+                                'pattern' => '^\\d+(\\.\\d{2})$',
+                                'example' => '250.75',
+                            ],
+                        ],
+                    ],
                     'DriverUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -2657,6 +2748,34 @@ class OpenApiSpec
                                 'description' => 'Non-negative decimal unit price with up to two decimal places.',
                                 'pattern' => '^\\d+(\\.\\d{1,2})?$',
                                 'example' => '12.50',
+                            ],
+                        ],
+                    ],
+                    'BidStoreRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'route_stop_id',
+                            'original_price',
+                            'price',
+                        ],
+                        'properties' => [
+                            'route_stop_id' => [
+                                'type' => 'integer',
+                                'description' => 'Existing route stop ID.',
+                                'minimum' => 1,
+                                'example' => 1,
+                            ],
+                            'original_price' => [
+                                'type' => 'string',
+                                'description' => 'Non-negative decimal original price with exactly two decimal places.',
+                                'pattern' => '^\\d+\\.\\d{2}$',
+                                'example' => '300.00',
+                            ],
+                            'price' => [
+                                'type' => 'string',
+                                'description' => 'Non-negative decimal bid price with exactly two decimal places.',
+                                'pattern' => '^\\d+\\.\\d{2}$',
+                                'example' => '250.75',
                             ],
                         ],
                     ],
@@ -3057,6 +3176,28 @@ class OpenApiSpec
                                 'properties' => [
                                     'rest_stop_service' => [
                                         '$ref' => '#/components/schemas/RestStopService',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidStoreResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Bid created successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bid'],
+                                'properties' => [
+                                    'bid' => [
+                                        '$ref' => '#/components/schemas/Bid',
                                     ],
                                 ],
                             ],
@@ -3471,6 +3612,43 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only rest stop users can add rest stop services.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidForbidden' => [
+                        'description' => 'The authenticated user is not a rest stop.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only rest stop users can create bids.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidNotFound' => [
+                        'description' => 'The rest stop profile or route stop was not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'rest_stop_profile' => [
+                                        'summary' => 'Missing rest stop profile',
+                                        'value' => [
+                                            'message' => 'Rest stop profile not found.',
+                                        ],
+                                    ],
+                                    'route_stop' => [
+                                        'summary' => 'Missing route stop',
+                                        'value' => [
+                                            'message' => 'Route stop not found.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

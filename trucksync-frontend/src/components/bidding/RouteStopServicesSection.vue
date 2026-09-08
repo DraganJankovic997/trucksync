@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import RouteStopServicesTable from '@/components/bidding/RouteStopServicesTable.vue';
 
@@ -8,16 +8,137 @@ const props = defineProps({
     type: Object,
     default: null
   },
+  restStopServices: {
+    type: Array,
+    default: () => []
+  },
+  bid: {
+    type: Object,
+    default: null
+  },
   loading: {
+    type: Boolean,
+    default: false
+  },
+  savingBid: {
+    type: Boolean,
+    default: false
+  },
+  bidDisabled: {
     type: Boolean,
     default: false
   }
 });
 
+const emit = defineEmits({
+  saveBid: payload =>
+    payload?.originalPrice !== undefined &&
+    payload?.originalPrice !== null &&
+    payload?.price !== undefined &&
+    payload?.price !== null
+});
+
 const { t } = useI18n();
+const bidFormRef = ref(null);
+const customBidPrice = ref('');
 
 const services = computed(() => props.routeStop?.services ?? []);
 const serviceCount = computed(() => services.value.length);
+const offeredRestStopServices = computed(() => {
+  const serviceMap = new Map();
+
+  props.restStopServices.forEach(service => {
+    serviceMap.set(String(service.id), service);
+  });
+
+  return serviceMap;
+});
+
+const pricedServices = computed(() =>
+  services.value.map(service => {
+    const serviceKey = String(service.id);
+    const offeredService =
+      offeredRestStopServices.value.get(serviceKey) ?? null;
+    const isOffered = offeredService !== null;
+    const pricePerUnit = isOffered
+      ? (parsePrice(offeredService.price_per_unit) ?? 0)
+      : null;
+    const quantity = parseQuantity(service.quantity);
+    const lineTotal =
+      isOffered && pricePerUnit !== null && quantity !== null
+        ? roundPrice(pricePerUnit * quantity)
+        : null;
+
+    return {
+      ...service,
+      bid_service_available: isOffered,
+      bid_price_per_unit: pricePerUnit,
+      bid_line_total: lineTotal
+    };
+  })
+);
+const fullPriceTotal = computed(() =>
+  pricedServices.value.reduce(
+    (total, service) => total + Number(service.bid_line_total ?? 0),
+    0
+  )
+);
+const formattedFullPriceTotal = computed(() =>
+  formatPrice(fullPriceTotal.value)
+);
+const unavailableServices = computed(() =>
+  pricedServices.value.filter(service => !service.bid_service_available)
+);
+const hasUnavailableServices = computed(
+  () => unavailableServices.value.length > 0
+);
+const unavailableServiceNames = computed(() =>
+  unavailableServices.value.map(service => formatValue(service.name)).join(', ')
+);
+const hasBidBlocker = computed(
+  () =>
+    props.bidDisabled ||
+    services.value.length === 0 ||
+    hasUnavailableServices.value
+);
+const isBidFormDisabled = computed(
+  () => hasBidBlocker.value || props.loading || props.savingBid
+);
+const showBidUnavailableMessage = computed(
+  () => !props.loading && hasBidBlocker.value
+);
+const bidUnavailableMessage = computed(() => {
+  if (hasUnavailableServices.value) {
+    return t('bidding.bidForm.unavailableMissingServices');
+  }
+
+  if (props.bidDisabled) {
+    return t('bidding.bidForm.unavailableProfile');
+  }
+
+  if (services.value.length === 0) {
+    return t('bidding.bidForm.unavailableNoServices');
+  }
+
+  return t('bidding.bidForm.unavailable');
+});
+const showBidControls = computed(
+  () => props.loading || !showBidUnavailableMessage.value
+);
+const bidButtonLabel = computed(() =>
+  props.bid
+    ? t('bidding.bidForm.actions.update')
+    : t('bidding.bidForm.actions.submit')
+);
+const bidPricePrefillKey = computed(() => {
+  if (!props.routeStop?.id) {
+    return null;
+  }
+
+  return `${props.routeStop.id}:${
+    props.bid?.price ?? formatPriceInput(fullPriceTotal.value)
+  }`;
+});
 const stopDetails = computed(() => [
   {
     key: 'location',
@@ -40,6 +161,38 @@ const stopDetails = computed(() => [
     value: formatValue(props.routeStop?.number_of_drivers)
   }
 ]);
+
+const bidPriceRequired = value =>
+  Boolean(String(value ?? '').trim()) ||
+  t('validation.required', {
+    field: t('bidding.bidForm.fields.customPrice.label')
+  });
+const bidPriceDecimal = value =>
+  /^\d+(\.\d{1,2})?$/.test(String(value ?? '').trim()) ||
+  t('bidding.bidForm.fields.customPrice.decimal');
+const bidPriceMin = value =>
+  Number(value) >= 0 ||
+  t('validation.min', {
+    field: t('bidding.bidForm.fields.customPrice.label'),
+    min: 0
+  });
+const bidPriceRules = [bidPriceRequired, bidPriceDecimal, bidPriceMin];
+
+watch(
+  bidPricePrefillKey,
+  prefillKey => {
+    if (!prefillKey) {
+      customBidPrice.value = '';
+      return;
+    }
+
+    customBidPrice.value = formatPriceInput(
+      props.bid?.price ?? fullPriceTotal.value
+    );
+    bidFormRef.value?.resetValidation();
+  },
+  { immediate: true }
+);
 
 function formatValue(value) {
   return value === undefined || value === null || value === ''
@@ -65,6 +218,58 @@ function formatDateTime(value) {
     hour: '2-digit',
     minute: '2-digit'
   }).format(dateValue);
+}
+
+function parsePrice(value) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function parseQuantity(value) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function roundPrice(value) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function formatPrice(value) {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return t('bidding.emptyValue');
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numberValue);
+}
+
+function formatPriceInput(value) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue.toFixed(2) : '';
+}
+
+async function handleBidSubmit() {
+  if (isBidFormDisabled.value) {
+    return;
+  }
+
+  const isValid = await bidFormRef.value?.validate();
+
+  if (!isValid) {
+    return;
+  }
+
+  emit('saveBid', {
+    originalPrice: formatPriceInput(fullPriceTotal.value),
+    price: formatPriceInput(customBidPrice.value)
+  });
 }
 </script>
 
@@ -119,6 +324,87 @@ function formatDateTime(value) {
       </div>
     </q-card-section>
 
-    <RouteStopServicesTable :services="services" :loading="props.loading" />
+    <RouteStopServicesTable
+      :services="pricedServices"
+      :loading="props.loading"
+    />
+
+    <q-separator />
+
+    <q-form
+      ref="bidFormRef"
+      greedy
+      :aria-label="t('bidding.bidForm.ariaLabel')"
+      @submit.prevent="handleBidSubmit"
+    >
+      <q-card-section class="bidding-bid-form q-pa-lg">
+        <q-banner
+          v-if="hasUnavailableServices"
+          dense
+          rounded
+          class="bidding-bid-warning q-mb-md"
+        >
+          {{
+            t('bidding.bidForm.missingPrices', {
+              services: unavailableServiceNames
+            })
+          }}
+        </q-banner>
+
+        <q-banner
+          v-if="showBidUnavailableMessage"
+          dense
+          rounded
+          class="bidding-bid-unavailable q-mb-none"
+        >
+          {{ bidUnavailableMessage }}
+        </q-banner>
+
+        <div v-show="showBidControls" class="row q-col-gutter-md items-end">
+          <div class="col-12 col-md">
+            <div class="bidding-bid-total">
+              <span class="bidding-section-label">
+                {{ t('bidding.bidForm.fullPriceTotal') }}
+              </span>
+              <strong>{{ formattedFullPriceTotal }}</strong>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <q-input
+              v-model="customBidPrice"
+              outlined
+              lazy-rules
+              type="number"
+              min="0"
+              step="0.01"
+              name="bid_price"
+              :label="t('bidding.bidForm.fields.customPrice.label')"
+              :placeholder="t('bidding.bidForm.fields.customPrice.placeholder')"
+              :disable="isBidFormDisabled"
+              :rules="bidPriceRules"
+            >
+              <template #prepend>
+                <q-icon name="payments" />
+              </template>
+            </q-input>
+          </div>
+
+          <div class="col-12 col-md-auto">
+            <q-btn
+              class="bidding-bid-submit text-weight-bold"
+              type="submit"
+              color="primary"
+              icon="local_offer"
+              no-caps
+              unelevated
+              :label="bidButtonLabel"
+              :loading="props.savingBid"
+              :disable="isBidFormDisabled"
+            />
+          </div>
+        </div>
+      </q-card-section>
+    </q-form>
   </q-card>
 </template>

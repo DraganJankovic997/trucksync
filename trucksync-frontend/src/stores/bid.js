@@ -11,7 +11,7 @@ export const useBidStore = defineStore('bid', () => {
     bid.value = null;
   }
 
-  async function fetchBid(routeStopId) {
+  async function fetchBid(routeStopId, options = {}) {
     try {
       const { data } = await api.get(`/rest-stop/bids/${routeStopId}`);
 
@@ -19,6 +19,12 @@ export const useBidStore = defineStore('bid', () => {
 
       return bid.value;
     } catch (requestError) {
+      bid.value = null;
+
+      if (options.silentNotFound && requestError.response?.status === 404) {
+        return null;
+      }
+
       toast.error(i18n.global.t('messages.bid.fetchError'));
 
       console.error('Bid request failed.', requestError.response);

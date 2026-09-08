@@ -100,6 +100,46 @@
     overflow-wrap: anywhere;
   }
 
+  .bidding-service-unavailable {
+    color: #c10015 !important;
+  }
+
+  .bidding-bid-form {
+    background: #ffffff;
+  }
+
+  .bidding-bid-total {
+    min-height: 56px;
+    padding: 12px;
+    border: 1px solid brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    background: brand.$brand-page-background;
+
+    strong {
+      display: block;
+      margin-top: 4px;
+      color: brand.$brand-ink;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+  }
+
+  .bidding-bid-warning {
+    color: brand.$brand-muted;
+    background: brand.$brand-page-background;
+    border: 1px solid brand.$brand-border;
+  }
+
+  .bidding-bid-unavailable {
+    color: brand.$brand-muted;
+    background: brand.$brand-page-background;
+    border: 1px solid brand.$brand-border;
+  }
+
+  .bidding-bid-submit {
+    min-height: 56px;
+  }
+
   .bidding-empty-state {
     min-height: 180px;
 

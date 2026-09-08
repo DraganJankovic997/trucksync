@@ -37,6 +37,20 @@ const columns = computed(() => [
     field: 'measurementUnit',
     align: 'left',
     sortable: true
+  },
+  {
+    name: 'price_per_unit',
+    label: t('bidding.routeStopServices.table.pricePerUnit'),
+    field: 'pricePerUnitValue',
+    align: 'left',
+    sortable: true
+  },
+  {
+    name: 'line_total',
+    label: t('bidding.routeStopServices.table.lineTotal'),
+    field: 'lineTotalValue',
+    align: 'left',
+    sortable: true
   }
 ]);
 
@@ -46,7 +60,12 @@ const rows = computed(() =>
     name: formatValue(service.name),
     quantity: formatQuantity(service.quantity),
     quantityValue: Number(service.quantity ?? 0),
-    measurementUnit: formatValue(service.measurement_unit)
+    measurementUnit: formatValue(service.measurement_unit),
+    serviceAvailable: service.bid_service_available !== false,
+    pricePerUnit: formatPrice(service.bid_price_per_unit),
+    pricePerUnitValue: getSortablePrice(service.bid_price_per_unit),
+    lineTotal: formatPrice(service.bid_line_total),
+    lineTotalValue: getSortablePrice(service.bid_line_total)
   }))
 );
 
@@ -67,6 +86,25 @@ function formatQuantity(value) {
     maximumFractionDigits: 2
   }).format(numberValue);
 }
+
+function formatPrice(value) {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return t('bidding.routeStopServices.table.unavailable');
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numberValue);
+}
+
+function getSortablePrice(value) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : -1;
+}
 </script>
 
 <template>
@@ -81,7 +119,10 @@ function formatQuantity(value) {
     :pagination="tablePagination"
   >
     <template #body-cell-name="scope">
-      <q-td :props="scope">
+      <q-td
+        :props="scope"
+        :class="{ 'bidding-service-unavailable': !scope.row.serviceAvailable }"
+      >
         <div class="bidding-service-name text-weight-bold">
           {{ scope.row.name }}
         </div>
@@ -89,16 +130,46 @@ function formatQuantity(value) {
     </template>
 
     <template #body-cell-quantity="scope">
-      <q-td :props="scope">
-        <q-badge class="bidding-service-quantity" outline>
+      <q-td
+        :props="scope"
+        :class="{ 'bidding-service-unavailable': !scope.row.serviceAvailable }"
+      >
+        <q-badge
+          class="bidding-service-quantity"
+          :class="{
+            'bidding-service-unavailable': !scope.row.serviceAvailable
+          }"
+          outline
+        >
           {{ scope.row.quantity }}
         </q-badge>
       </q-td>
     </template>
 
     <template #body-cell-measurement_unit="scope">
-      <q-td :props="scope">
+      <q-td
+        :props="scope"
+        :class="{ 'bidding-service-unavailable': !scope.row.serviceAvailable }"
+      >
         {{ scope.row.measurementUnit }}
+      </q-td>
+    </template>
+
+    <template #body-cell-price_per_unit="scope">
+      <q-td
+        :props="scope"
+        :class="{ 'bidding-service-unavailable': !scope.row.serviceAvailable }"
+      >
+        {{ scope.row.pricePerUnit }}
+      </q-td>
+    </template>
+
+    <template #body-cell-line_total="scope">
+      <q-td
+        :props="scope"
+        :class="{ 'bidding-service-unavailable': !scope.row.serviceAvailable }"
+      >
+        <strong>{{ scope.row.lineTotal }}</strong>
       </q-td>
     </template>
 

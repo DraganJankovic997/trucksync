@@ -5,21 +5,31 @@ import { useI18n } from 'vue-i18n';
 import { useRoute as useRouterRoute, useRouter } from 'vue-router';
 import RouteDetailsCard from '@/components/bidding/RouteDetailsCard.vue';
 import RouteStopServicesSection from '@/components/bidding/RouteStopServicesSection.vue';
+import { useBidStore } from '@/stores/bid.js';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
 import { useRouteStore } from '@/stores/route.js';
 import { useRouteStopStore } from '@/stores/route-stop.js';
+import { useRestStopStore } from '@/stores/rest-stop.js';
+import { useRestStopServiceStore } from '@/stores/rest-stop-service.js';
 
 const { t } = useI18n();
 const routerRoute = useRouterRoute();
 const router = useRouter();
+const bidStore = useBidStore();
 const dispatcherStore = useDispatcherStore();
 const routeStore = useRouteStore();
 const routeStopStore = useRouteStopStore();
+const restStopStore = useRestStopStore();
+const restStopServiceStore = useRestStopServiceStore();
+const { bid } = storeToRefs(bidStore);
 const { dispatchers } = storeToRefs(dispatcherStore);
 const { route: routeRecord } = storeToRefs(routeStore);
 const { routeStop } = storeToRefs(routeStopStore);
+const { restStop } = storeToRefs(restStopStore);
+const { services: restStopServices } = storeToRefs(restStopServiceStore);
 
 const isFetching = ref(false);
+const isSavingBid = ref(false);
 
 const routeStopId = computed(() =>
   Array.isArray(routerRoute.params.id)
@@ -59,9 +69,12 @@ function formatValue(value) {
 
 async function loadRouteStopDetails() {
   isFetching.value = true;
+  bidStore.clearBid();
   routeStop.value = null;
   routeRecord.value = null;
+  restStop.value = null;
   dispatchers.value = [];
+  restStopServiceStore.clearRestStopServices();
 
   try {
     const currentRouteStop = await routeStopStore.fetchRouteStop(
@@ -72,13 +85,25 @@ async function loadRouteStopDetails() {
       return;
     }
 
-    const currentRoute = await routeStore.fetchRoute(currentRouteStop.route_id);
+    const [currentRoute, currentRestStop] = await Promise.all([
+      routeStore.fetchRoute(currentRouteStop.route_id),
+      restStopStore.fetchRestStop()
+    ]);
 
-    if (!currentRoute?.dispatcher_id) {
-      return;
+    const detailRequests = [];
+
+    if (currentRoute?.dispatcher_id) {
+      detailRequests.push(dispatcherStore.fetchDispatchers());
     }
 
-    await dispatcherStore.fetchDispatchers();
+    if (currentRestStop?.id) {
+      detailRequests.push(
+        restStopServiceStore.fetchRestStopServices(currentRestStop.id),
+        bidStore.fetchBid(routeStopId.value, { silentNotFound: true })
+      );
+    }
+
+    await Promise.all(detailRequests);
   } finally {
     isFetching.value = false;
   }
@@ -86,6 +111,20 @@ async function loadRouteStopDetails() {
 
 function goToRouteStops() {
   void router.push({ name: 'route-stops' });
+}
+
+async function handleSaveBid({ originalPrice, price }) {
+  if (!routeStop.value?.id) {
+    return;
+  }
+
+  isSavingBid.value = true;
+
+  try {
+    await bidStore.saveBid(routeStop.value.id, originalPrice, price);
+  } finally {
+    isSavingBid.value = false;
+  }
 }
 
 onMounted(() => {
@@ -167,7 +206,12 @@ onMounted(() => {
 
         <RouteStopServicesSection
           :route-stop="routeStop"
+          :rest-stop-services="restStopServices"
+          :bid="bid"
           :loading="isFetching"
+          :saving-bid="isSavingBid"
+          :bid-disabled="!restStop"
+          @save-bid="handleSaveBid"
         />
       </template>
     </div>

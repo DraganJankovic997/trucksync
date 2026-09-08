@@ -3,6 +3,8 @@ import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBidStore } from '@/stores/bid.js';
+import { useRouteStore } from '@/stores/route.js';
+import { useRouteStopStore } from '@/stores/route-stop.js';
 
 const props = defineProps({
   modelValue: {
@@ -16,15 +18,17 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-  'update:modelValue': value => typeof value === 'boolean',
-  submit: bid => bid !== undefined && bid !== null
+  'update:modelValue': value => typeof value === 'boolean'
 });
 
 const { t } = useI18n();
 const bidStore = useBidStore();
+const routeStore = useRouteStore();
+const routeStopStore = useRouteStopStore();
 const { routeStopBids } = storeToRefs(bidStore);
 const tablePagination = { rowsPerPage: 0 };
 const isFetching = ref(false);
+const isSubmitting = ref(false);
 const selectedBidRowId = ref(null);
 
 const dialogOpen = computed({
@@ -99,12 +103,12 @@ const columns = computed(() => [
 ]);
 
 const rows = computed(() =>
-  routeStopBids.value.map((bid, index) => {
+  routeStopBids.value.map(bid => {
     const restStop = bid.rest_stop ?? {};
     const user = restStop.user ?? {};
 
     return {
-      id: `${bid.route_stop_id}:${bid.rest_stop_id}:${index}`,
+      id: bid.rest_stop_id,
       bid: bid,
       contact: formatContactName(user),
       email: formatValue(user.email),
@@ -125,6 +129,7 @@ const bidCount = computed(() => routeStopBids.value.length);
 const selectedBidRow = computed(
   () => rows.value.find(row => row.id === selectedBidRowId.value) ?? null
 );
+const selectedRestStopId = computed(() => selectedBidRow.value?.id ?? null);
 
 watch(
   () => [dialogOpen.value, props.routeStopId],
@@ -186,12 +191,26 @@ function closeDialog() {
   dialogOpen.value = false;
 }
 
-function submitSelectedBid() {
-  if (!selectedBidRow.value) {
+async function submitSelectedBid() {
+  if (!props.routeStopId || !selectedRestStopId.value || isSubmitting.value) {
     return;
   }
 
-  emit('submit', selectedBidRow.value.bid);
+  isSubmitting.value = true;
+
+  try {
+    const fulfilledRouteStop = await routeStopStore.fulfillRouteStop(
+      props.routeStopId,
+      selectedRestStopId.value
+    );
+
+    if (fulfilledRouteStop) {
+      await routeStore.fetchRoute(fulfilledRouteStop.route_id);
+      dialogOpen.value = false;
+    }
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 
 async function loadRouteStopBids() {
@@ -211,7 +230,7 @@ async function loadRouteStopBids() {
 </script>
 
 <template>
-  <q-dialog v-model="dialogOpen" full-width>
+  <q-dialog v-model="dialogOpen" full-width :persistent="isSubmitting">
     <q-card class="dispatcher-route-stop-bids-dialog" bordered flat>
       <q-card-section
         class="row items-start justify-between q-col-gutter-md q-pa-lg q-pb-md"
@@ -237,7 +256,7 @@ async function loadRouteStopBids() {
             :aria-label="
               t('dispatcherRouteEdit.routeStops.bidsDialog.actions.refresh')
             "
-            :disable="isFetching || !props.routeStopId"
+            :disable="isFetching || isSubmitting || !props.routeStopId"
             @click="loadRouteStopBids"
           >
             <q-tooltip>
@@ -254,6 +273,7 @@ async function loadRouteStopBids() {
             :aria-label="
               t('dispatcherRouteEdit.routeStops.bidsDialog.actions.close')
             "
+            :disable="isSubmitting"
             v-close-popup
           >
             <q-tooltip>
@@ -364,13 +384,15 @@ async function loadRouteStopBids() {
           no-caps
           color="grey-8"
           :label="t('dispatcherRouteEdit.routeStops.bidsDialog.actions.close')"
+          :disable="isSubmitting"
           @click="closeDialog"
         />
         <q-btn
           color="primary"
           no-caps
           unelevated
-          :disable="!selectedBidRow"
+          :disable="!selectedRestStopId"
+          :loading="isSubmitting"
           :label="t('dispatcherRouteEdit.routeStops.bidsDialog.actions.submit')"
           @click="submitSelectedBid"
         />

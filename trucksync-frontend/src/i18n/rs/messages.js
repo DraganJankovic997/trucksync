@@ -69,7 +69,9 @@ export default {
     createSuccess: 'Stajaliste rute je uspesno kreirano',
     createError: 'Kreiranje stajalista rute nije uspelo',
     updateServicesSuccess: 'Usluge stajalista rute su uspesno azurirane',
-    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo'
+    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo',
+    fulfillSuccess: 'Stajaliste rute je uspesno ispunjeno',
+    fulfillError: 'Ispunjavanje stajalista rute nije uspelo'
   },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',

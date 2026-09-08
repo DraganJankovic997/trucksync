@@ -3,7 +3,7 @@ export default {
   page: {
     ariaLabel: 'Zahtev za ponudu za stajaliste rute {id}',
     eyebrow: 'Zahtev za ponudu',
-    title: 'Stajaliste rute {id}',
+    title: '{dispatcherName} ({registrationNumber})',
     description:
       'Pregledajte rutu, dispecera i trazene usluge pre pripreme ponude.',
     emptyTitle: 'Stajaliste rute nije dostupno',
@@ -15,27 +15,17 @@ export default {
   },
   routeDetails: {
     eyebrow: 'Detalji rute',
-    title: 'Ruta {id}',
+    title: '{origin} => {destination}',
     routeSection: 'Ruta',
-    dispatcherSection: 'Dispecer',
     status: {
       open: 'Otvorena',
       closed: 'Zatvorena'
     },
     fields: {
-      origin: 'Polaziste',
-      destination: 'Odrediste',
       convoySize: 'Velicina konvoja',
       startDate: 'Datum pocetka',
       endDate: 'Datum zavrsetka',
       plannedTravelDetails: 'Planirani detalji puta'
-    },
-    dispatcher: {
-      companyName: 'Kompanija',
-      city: 'Grad',
-      address: 'Adresa',
-      postCode: 'Postanski broj',
-      registrationNumber: 'Registarski broj'
     }
   },
   routeStopServices: {

@@ -7,10 +7,6 @@ const props = defineProps({
     type: Object,
     default: null
   },
-  dispatcher: {
-    type: Object,
-    default: null
-  },
   loading: {
     type: Boolean,
     default: false
@@ -25,17 +21,14 @@ const routeStatus = computed(() =>
     : t('bidding.routeDetails.status.open')
 );
 
+const routeTitle = computed(() =>
+  t('bidding.routeDetails.title', {
+    origin: formatValue(props.route?.origin),
+    destination: formatValue(props.route?.destination)
+  })
+);
+
 const routeDetails = computed(() => [
-  {
-    key: 'origin',
-    label: t('bidding.routeDetails.fields.origin'),
-    value: formatValue(props.route?.origin)
-  },
-  {
-    key: 'destination',
-    label: t('bidding.routeDetails.fields.destination'),
-    value: formatValue(props.route?.destination)
-  },
   {
     key: 'convoySize',
     label: t('bidding.routeDetails.fields.convoySize'),
@@ -50,34 +43,6 @@ const routeDetails = computed(() => [
     key: 'endDate',
     label: t('bidding.routeDetails.fields.endDate'),
     value: formatDate(props.route?.end_date)
-  }
-]);
-
-const dispatcherDetails = computed(() => [
-  {
-    key: 'companyName',
-    label: t('bidding.routeDetails.dispatcher.companyName'),
-    value: formatValue(props.dispatcher?.company_name)
-  },
-  {
-    key: 'city',
-    label: t('bidding.routeDetails.dispatcher.city'),
-    value: formatValue(props.dispatcher?.city)
-  },
-  {
-    key: 'address',
-    label: t('bidding.routeDetails.dispatcher.address'),
-    value: formatValue(props.dispatcher?.address)
-  },
-  {
-    key: 'postCode',
-    label: t('bidding.routeDetails.dispatcher.postCode'),
-    value: formatValue(props.dispatcher?.post_code)
-  },
-  {
-    key: 'registrationNumber',
-    label: t('bidding.routeDetails.dispatcher.registrationNumber'),
-    value: formatValue(props.dispatcher?.registration_number)
   }
 ]);
 
@@ -121,11 +86,7 @@ function formatDate(value) {
             {{ t('bidding.routeDetails.eyebrow') }}
           </p>
           <h2 class="text-h5 text-weight-bold q-my-none">
-            {{
-              t('bidding.routeDetails.title', {
-                id: formatValue(props.route?.id)
-              })
-            }}
+            {{ routeTitle }}
           </h2>
         </template>
       </div>
@@ -154,7 +115,7 @@ function formatDate(value) {
         {{ t('bidding.routeDetails.routeSection') }}
       </div>
 
-      <div class="bidding-details-grid q-mb-lg">
+      <div class="bidding-details-grid bidding-route-details-grid">
         <div
           v-for="detail in routeDetails"
           :key="detail.key"
@@ -173,22 +134,6 @@ function formatDate(value) {
           <strong v-else>
             {{ formatValue(props.route?.planned_travel_details) }}
           </strong>
-        </div>
-      </div>
-
-      <div class="bidding-section-label q-mb-sm">
-        {{ t('bidding.routeDetails.dispatcherSection') }}
-      </div>
-
-      <div class="bidding-details-grid">
-        <div
-          v-for="detail in dispatcherDetails"
-          :key="detail.key"
-          class="bidding-detail"
-        >
-          <span class="bidding-detail-label">{{ detail.label }}</span>
-          <q-skeleton v-if="props.loading && !props.dispatcher" type="text" />
-          <strong v-else>{{ detail.value }}</strong>
         </div>
       </div>
     </q-card-section>

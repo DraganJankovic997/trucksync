@@ -35,6 +35,28 @@ const dispatcher = computed(
     ) ?? null
 );
 
+const dispatcherTitle = computed(() => {
+  const dispatcherName =
+    dispatcher.value?.company_name ?? routeStop.value?.dispatcher_company_name;
+  const registrationNumber =
+    dispatcher.value?.registration_number ?? dispatcher.value?.reg_number;
+
+  if (dispatcherName && registrationNumber) {
+    return t('bidding.page.title', {
+      dispatcherName: dispatcherName,
+      registrationNumber: registrationNumber
+    });
+  }
+
+  return formatValue(dispatcherName ?? registrationNumber);
+});
+
+function formatValue(value) {
+  return value === undefined || value === null || value === ''
+    ? t('bidding.emptyValue')
+    : value;
+}
+
 async function loadRouteStopDetails() {
   isFetching.value = true;
   routeStop.value = null;
@@ -82,8 +104,14 @@ onMounted(() => {
           <p class="bidding-eyebrow text-caption text-weight-bold q-mb-xs">
             {{ t('bidding.page.eyebrow') }}
           </p>
-          <h1 class="text-h4 text-weight-bold q-my-none">
-            {{ t('bidding.page.title', { id: routeStopId }) }}
+          <q-skeleton
+            v-if="isFetching && !dispatcher"
+            type="text"
+            width="320px"
+            height="46px"
+          />
+          <h1 v-else class="text-h4 text-weight-bold q-my-none">
+            {{ dispatcherTitle }}
           </h1>
           <p class="bidding-description q-mt-sm q-mb-none">
             {{ t('bidding.page.description') }}
@@ -134,7 +162,6 @@ onMounted(() => {
         <RouteDetailsCard
           class="q-mb-lg"
           :route="routeRecord"
-          :dispatcher="dispatcher"
           :loading="isFetching"
         />
 

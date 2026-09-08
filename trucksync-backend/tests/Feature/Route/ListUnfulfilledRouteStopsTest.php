@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Dispatcher;
+use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,6 +54,16 @@ it('lists unfulfilled route stops with services and dispatcher company names for
     $olderRouteStop->services()->attach([
         $fuel->id => ['quantity' => 100],
     ]);
+    $restStop = createRestStopForUnfulfilledRouteStopsEndpointBid(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $newerRouteStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.00',
+    ]);
 
     Sanctum::actingAs(User::factory()->create([
         'profile_type' => 'driver',
@@ -78,6 +90,7 @@ it('lists unfulfilled route stops with services and dispatcher company names for
         ->assertJsonPath('data.route_stops.0.fulfiled_by', null)
         ->assertJsonPath('data.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route_stops.0.number_of_drivers', 4)
+        ->assertJsonPath('data.route_stops.0.bids_count', 1)
         ->assertJsonPath('data.route_stops.0.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stops.0.services.0.name', 'Fuel')
         ->assertJsonPath('data.route_stops.0.services.0.measurement_unit', 'liter')
@@ -92,6 +105,7 @@ it('lists unfulfilled route stops with services and dispatcher company names for
         ->assertJsonPath('data.route_stops.1.location', 'Munich overnight stop')
         ->assertJsonPath('data.route_stops.1.description', null)
         ->assertJsonPath('data.route_stops.1.stop_at', $olderRouteStop->stop_at->toJSON())
+        ->assertJsonPath('data.route_stops.1.bids_count', 0)
         ->assertJsonPath('data.route_stops.1.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stops.1.services.0.quantity', 100)
         ->assertJsonMissing([
@@ -320,5 +334,17 @@ function createRouteStopForUnfulfilledRouteStopsEndpoint(
         'fulfiled_at' => $fulfiledAt,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
+    ]);
+}
+
+function createRestStopForUnfulfilledRouteStopsEndpointBid(User $user): RestStop
+{
+    return RestStop::query()->create([
+        'user_id' => $user->id,
+        'city' => 'Belgrade',
+        'address' => 'Highway 1',
+        'post_code' => '11000',
+        'works_from' => '08:00',
+        'works_to' => '22:00',
     ]);
 }

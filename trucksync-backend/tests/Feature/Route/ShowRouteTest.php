@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Dispatcher;
+use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,6 +54,25 @@ it('shows a route with route stops and needed services without authentication', 
         9,
         10
     );
+    $firstRestStop = createRestStopForShowRouteEndpointBid(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $secondRestStop = createRestStopForShowRouteEndpointBid(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $firstRestStop->id,
+        'original_price' => '300.00',
+        'price' => '250.00',
+    ]);
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $secondRestStop->id,
+        'original_price' => '325.00',
+        'price' => '275.00',
+    ]);
 
     $this->getJson("/api/route/{$route->id}")
         ->assertOk()
@@ -74,6 +95,7 @@ it('shows a route with route stops and needed services without authentication', 
         ->assertJsonPath('data.route.route_stops.0.fulfiled_by', null)
         ->assertJsonPath('data.route.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route.route_stops.0.number_of_drivers', 4)
+        ->assertJsonPath('data.route.route_stops.0.bids_count', 2)
         ->assertJsonCount(2, 'data.route.route_stops.0.services')
         ->assertJsonPath('data.route.route_stops.0.services.0.id', $fuel->id)
         ->assertJsonPath('data.route.route_stops.0.services.0.name', 'Fuel')
@@ -88,6 +110,7 @@ it('shows a route with route stops and needed services without authentication', 
         ->assertJsonPath('data.route.route_stops.1.location', 'Munich overnight stop')
         ->assertJsonPath('data.route.route_stops.1.description', null)
         ->assertJsonPath('data.route.route_stops.1.stop_at', $secondRouteStop->stop_at->toJSON())
+        ->assertJsonPath('data.route.route_stops.1.bids_count', 0)
         ->assertJsonPath('data.route.route_stops.1.services.0.id', $fuel->id)
         ->assertJsonPath('data.route.route_stops.1.services.0.quantity', 100);
 });
@@ -146,5 +169,17 @@ function createRouteStopForShowRouteEndpoint(
         'stop_at' => $stopAt,
         'number_of_trucks' => $numberOfTrucks,
         'number_of_drivers' => $numberOfDrivers,
+    ]);
+}
+
+function createRestStopForShowRouteEndpointBid(User $user): RestStop
+{
+    return RestStop::query()->create([
+        'user_id' => $user->id,
+        'city' => 'Belgrade',
+        'address' => 'Highway 1',
+        'post_code' => '11000',
+        'works_from' => '08:00',
+        'works_to' => '22:00',
     ]);
 }

@@ -15,7 +15,8 @@ const props = defineProps({
 
 const emit = defineEmits({
   add: () => true,
-  edit: routeStop => routeStop?.id !== undefined && routeStop?.id !== null
+  edit: routeStop => routeStop?.id !== undefined && routeStop?.id !== null,
+  bids: routeStop => routeStop?.id !== undefined && routeStop?.id !== null
 });
 
 const { t } = useI18n();
@@ -69,6 +70,13 @@ const columns = computed(() => [
     field: 'services',
     format: formatServiceNames,
     align: 'left'
+  },
+  {
+    name: 'bids',
+    label: t('dispatcherRouteEdit.routeStops.table.bids'),
+    field: 'bidsCount',
+    align: 'left',
+    sortable: true
   }
 ]);
 
@@ -81,6 +89,9 @@ const rows = computed(() =>
     description: formatValue(routeStop.description),
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
     numberOfDrivers: formatValue(routeStop.number_of_drivers),
+    bidsCount: routeStop.bids_count ?? 0,
+    isFulfiled:
+      routeStop.fulfiled_at !== undefined && routeStop.fulfiled_at !== null,
     services: routeStop.services
   }))
 );
@@ -127,6 +138,27 @@ function requestEdit(row) {
   }
 
   emit('edit', row.routeStop);
+}
+
+function requestBids(row) {
+  if (props.loading) {
+    return;
+  }
+
+  emit('bids', row.routeStop);
+}
+
+function bidsAriaLabel(row) {
+  return t('dispatcherRouteEdit.routeStops.table.bidsAriaLabel', {
+    route_stop_id: row.id,
+    count: row.bidsCount
+  });
+}
+
+function bidsButtonLabel(row) {
+  return t('dispatcherRouteEdit.routeStops.table.bidsButton', {
+    count: row.bidsCount
+  });
 }
 </script>
 
@@ -204,6 +236,31 @@ function requestEdit(row) {
       <template #body-cell-services="scope">
         <q-td :props="scope">
           <span>{{ scope.value }}</span>
+        </q-td>
+      </template>
+
+      <template #body-cell-bids="scope">
+        <q-td :props="scope">
+          <q-badge
+            v-if="scope.row.isFulfiled"
+            class="dispatcher-route-stops-fulfiled-badge"
+            color="positive"
+            outline
+            @click.stop
+          >
+            {{ t('dispatcherRouteEdit.routeStops.table.fulfiled') }}
+          </q-badge>
+          <q-btn
+            v-else
+            class="dispatcher-route-stops-bids-button text-weight-bold"
+            color="primary"
+            dense
+            outline
+            no-caps
+            :aria-label="bidsAriaLabel(scope.row)"
+            :label="bidsButtonLabel(scope.row)"
+            @click.stop="requestBids(scope.row)"
+          />
         </q-td>
       </template>
 

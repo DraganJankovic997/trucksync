@@ -44,6 +44,7 @@ class RouteStopService implements RouteStopServiceContract
             ->with([
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
+            ->withCount(['routeStopBids as bids_count'])
             ->orderBy('id')
             ->get();
     }
@@ -54,6 +55,7 @@ class RouteStopService implements RouteStopServiceContract
             ->with([
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
+            ->withCount(['routeStopBids as bids_count'])
             ->find($routeStopId);
     }
 
@@ -72,6 +74,7 @@ class RouteStopService implements RouteStopServiceContract
                 'route.dispatcher',
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
+            ->withCount(['routeStopBids as bids_count'])
             ->whereNull('route_stops.fulfiled_at')
             ->when($search !== null, fn ($query) => $query
                 ->where(fn ($query) => $query
@@ -123,9 +126,11 @@ class RouteStopService implements RouteStopServiceContract
 
             $routeStop->services()->attach($this->serviceQuantities($services));
 
-            return $routeStop->load([
-                'services' => fn ($query) => $query->orderBy('services.id'),
-            ]);
+            return $routeStop
+                ->load([
+                    'services' => fn ($query) => $query->orderBy('services.id'),
+                ])
+                ->loadCount(['routeStopBids as bids_count']);
         });
     }
 
@@ -139,9 +144,12 @@ class RouteStopService implements RouteStopServiceContract
         return DB::transaction(function () use ($routeStop, $services): RouteStop {
             $routeStop->services()->sync($this->serviceQuantities($services));
 
-            return $routeStop->refresh()->load([
-                'services' => fn ($query) => $query->orderBy('services.id'),
-            ]);
+            return $routeStop
+                ->refresh()
+                ->load([
+                    'services' => fn ($query) => $query->orderBy('services.id'),
+                ])
+                ->loadCount(['routeStopBids as bids_count']);
         });
     }
 

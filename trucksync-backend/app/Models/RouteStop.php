@@ -42,6 +42,7 @@ class RouteStop extends Model
             'fulfiled_by' => 'integer',
             'number_of_trucks' => 'integer',
             'number_of_drivers' => 'integer',
+            'bids_count' => 'integer',
         ];
     }
 

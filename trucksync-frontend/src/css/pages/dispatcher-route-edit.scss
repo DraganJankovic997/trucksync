@@ -91,6 +91,17 @@
     overflow-wrap: anywhere;
   }
 
+  .dispatcher-route-stops-bids-button {
+    min-width: 86px;
+  }
+
+  .dispatcher-route-stops-fulfiled-badge {
+    min-width: 74px;
+    justify-content: center;
+    border-radius: brand.$brand-radius;
+    font-weight: 700;
+  }
+
   .dispatcher-route-stops-services {
     display: flex;
     flex-wrap: wrap;

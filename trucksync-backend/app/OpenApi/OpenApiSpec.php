@@ -2165,6 +2165,7 @@ class OpenApiSpec
                             'fulfiled_by',
                             'number_of_trucks',
                             'number_of_drivers',
+                            'bids_count',
                             'services',
                         ],
                         'properties' => [
@@ -2213,6 +2214,12 @@ class OpenApiSpec
                                 'type' => 'integer',
                                 'minimum' => 1,
                                 'example' => 4,
+                            ],
+                            'bids_count' => [
+                                'type' => 'integer',
+                                'minimum' => 0,
+                                'description' => 'Number of bids submitted for this route stop.',
+                                'example' => 2,
                             ],
                             'services' => [
                                 'type' => 'array',

@@ -268,7 +268,7 @@ class RouteStopController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayload(RouteStop $routeStop): array
     {
@@ -282,6 +282,7 @@ class RouteStopController extends Controller
             'fulfiled_by' => $routeStop->fulfiled_by,
             'number_of_trucks' => $routeStop->number_of_trucks,
             'number_of_drivers' => $routeStop->number_of_drivers,
+            'bids_count' => (int) ($routeStop->bids_count ?? $routeStop->routeStopBids()->count()),
             'services' => $routeStop
                 ->services
                 ->map(fn (Service $service): array => [
@@ -296,7 +297,7 @@ class RouteStopController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayloadWithDispatcher(RouteStop $routeStop): array
     {

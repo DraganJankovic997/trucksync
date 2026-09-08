@@ -52,6 +52,7 @@ it('syncs services and quantities for a route stop owned by the authenticated di
         ->assertOk()
         ->assertJsonPath('message', 'Route stop services updated successfully.')
         ->assertJsonPath('data.route_stop.id', $routeStop->id)
+        ->assertJsonPath('data.route_stop.bids_count', 0)
         ->assertJsonPath('data.route_stop.services.0.id', $tireReplacement->id)
         ->assertJsonPath('data.route_stop.services.0.quantity', 4)
         ->assertJsonPath('data.route_stop.services.1.id', $wash->id)

@@ -59,6 +59,7 @@ it('creates a route stop with needed services for a route owned by the authentic
         ->assertJsonPath('data.route_stop.fulfiled_by', null)
         ->assertJsonPath('data.route_stop.number_of_trucks', 3)
         ->assertJsonPath('data.route_stop.number_of_drivers', 4)
+        ->assertJsonPath('data.route_stop.bids_count', 0)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stop.services.0.name', 'Fuel')
         ->assertJsonPath('data.route_stop.services.0.measurement_unit', 'liter')

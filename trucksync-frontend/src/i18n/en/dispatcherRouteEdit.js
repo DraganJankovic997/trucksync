@@ -2,7 +2,8 @@ export default {
   title: '{origin} -> {destination}',
   fallbackTitle: 'Route edit',
   actions: {
-    back: 'Back to routes'
+    back: 'Back to routes',
+    closeRoute: 'Close route'
   },
   details: {
     title: 'Route details',

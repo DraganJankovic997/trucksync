@@ -4,6 +4,7 @@ use App\Models\Dispatcher;
 use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,6 +35,7 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         'measurement_unit' => 'liter',
     ]);
     $routeStop->services()->attach($fuel->id, ['quantity' => 200]);
+    createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
 
     Sanctum::actingAs($user);
 
@@ -46,7 +48,7 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         ->assertJsonPath('data.route_stop.route_id', $route->id)
         ->assertJsonPath('data.route_stop.fulfiled_at', $fulfilledAt->toJSON())
         ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id)
-        ->assertJsonPath('data.route_stop.bids_count', 0)
+        ->assertJsonPath('data.route_stop.bids_count', 1)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stop.services.0.quantity', 200);
 
@@ -75,6 +77,7 @@ it('keeps the route open when it has unfulfilled stops and the start date has no
     $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
         'profile_type' => 'rest_stop',
     ]));
+    createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
 
     Sanctum::actingAs($user);
 
@@ -105,6 +108,7 @@ it('closes the route when its start date has passed after fulfilling a stop', fu
     $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
         'profile_type' => 'rest_stop',
     ]));
+    createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
 
     Sanctum::actingAs($user);
 
@@ -117,6 +121,38 @@ it('closes the route when its start date has passed after fulfilling a stop', fu
         'id' => $route->id,
         'closed_at' => '2026-10-06 12:34:56',
     ]);
+});
+
+it('does not fulfill a route stop when the selected rest stop has not bid on it', function () {
+    Carbon::setTestNow(Carbon::parse('2026-10-06 12:34:56'));
+
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForFulfillRouteStopEndpointUser($user);
+    $route = createRouteForFulfillRouteStopEndpointDispatcher($dispatcher);
+    $routeStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $otherRouteStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    createRouteStopBidForFulfillRouteStopEndpoint($otherRouteStop, $restStop);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson("/api/dispatcher/route/route-stop/{$routeStop->id}/fulfill", [
+        'rest_stop_id' => $restStop->id,
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['rest_stop_id'])
+        ->assertJsonPath(
+            'errors.rest_stop_id.0',
+            'The selected rest stop has not bid on this route stop.'
+        );
+
+    expect($routeStop->refresh()->fulfiled_at)->toBeNull()
+        ->and($routeStop->fulfiled_by)->toBeNull()
+        ->and($route->refresh()->closed_at)->toBeNull();
 });
 
 it('does not fulfill a route stop owned by another dispatcher', function () {
@@ -252,5 +288,15 @@ function createRestStopForFulfillRouteStopEndpointUser(User $user): RestStop
         'post_code' => '18000',
         'works_from' => '08:00',
         'works_to' => '22:00',
+    ]);
+}
+
+function createRouteStopBidForFulfillRouteStopEndpoint(RouteStop $routeStop, RestStop $restStop): RouteStopBid
+{
+    return RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.00',
     ]);
 }

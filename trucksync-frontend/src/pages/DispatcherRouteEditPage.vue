@@ -76,6 +76,7 @@ const routeDetails = computed(() => [
 ]);
 const isRouteAllowed = ref(false);
 const isFetchingRoute = ref(false);
+const isClosingRoute = ref(false);
 const routeStopDialogOpen = ref(false);
 const routeStopBidsDialogOpen = ref(false);
 const selectedRouteStop = ref(null);
@@ -123,6 +124,24 @@ function goToRoutes() {
   void router.push({ name: 'dispatcher-routes' });
 }
 
+async function closeDispatcherRoute() {
+  if (!routeId.value || routeRecord.value?.closed_at || isClosingRoute.value) {
+    return;
+  }
+
+  isClosingRoute.value = true;
+
+  try {
+    const closedRoute = await routeStore.closeRoute(routeId.value);
+
+    if (closedRoute) {
+      await routeStore.fetchRoute(routeId.value);
+    }
+  } finally {
+    isClosingRoute.value = false;
+  }
+}
+
 function openCreateRouteStopDialog() {
   selectedRouteStop.value = null;
   routeStopDialogOpen.value = true;
@@ -154,7 +173,9 @@ onMounted(() => {
     :aria-label="routeTitle"
   >
     <div class="dispatcher-route-edit-shell">
-      <header class="dispatcher-route-edit-header q-mb-md">
+      <header
+        class="dispatcher-route-edit-header row items-center justify-between q-gutter-sm q-mb-md"
+      >
         <q-btn
           flat
           color="primary"
@@ -163,6 +184,20 @@ onMounted(() => {
           class="text-weight-bold"
           :label="t('dispatcherRouteEdit.actions.back')"
           @click="goToRoutes"
+        />
+        <q-btn
+          color="negative"
+          icon="lock"
+          no-caps
+          class="text-weight-bold"
+          :aria-label="t('dispatcherRouteEdit.actions.closeRoute')"
+          :disable="
+            isFetchingRoute || isClosingRoute || Boolean(routeRecord.closed_at)
+          "
+          :label="t('dispatcherRouteEdit.actions.closeRoute')"
+          :loading="isClosingRoute"
+          unelevated
+          @click="closeDispatcherRoute"
         />
       </header>
 

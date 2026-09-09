@@ -1118,7 +1118,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Fulfill a route stop with a selected rest stop',
-                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
+                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop after validating that the selected rest stop has bid on that route stop. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
                         'operationId' => 'fulfillDispatcherRouteStop',
                         'security' => [
                             [
@@ -2918,7 +2918,7 @@ class OpenApiSpec
                             'rest_stop_id' => [
                                 'type' => 'integer',
                                 'minimum' => 1,
-                                'description' => 'Existing rest stop ID that fulfilled this route stop.',
+                                'description' => 'Existing rest stop ID that has bid on and fulfilled this route stop.',
                                 'example' => 1,
                             ],
                         ],

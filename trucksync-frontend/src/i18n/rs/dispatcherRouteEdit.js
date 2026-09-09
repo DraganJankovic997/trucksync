@@ -2,7 +2,8 @@ export default {
   title: '{origin} -> {destination}',
   fallbackTitle: 'Izmena rute',
   actions: {
-    back: 'Nazad na rute'
+    back: 'Nazad na rute',
+    closeRoute: 'Zatvori rutu'
   },
   details: {
     title: 'Detalji rute',

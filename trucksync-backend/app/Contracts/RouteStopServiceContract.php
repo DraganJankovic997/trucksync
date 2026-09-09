@@ -10,6 +10,7 @@ use App\Models\RouteStop;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\ValidationException;
 
 interface RouteStopServiceContract
 {
@@ -61,6 +62,7 @@ interface RouteStopServiceContract
     /**
      * @throws RouteStopNotFoundException
      * @throws RouteStopNotOwnedByDispatcherException
+     * @throws ValidationException
      */
     public function fulfillForUser(User $user, int $routeStopId, int $restStopId): RouteStop;
 }

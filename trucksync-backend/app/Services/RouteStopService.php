@@ -9,10 +9,12 @@ use App\Exceptions\RouteStopNotFoundException;
 use App\Exceptions\RouteStopNotOwnedByDispatcherException;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RouteStopService implements RouteStopServiceContract
 {
@@ -174,6 +176,15 @@ class RouteStopService implements RouteStopServiceContract
                 throw new RouteStopNotOwnedByDispatcherException(
                     'You cannot fulfill a route stop for a route you did not create.'
                 );
+            }
+
+            if (RouteStopBid::query()
+                ->where('route_stop_id', $routeStop->id)
+                ->where('rest_stop_id', $restStopId)
+                ->doesntExist()) {
+                throw ValidationException::withMessages([
+                    'rest_stop_id' => 'The selected rest stop has not bid on this route stop.',
+                ]);
             }
 
             $routeStop->fulfiled_by = $restStopId;

@@ -12,6 +12,7 @@ use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class RouteStopController extends Controller
@@ -302,6 +303,8 @@ class RouteStopController extends Controller
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 403);
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (Throwable $throwable) {
             logger()->error('Unable to fulfill route stop.', [
                 'user_id' => $authenticatedUser->id,

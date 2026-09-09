@@ -161,30 +161,52 @@ class RouteStopService implements RouteStopServiceContract
      */
     public function fulfillForUser(User $user, int $routeStopId, int $restStopId): RouteStop
     {
-        $routeStop = RouteStop::query()
-            ->with('route.dispatcher')
-            ->find($routeStopId);
+        return DB::transaction(function () use ($user, $routeStopId, $restStopId): RouteStop {
+            $routeStop = RouteStop::query()
+                ->with('route.dispatcher')
+                ->find($routeStopId);
 
-        if (! $routeStop) {
-            throw new RouteStopNotFoundException;
+            if (! $routeStop) {
+                throw new RouteStopNotFoundException;
+            }
+
+            if ($routeStop->route?->dispatcher?->user_id !== $user->id) {
+                throw new RouteStopNotOwnedByDispatcherException(
+                    'You cannot fulfill a route stop for a route you did not create.'
+                );
+            }
+
+            $routeStop->fulfiled_by = $restStopId;
+            $routeStop->fulfiled_at = now();
+            $routeStop->save();
+
+            $this->closeRouteIfReady($routeStop->route);
+
+            return $routeStop
+                ->refresh()
+                ->load([
+                    'services' => fn ($query) => $query->orderBy('services.id'),
+                ])
+                ->loadCount(['routeStopBids as bids_count']);
+        });
+    }
+
+    private function closeRouteIfReady(DispatcherRoute $route): void
+    {
+        if ($route->closed_at !== null) {
+            return;
         }
 
-        if ($routeStop->route?->dispatcher?->user_id !== $user->id) {
-            throw new RouteStopNotOwnedByDispatcherException(
-                'You cannot fulfill a route stop for a route you did not create.'
-            );
+        $allRouteStopsFulfilled = $route->routeStops()->exists()
+            && $route->routeStops()->whereNull('fulfiled_at')->doesntExist();
+        $startDateHasPassed = $route->start_date->isPast();
+
+        if (! $allRouteStopsFulfilled && ! $startDateHasPassed) {
+            return;
         }
 
-        $routeStop->fulfiled_by = $restStopId;
-        $routeStop->fulfiled_at = now();
-        $routeStop->save();
-
-        return $routeStop
-            ->refresh()
-            ->load([
-                'services' => fn ($query) => $query->orderBy('services.id'),
-            ])
-            ->loadCount(['routeStopBids as bids_count']);
+        $route->closed_at = now();
+        $route->save();
     }
 
     /**

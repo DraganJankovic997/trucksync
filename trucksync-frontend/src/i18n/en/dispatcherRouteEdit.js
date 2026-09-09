@@ -1,5 +1,6 @@
 export default {
-  title: 'Route edit: {route_id} - Edit route',
+  title: '{origin} -> {destination}',
+  fallbackTitle: 'Route edit',
   actions: {
     back: 'Back to routes'
   },

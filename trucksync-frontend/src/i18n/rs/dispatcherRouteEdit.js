@@ -1,5 +1,6 @@
 export default {
-  title: 'Izmena rute: {route_id} - Izmeni rutu',
+  title: '{origin} -> {destination}',
+  fallbackTitle: 'Izmena rute',
   actions: {
     back: 'Nazad na rute'
   },

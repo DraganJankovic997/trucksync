@@ -1118,6 +1118,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Fulfill a route stop with a selected rest stop',
+                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
                         'operationId' => 'fulfillDispatcherRouteStop',
                         'security' => [
                             [

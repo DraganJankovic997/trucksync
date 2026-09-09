@@ -55,6 +55,68 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         'fulfiled_at' => '2026-10-06 12:34:56',
         'fulfiled_by' => $restStop->id,
     ]);
+    $this->assertDatabaseHas('routes', [
+        'id' => $route->id,
+        'closed_at' => '2026-10-06 12:34:56',
+    ]);
+});
+
+it('keeps the route open when it has unfulfilled stops and the start date has not passed', function () {
+    $fulfilledAt = Carbon::parse('2026-10-06 12:34:56');
+    Carbon::setTestNow($fulfilledAt);
+
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForFulfillRouteStopEndpointUser($user);
+    $route = createRouteForFulfillRouteStopEndpointDispatcher($dispatcher);
+    $routeStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
+    createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    Sanctum::actingAs($user);
+
+    $this->postJson("/api/dispatcher/route/route-stop/{$routeStop->id}/fulfill", [
+        'rest_stop_id' => $restStop->id,
+    ])
+        ->assertOk()
+        ->assertJsonPath('data.route_stop.fulfiled_at', $fulfilledAt->toJSON())
+        ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id);
+
+    expect($route->refresh()->closed_at)->toBeNull();
+});
+
+it('closes the route when its start date has passed after fulfilling a stop', function () {
+    $fulfilledAt = Carbon::parse('2026-10-06 12:34:56');
+    Carbon::setTestNow($fulfilledAt);
+
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForFulfillRouteStopEndpointUser($user);
+    $route = createRouteForFulfillRouteStopEndpointDispatcher($dispatcher, [
+        'start_date' => '2026-10-05',
+        'end_date' => '2026-10-09',
+    ]);
+    $routeStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
+    createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    Sanctum::actingAs($user);
+
+    $this->postJson("/api/dispatcher/route/route-stop/{$routeStop->id}/fulfill", [
+        'rest_stop_id' => $restStop->id,
+    ])
+        ->assertOk();
+
+    $this->assertDatabaseHas('routes', [
+        'id' => $route->id,
+        'closed_at' => '2026-10-06 12:34:56',
+    ]);
 });
 
 it('does not fulfill a route stop owned by another dispatcher', function () {
@@ -155,7 +217,7 @@ function createDispatcherForFulfillRouteStopEndpointUser(User $user): Dispatcher
     ]);
 }
 
-function createRouteForFulfillRouteStopEndpointDispatcher(Dispatcher $dispatcher): DispatcherRoute
+function createRouteForFulfillRouteStopEndpointDispatcher(Dispatcher $dispatcher, array $attributes = []): DispatcherRoute
 {
     return DispatcherRoute::query()->create([
         'dispatcher_id' => $dispatcher->id,
@@ -163,8 +225,9 @@ function createRouteForFulfillRouteStopEndpointDispatcher(Dispatcher $dispatcher
         'destination' => 'Berlin logistics hub',
         'planned_travel_details' => 'Take the A3 corridor and stop near Vienna.',
         'convoy_size' => 3,
-        'start_date' => '2026-10-01',
-        'end_date' => '2026-10-05',
+        'start_date' => '2026-10-10',
+        'end_date' => '2026-10-15',
+        ...$attributes,
     ]);
 }
 
@@ -174,7 +237,7 @@ function createRouteStopForFulfillRouteStopEndpointRoute(DispatcherRoute $route)
         'route_id' => $route->id,
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
-        'stop_at' => '2026-10-02 10:30:00',
+        'stop_at' => '2026-10-11 10:30:00',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);

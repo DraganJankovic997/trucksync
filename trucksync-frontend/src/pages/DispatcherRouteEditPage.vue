@@ -27,6 +27,19 @@ const routeId = computed(() =>
     : routerRoute.params.routeId
 );
 const routeStops = computed(() => routeRecord.value?.route_stops ?? []);
+const routeTitle = computed(() => {
+  const origin = String(routeRecord.value?.origin ?? '').trim();
+  const destination = String(routeRecord.value?.destination ?? '').trim();
+
+  if (!origin || !destination) {
+    return t('dispatcherRouteEdit.fallbackTitle');
+  }
+
+  return t('dispatcherRouteEdit.title', {
+    origin: origin,
+    destination: destination
+  });
+});
 const routeStatus = computed(() =>
   routeRecord.value?.closed_at
     ? t('dispatcherRouteEdit.details.closed')
@@ -138,7 +151,7 @@ onMounted(() => {
   <q-page
     v-if="isRouteAllowed && routeRecord"
     class="dispatcher-route-edit-page q-pa-lg"
-    :aria-label="t('dispatcherRouteEdit.title', { route_id: routeId })"
+    :aria-label="routeTitle"
   >
     <div class="dispatcher-route-edit-shell">
       <header class="dispatcher-route-edit-header q-mb-md">
@@ -162,7 +175,7 @@ onMounted(() => {
               {{ t('dispatcherRouteEdit.details.title') }}
             </p>
             <h1 class="text-h4 text-weight-bold q-my-none">
-              {{ t('dispatcherRouteEdit.title', { route_id: routeId }) }}
+              {{ routeTitle }}
             </h1>
           </div>
 

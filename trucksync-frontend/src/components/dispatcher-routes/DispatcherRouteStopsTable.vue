@@ -10,6 +10,10 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  routeClosed: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -73,8 +77,10 @@ const columns = computed(() => [
   },
   {
     name: 'bids',
-    label: t('dispatcherRouteEdit.routeStops.table.bids'),
-    field: 'bidsCount',
+    label: props.routeClosed
+      ? t('dispatcherRouteEdit.routeStops.table.acceptedBidPrice')
+      : t('dispatcherRouteEdit.routeStops.table.bids'),
+    field: props.routeClosed ? 'acceptedBidPriceValue' : 'bidsCount',
     align: 'left',
     sortable: true
   }
@@ -90,6 +96,8 @@ const rows = computed(() =>
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
     numberOfDrivers: formatValue(routeStop.number_of_drivers),
     bidsCount: routeStop.bids_count ?? 0,
+    acceptedBidPrice: formatPrice(routeStop.accepted_bid_price),
+    acceptedBidPriceValue: sortablePrice(routeStop.accepted_bid_price),
     isFulfiled:
       routeStop.fulfiled_at !== undefined && routeStop.fulfiled_at !== null,
     services: routeStop.services
@@ -132,8 +140,27 @@ function formatDateTime(value) {
   }).format(dateValue);
 }
 
+function formatPrice(value) {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return t('dispatcherRouteEdit.routeStops.table.emptyValue');
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numberValue);
+}
+
+function sortablePrice(value) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : -1;
+}
+
 function requestEdit(row) {
-  if (props.loading) {
+  if (props.loading || props.routeClosed) {
     return;
   }
 
@@ -141,7 +168,7 @@ function requestEdit(row) {
 }
 
 function requestBids(row) {
-  if (props.loading) {
+  if (props.loading || props.routeClosed) {
     return;
   }
 
@@ -191,7 +218,7 @@ function bidsButtonLabel(row) {
           no-caps
           class="text-weight-bold"
           :label="t('dispatcherRouteEdit.routeStops.actions.add')"
-          :disable="props.loading"
+          :disable="props.loading || props.routeClosed"
           unelevated
           @click="emit('add')"
         />
@@ -200,6 +227,7 @@ function bidsButtonLabel(row) {
 
     <q-table
       class="dispatcher-route-stops-table"
+      :class="{ 'dispatcher-route-stops-table-closed': props.routeClosed }"
       flat
       hide-bottom
       row-key="id"
@@ -241,8 +269,14 @@ function bidsButtonLabel(row) {
 
       <template #body-cell-bids="scope">
         <q-td :props="scope">
+          <div
+            v-if="props.routeClosed"
+            class="dispatcher-route-stops-accepted-price"
+          >
+            {{ scope.row.acceptedBidPrice }}
+          </div>
           <q-badge
-            v-if="scope.row.isFulfiled"
+            v-else-if="scope.row.isFulfiled"
             class="dispatcher-route-stops-fulfiled-badge"
             color="positive"
             outline

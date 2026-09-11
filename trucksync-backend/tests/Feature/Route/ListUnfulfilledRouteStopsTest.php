@@ -17,6 +17,9 @@ it('lists unfulfilled route stops with services and dispatcher company names for
     $secondDispatcher = createDispatcherForUnfulfilledRouteStopsEndpoint('Beta Freight');
     $route = createRouteForUnfulfilledRouteStopsEndpoint($dispatcher);
     $secondRoute = createRouteForUnfulfilledRouteStopsEndpoint($secondDispatcher);
+    $closedRoute = createRouteForUnfulfilledRouteStopsEndpoint($dispatcher, [
+        'closed_at' => '2026-10-01 12:00:00',
+    ]);
     $fuel = Service::query()->create([
         'name' => 'Fuel',
         'measurement_unit' => 'liter',
@@ -45,6 +48,13 @@ it('lists unfulfilled route stops with services and dispatcher company names for
         null,
         '2026-10-04 08:00:00',
         '2026-10-04 08:30:00'
+    );
+    createRouteStopForUnfulfilledRouteStopsEndpoint(
+        $closedRoute,
+        'Closed route stop',
+        null,
+        '2026-10-05 08:00:00',
+        null
     );
 
     $newerRouteStop->services()->attach([
@@ -88,6 +98,7 @@ it('lists unfulfilled route stops with services and dispatcher company names for
         ->assertJsonPath('data.route_stops.0.stop_at', $newerRouteStop->stop_at->toJSON())
         ->assertJsonPath('data.route_stops.0.fulfiled_at', null)
         ->assertJsonPath('data.route_stops.0.fulfiled_by', null)
+        ->assertJsonPath('data.route_stops.0.accepted_bid_price', null)
         ->assertJsonPath('data.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route_stops.0.number_of_drivers', 4)
         ->assertJsonPath('data.route_stops.0.bids_count', 1)
@@ -110,6 +121,9 @@ it('lists unfulfilled route stops with services and dispatcher company names for
         ->assertJsonPath('data.route_stops.1.services.0.quantity', 100)
         ->assertJsonMissing([
             'location' => 'Fulfilled Prague stop',
+        ])
+        ->assertJsonMissing([
+            'location' => 'Closed route stop',
         ]);
 });
 
@@ -306,7 +320,7 @@ function createDispatcherForUnfulfilledRouteStopsEndpoint(string $companyName): 
     ]);
 }
 
-function createRouteForUnfulfilledRouteStopsEndpoint(Dispatcher $dispatcher): DispatcherRoute
+function createRouteForUnfulfilledRouteStopsEndpoint(Dispatcher $dispatcher, array $attributes = []): DispatcherRoute
 {
     return DispatcherRoute::query()->create([
         'dispatcher_id' => $dispatcher->id,
@@ -316,6 +330,7 @@ function createRouteForUnfulfilledRouteStopsEndpoint(Dispatcher $dispatcher): Di
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        ...$attributes,
     ]);
 }
 

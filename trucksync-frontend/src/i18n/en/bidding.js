@@ -60,6 +60,8 @@ export default {
       "You can't bid on this request until all required services are offered by your rest stop.",
     unavailableNoServices:
       "You can't bid on this request because it has no required services.",
+    unavailableClosedRoute:
+      "You can't bid on this request because the route is closed.",
     unavailableProfile: 'Complete your rest stop profile before bidding.',
     fields: {
       customPrice: {

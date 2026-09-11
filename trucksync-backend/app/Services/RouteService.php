@@ -81,6 +81,7 @@ class RouteService implements RouteServiceContract
         return DispatcherRoute::query()
             ->with([
                 'routeStops' => fn ($query) => $query
+                    ->withAcceptedBidPrice()
                     ->withCount(['routeStopBids as bids_count'])
                     ->orderBy('id'),
                 'routeStops.services' => fn ($query) => $query->orderBy('services.id'),

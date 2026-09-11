@@ -48,6 +48,7 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         ->assertJsonPath('data.route_stop.route_id', $route->id)
         ->assertJsonPath('data.route_stop.fulfiled_at', $fulfilledAt->toJSON())
         ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id)
+        ->assertJsonPath('data.route_stop.accepted_bid_price', '250.00')
         ->assertJsonPath('data.route_stop.bids_count', 1)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stop.services.0.quantity', 200);
@@ -153,6 +154,39 @@ it('does not fulfill a route stop when the selected rest stop has not bid on it'
     expect($routeStop->refresh()->fulfiled_at)->toBeNull()
         ->and($routeStop->fulfiled_by)->toBeNull()
         ->and($route->refresh()->closed_at)->toBeNull();
+});
+
+it('does not fulfill a route stop when the route is closed', function () {
+    Carbon::setTestNow(Carbon::parse('2026-10-06 12:34:56'));
+
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForFulfillRouteStopEndpointUser($user);
+    $route = createRouteForFulfillRouteStopEndpointDispatcher($dispatcher, [
+        'closed_at' => '2026-10-05 12:00:00',
+    ]);
+    $routeStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson("/api/dispatcher/route/route-stop/{$routeStop->id}/fulfill", [
+        'rest_stop_id' => $restStop->id,
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['route_stop_id'])
+        ->assertJsonPath(
+            'errors.route_stop_id.0',
+            'You cannot select bids for a closed route.'
+        );
+
+    expect($routeStop->refresh()->fulfiled_at)->toBeNull()
+        ->and($routeStop->fulfiled_by)->toBeNull()
+        ->and($route->refresh()->closed_at->toDateTimeString())->toBe('2026-10-05 12:00:00');
 });
 
 it('does not fulfill a route stop owned by another dispatcher', function () {

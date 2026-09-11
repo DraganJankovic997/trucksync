@@ -60,6 +60,8 @@ export default {
       'Ne mozete poslati ponudu dok vase odmoriste ne nudi sve trazene usluge.',
     unavailableNoServices:
       'Ne mozete poslati ponudu jer zahtev nema trazene usluge.',
+    unavailableClosedRoute:
+      'Ne mozete poslati ponudu za ovaj zahtev jer je ruta zatvorena.',
     unavailableProfile: 'Popunite profil odmorista pre slanja ponude.',
     fields: {
       customPrice: {

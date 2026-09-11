@@ -64,6 +64,10 @@ it('lists route stops with needed services for a route without authentication', 
         'original_price' => '300.00',
         'price' => '250.00',
     ]);
+    $routeStop->forceFill([
+        'fulfiled_at' => '2026-10-02 11:00:00',
+        'fulfiled_by' => $restStop->id,
+    ])->save();
 
     $this->getJson("/api/route/route-stops/{$route->id}")
         ->assertOk()
@@ -73,8 +77,9 @@ it('lists route stops with needed services for a route without authentication', 
         ->assertJsonPath('data.route_stops.0.location', 'Vienna fuel stop')
         ->assertJsonPath('data.route_stops.0.description', 'Refuel and inspect tires before crossing into Germany.')
         ->assertJsonPath('data.route_stops.0.stop_at', $routeStop->stop_at->toJSON())
-        ->assertJsonPath('data.route_stops.0.fulfiled_at', null)
-        ->assertJsonPath('data.route_stops.0.fulfiled_by', null)
+        ->assertJsonPath('data.route_stops.0.fulfiled_at', $routeStop->fulfiled_at->toJSON())
+        ->assertJsonPath('data.route_stops.0.fulfiled_by', $restStop->id)
+        ->assertJsonPath('data.route_stops.0.accepted_bid_price', '250.00')
         ->assertJsonPath('data.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route_stops.0.number_of_drivers', 4)
         ->assertJsonPath('data.route_stops.0.bids_count', 1)
@@ -91,6 +96,7 @@ it('lists route stops with needed services for a route without authentication', 
         ->assertJsonPath('data.route_stops.1.location', 'Munich overnight stop')
         ->assertJsonPath('data.route_stops.1.description', null)
         ->assertJsonPath('data.route_stops.1.stop_at', $secondRouteStop->stop_at->toJSON())
+        ->assertJsonPath('data.route_stops.1.accepted_bid_price', null)
         ->assertJsonPath('data.route_stops.1.bids_count', 0)
         ->assertJsonPath('data.route_stops.1.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stops.1.services.0.quantity', 100);

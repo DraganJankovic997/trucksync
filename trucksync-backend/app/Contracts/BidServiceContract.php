@@ -7,11 +7,13 @@ use App\Models\RestStop;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 interface BidServiceContract
 {
     /**
      * @throws RouteStopNotFoundException
+     * @throws ValidationException
      */
     public function upsertForRestStop(
         RestStop $restStop,
@@ -22,6 +24,9 @@ interface BidServiceContract
 
     public function findForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid;
 
+    /**
+     * @throws ValidationException
+     */
     public function deleteForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid;
 
     /**

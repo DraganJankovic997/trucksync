@@ -39,6 +39,7 @@ interface RouteStopServiceContract
      *
      * @throws RouteNotFoundException
      * @throws RouteNotOwnedByDispatcherException
+     * @throws ValidationException
      */
     public function createForUser(
         User $user,
@@ -53,6 +54,8 @@ interface RouteStopServiceContract
 
     /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
+     *
+     * @throws ValidationException
      */
     public function syncServicesForRouteStop(
         RouteStop $routeStop,

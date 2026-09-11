@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,7 +44,29 @@ class RouteStop extends Model
             'number_of_trucks' => 'integer',
             'number_of_drivers' => 'integer',
             'bids_count' => 'integer',
+            'accepted_bid_price' => 'decimal:2',
         ];
+    }
+
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeWithAcceptedBidPrice(Builder $query): Builder
+    {
+        $table = $query->getModel()->getTable();
+
+        if ($query->getQuery()->columns === null) {
+            $query->select("{$table}.*");
+        }
+
+        return $query->addSelect([
+            'accepted_bid_price' => RouteStopBid::query()
+                ->select('price')
+                ->whereColumn('route_stop_bids.route_stop_id', "{$table}.id")
+                ->whereColumn('route_stop_bids.rest_stop_id', "{$table}.fulfiled_by")
+                ->limit(1),
+        ]);
     }
 
     public function route(): BelongsTo

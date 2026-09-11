@@ -118,6 +118,51 @@ it('does not sync route stop services for a route owned by another dispatcher', 
     ]);
 });
 
+it('does not sync route stop services for a closed route', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForRouteStopServicesEndpointUser($user);
+    $route = createRouteForRouteStopServicesEndpointDispatcher($dispatcher, [
+        'closed_at' => now(),
+    ]);
+    $routeStop = createRouteStopForRouteStopServicesEndpoint($route);
+    $fuel = Service::query()->create([
+        'name' => 'Fuel',
+    ]);
+    $wash = Service::query()->create([
+        'name' => 'Wash',
+    ]);
+    $routeStop->services()->attach($fuel->id, ['quantity' => 100]);
+
+    Sanctum::actingAs($user);
+
+    $this->putJson("/api/dispatcher/route/route-stop/{$routeStop->id}/services", [
+        'services' => [
+            [
+                'service_id' => $wash->id,
+                'quantity' => 1,
+            ],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['route_stop_id'])
+        ->assertJsonPath(
+            'errors.route_stop_id.0',
+            'You cannot update route stops on a closed route.'
+        );
+
+    $this->assertDatabaseHas('route_stop_services', [
+        'route_stop_id' => $routeStop->id,
+        'service_id' => $fuel->id,
+        'quantity' => 100,
+    ]);
+    $this->assertDatabaseMissing('route_stop_services', [
+        'route_stop_id' => $routeStop->id,
+        'service_id' => $wash->id,
+    ]);
+});
+
 it('requires authentication to sync route stop services', function () {
     $this->putJson('/api/dispatcher/route/route-stop/1/services', [])
         ->assertUnauthorized()
@@ -226,7 +271,7 @@ function createDispatcherForRouteStopServicesEndpointUser(User $user): Dispatche
     ]);
 }
 
-function createRouteForRouteStopServicesEndpointDispatcher(Dispatcher $dispatcher): DispatcherRoute
+function createRouteForRouteStopServicesEndpointDispatcher(Dispatcher $dispatcher, array $attributes = []): DispatcherRoute
 {
     return DispatcherRoute::query()->create([
         'dispatcher_id' => $dispatcher->id,
@@ -236,6 +281,7 @@ function createRouteForRouteStopServicesEndpointDispatcher(Dispatcher $dispatche
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        ...$attributes,
     ]);
 }
 

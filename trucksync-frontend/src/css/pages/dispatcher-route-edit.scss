@@ -77,6 +77,12 @@
     }
   }
 
+  .dispatcher-route-stops-table-closed {
+    .q-table tbody tr {
+      cursor: default;
+    }
+  }
+
   .dispatcher-route-stops-location {
     min-width: 160px;
     max-width: 260px;
@@ -93,6 +99,12 @@
 
   .dispatcher-route-stops-bids-button {
     min-width: 86px;
+  }
+
+  .dispatcher-route-stops-accepted-price {
+    min-width: 86px;
+    color: brand.$brand-ink;
+    font-weight: 700;
   }
 
   .dispatcher-route-stops-fulfiled-badge {

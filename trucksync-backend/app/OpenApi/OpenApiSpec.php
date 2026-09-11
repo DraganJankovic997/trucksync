@@ -1008,6 +1008,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Create a route stop for a route owned by the authenticated dispatcher',
+                        'description' => 'Creates a route stop only when the route is still open.',
                         'operationId' => 'createDispatcherRouteStop',
                         'security' => [
                             [
@@ -1057,6 +1058,7 @@ class OpenApiSpec
                     'put' => [
                         'tags' => ['Routes'],
                         'summary' => 'Synchronize services and quantities for a route stop owned by the authenticated dispatcher',
+                        'description' => 'Updates route stop services only when the route is still open.',
                         'operationId' => 'syncDispatcherRouteStopServices',
                         'security' => [
                             [
@@ -1118,7 +1120,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Fulfill a route stop with a selected rest stop',
-                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop after validating that the selected rest stop has bid on that route stop. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
+                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop after validating that the selected rest stop has bid on that route stop and the route is still open. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
                         'operationId' => 'fulfillDispatcherRouteStop',
                         'security' => [
                             [
@@ -1467,6 +1469,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'Create a bid for the authenticated rest stop',
+                        'description' => 'Creates or updates a bid only when the route is still open.',
                         'operationId' => 'createAuthenticatedRestStopBid',
                         'security' => [
                             [
@@ -1572,6 +1575,7 @@ class OpenApiSpec
                     'delete' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'Delete the authenticated rest stop bid for a route stop',
+                        'description' => 'Deletes a bid only when the route is still open.',
                         'operationId' => 'deleteAuthenticatedRestStopBid',
                         'security' => [
                             [
@@ -1609,6 +1613,9 @@ class OpenApiSpec
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/BidNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -2273,6 +2280,7 @@ class OpenApiSpec
                             'stop_at',
                             'fulfiled_at',
                             'fulfiled_by',
+                            'accepted_bid_price',
                             'number_of_trucks',
                             'number_of_drivers',
                             'bids_count',
@@ -2314,6 +2322,12 @@ class OpenApiSpec
                                 'nullable' => true,
                                 'description' => 'Rest stop ID that fulfilled this route stop.',
                                 'example' => null,
+                            ],
+                            'accepted_bid_price' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'description' => 'Accepted bid price for the rest stop selected to fulfill this route stop.',
+                                'example' => '250.00',
                             ],
                             'number_of_trucks' => [
                                 'type' => 'integer',

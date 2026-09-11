@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/boot/toast.js';
@@ -27,6 +27,16 @@ const routeId = computed(() =>
     : routerRoute.params.routeId
 );
 const routeStops = computed(() => routeRecord.value?.route_stops ?? []);
+const routeClosed = computed(() => Boolean(routeRecord.value?.closed_at));
+const acceptedBidsTotal = computed(() =>
+  routeStops.value.reduce(
+    (total, routeStop) => total + Number(routeStop.accepted_bid_price ?? 0),
+    0
+  )
+);
+const formattedAcceptedBidsTotal = computed(() =>
+  formatPrice(acceptedBidsTotal.value)
+);
 const routeTitle = computed(() => {
   const origin = String(routeRecord.value?.origin ?? '').trim();
   const destination = String(routeRecord.value?.destination ?? '').trim();
@@ -41,7 +51,7 @@ const routeTitle = computed(() => {
   });
 });
 const routeStatus = computed(() =>
-  routeRecord.value?.closed_at
+  routeClosed.value
     ? t('dispatcherRouteEdit.details.closed')
     : t('dispatcherRouteEdit.details.open')
 );
@@ -72,6 +82,11 @@ const routeDetails = computed(() => [
     label: t('dispatcherRouteEdit.details.endDate'),
     value: routeRecord.value?.end_date,
     format: 'date'
+  },
+  {
+    key: 'acceptedBidsTotal',
+    label: t('dispatcherRouteEdit.details.acceptedBidsTotal'),
+    value: formattedAcceptedBidsTotal.value
   }
 ]);
 const isRouteAllowed = ref(false);
@@ -124,8 +139,21 @@ function goToRoutes() {
   void router.push({ name: 'dispatcher-routes' });
 }
 
+function formatPrice(value) {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return t('dispatcherRouteEdit.details.emptyValue');
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numberValue);
+}
+
 async function closeDispatcherRoute() {
-  if (!routeId.value || routeRecord.value?.closed_at || isClosingRoute.value) {
+  if (!routeId.value || routeClosed.value || isClosingRoute.value) {
     return;
   }
 
@@ -143,23 +171,42 @@ async function closeDispatcherRoute() {
 }
 
 function openCreateRouteStopDialog() {
+  if (routeClosed.value) {
+    return;
+  }
+
   selectedRouteStop.value = null;
   routeStopDialogOpen.value = true;
 }
 
 function openEditRouteStopDialog(routeStop) {
+  if (routeClosed.value) {
+    return;
+  }
+
   selectedRouteStop.value = routeStop;
   routeStopDialogOpen.value = true;
 }
 
 function openRouteStopBidsDialog(routeStop) {
-  if (!routeStop?.id) {
+  if (!routeStop?.id || routeClosed.value) {
     return;
   }
 
   selectedBidsRouteStopId.value = routeStop.id;
   routeStopBidsDialogOpen.value = true;
 }
+
+watch(routeClosed, closed => {
+  if (!closed) {
+    return;
+  }
+
+  routeStopDialogOpen.value = false;
+  routeStopBidsDialogOpen.value = false;
+  selectedRouteStop.value = null;
+  selectedBidsRouteStopId.value = null;
+});
 
 onMounted(() => {
   void validateRouteOwnership();
@@ -191,9 +238,7 @@ onMounted(() => {
           no-caps
           class="text-weight-bold"
           :aria-label="t('dispatcherRouteEdit.actions.closeRoute')"
-          :disable="
-            isFetchingRoute || isClosingRoute || Boolean(routeRecord.closed_at)
-          "
+          :disable="isFetchingRoute || isClosingRoute || routeClosed"
           :label="t('dispatcherRouteEdit.actions.closeRoute')"
           :loading="isClosingRoute"
           unelevated
@@ -217,7 +262,7 @@ onMounted(() => {
           <div class="col-12 col-md-auto">
             <q-badge
               class="dispatcher-route-edit-status"
-              :color="routeRecord.closed_at ? 'grey-8' : 'positive'"
+              :color="routeClosed ? 'grey-8' : 'positive'"
               outline
             >
               {{ routeStatus }}
@@ -244,6 +289,7 @@ onMounted(() => {
 
       <DispatcherRouteStopsTable
         :route-stops="routeStops"
+        :route-closed="routeClosed"
         :loading="isFetchingRoute"
         @add="openCreateRouteStopDialog"
         @edit="openEditRouteStopDialog"

@@ -12,6 +12,7 @@ use App\Models\RouteStopBid;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class BidController extends Controller
@@ -179,6 +180,8 @@ class BidController extends Controller
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 404);
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (Throwable $throwable) {
             logger()->error('Unable to create bid.', [
                 'user_id' => $authenticatedUser->id,
@@ -228,6 +231,8 @@ class BidController extends Controller
                     'bid' => $this->bidPayload($bid),
                 ],
             ]);
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (Throwable $throwable) {
             logger()->error('Unable to delete bid.', [
                 'user_id' => $authenticatedUser->id,

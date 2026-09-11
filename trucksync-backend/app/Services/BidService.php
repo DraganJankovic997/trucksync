@@ -8,6 +8,7 @@ use App\Models\RestStop;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class BidService implements BidServiceContract
 {
@@ -17,8 +18,18 @@ class BidService implements BidServiceContract
         string $originalPrice,
         string $price
     ): RouteStopBid {
-        if (RouteStop::query()->whereKey($routeStopId)->doesntExist()) {
+        $routeStop = RouteStop::query()
+            ->with('route')
+            ->find($routeStopId);
+
+        if (! $routeStop) {
             throw new RouteStopNotFoundException;
+        }
+
+        if ($routeStop->route?->closed_at !== null) {
+            throw ValidationException::withMessages([
+                'route_stop_id' => 'You cannot bid on a closed route.',
+            ]);
         }
 
         return RouteStopBid::query()->updateOrCreate(
@@ -40,10 +51,20 @@ class BidService implements BidServiceContract
 
     public function deleteForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid
     {
-        $bid = $this->bidForRestStop($restStop, $routeStopId);
+        $bid = RouteStopBid::query()
+            ->with('routeStop.route')
+            ->where('route_stop_id', $routeStopId)
+            ->where('rest_stop_id', $restStop->id)
+            ->first();
 
         if (! $bid) {
             return null;
+        }
+
+        if ($bid->routeStop?->route?->closed_at !== null) {
+            throw ValidationException::withMessages([
+                'route_stop_id' => 'You cannot delete a bid on a closed route.',
+            ]);
         }
 
         RouteStopBid::query()

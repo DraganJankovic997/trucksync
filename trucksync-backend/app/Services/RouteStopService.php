@@ -45,6 +45,7 @@ class RouteStopService implements RouteStopServiceContract
         }
 
         return $route->routeStops()
+            ->withAcceptedBidPrice()
             ->with([
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
@@ -56,6 +57,7 @@ class RouteStopService implements RouteStopServiceContract
     public function findWithServices(int $routeStopId): ?RouteStop
     {
         return RouteStop::query()
+            ->withAcceptedBidPrice()
             ->with([
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
@@ -74,12 +76,14 @@ class RouteStopService implements RouteStopServiceContract
         string $sortOrder = 'desc'
     ): LengthAwarePaginator {
         return RouteStop::query()
+            ->withAcceptedBidPrice()
             ->with([
                 'route.dispatcher',
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
             ->withCount(['routeStopBids as bids_count'])
             ->whereNull('route_stops.fulfiled_at')
+            ->whereHas('route', fn ($query) => $query->whereNull('closed_at'))
             ->when($search !== null, fn ($query) => $query
                 ->where(fn ($query) => $query
                     ->whereLike('route_stops.location', '%'.$search.'%', false)
@@ -119,6 +123,12 @@ class RouteStopService implements RouteStopServiceContract
             throw new RouteNotOwnedByDispatcherException;
         }
 
+        if ($route->closed_at !== null) {
+            throw ValidationException::withMessages([
+                'route_id' => 'You cannot add route stops to a closed route.',
+            ]);
+        }
+
         return DB::transaction(function () use ($route, $location, $description, $stopAt, $numberOfTrucks, $numberOfDrivers, $services): RouteStop {
             $routeStop = $route->routeStops()->create([
                 'location' => $location,
@@ -146,6 +156,14 @@ class RouteStopService implements RouteStopServiceContract
         array $services
     ): RouteStop {
         return DB::transaction(function () use ($routeStop, $services): RouteStop {
+            $routeStop->loadMissing('route');
+
+            if ($routeStop->route?->closed_at !== null) {
+                throw ValidationException::withMessages([
+                    'route_stop_id' => 'You cannot update route stops on a closed route.',
+                ]);
+            }
+
             $routeStop->services()->sync($this->serviceQuantities($services));
 
             return $routeStop
@@ -178,10 +196,18 @@ class RouteStopService implements RouteStopServiceContract
                 );
             }
 
-            if (RouteStopBid::query()
+            if ($routeStop->route?->closed_at !== null) {
+                throw ValidationException::withMessages([
+                    'route_stop_id' => 'You cannot select bids for a closed route.',
+                ]);
+            }
+
+            $selectedBid = RouteStopBid::query()
                 ->where('route_stop_id', $routeStop->id)
                 ->where('rest_stop_id', $restStopId)
-                ->doesntExist()) {
+                ->first();
+
+            if (! $selectedBid) {
                 throw ValidationException::withMessages([
                     'rest_stop_id' => 'The selected rest stop has not bid on this route stop.',
                 ]);
@@ -193,8 +219,10 @@ class RouteStopService implements RouteStopServiceContract
 
             $this->closeRouteIfReady($routeStop->route);
 
+            $routeStop->refresh();
+            $routeStop->setAttribute('accepted_bid_price', $selectedBid->price);
+
             return $routeStop
-                ->refresh()
                 ->load([
                     'services' => fn ($query) => $query->orderBy('services.id'),
                 ])

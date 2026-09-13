@@ -25,6 +25,7 @@ async function loadRoutes() {
 
     if (!currentDriver?.dispatcher_id) {
       hasDispatcher.value = false;
+
       return;
     }
 

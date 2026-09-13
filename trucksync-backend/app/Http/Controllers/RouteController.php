@@ -52,6 +52,45 @@ class RouteController extends Controller
         }
     }
 
+    public function indexForDriver(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'driver') {
+            return response()->json([
+                'message' => 'Only driver users can view their routes.',
+            ], 403);
+        }
+
+        try {
+            $routes = $this->routeService->forDriverUser($authenticatedUser);
+
+            if (! $routes) {
+                return response()->json([
+                    'message' => 'Driver profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'routes' => $routes
+                        ->map(fn (DispatcherRoute $route): array => $this->routeWithStopsPayload($route))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch driver routes.', [
+                'user_id' => $authenticatedUser->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch routes.',
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $authenticatedUser = $request->user();

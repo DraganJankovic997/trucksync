@@ -10,6 +10,18 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  title: {
+    type: String,
+    default: null
+  },
+  emptyTitle: {
+    type: String,
+    default: null
+  },
+  emptyDescription: {
+    type: String,
+    default: null
   }
 });
 
@@ -118,7 +130,7 @@ function formatDate(value) {
     >
       <div class="col">
         <h2 class="text-h6 text-weight-bold q-my-none">
-          {{ t('driverRoutes.table.title') }}
+          {{ props.title ?? t('driverRoutes.table.title') }}
         </h2>
       </div>
 
@@ -171,8 +183,12 @@ function formatDate(value) {
         >
           <q-icon class="driver-routes-empty-icon" name="route" size="34px" />
           <div class="column">
-            <strong>{{ t('driverRoutes.table.emptyTitle') }}</strong>
-            <span>{{ t('driverRoutes.table.emptyDescription') }}</span>
+            <strong>{{
+              props.emptyTitle ?? t('driverRoutes.table.emptyTitle')
+            }}</strong>
+            <span>{{
+              props.emptyDescription ?? t('driverRoutes.table.emptyDescription')
+            }}</span>
           </div>
         </div>
       </template>

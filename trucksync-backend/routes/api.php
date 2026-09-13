@@ -57,10 +57,14 @@ Route::get('/route/route-stops/{route_id}', [RouteStopController::class, 'index'
 
 Route::prefix('driver')
     ->middleware('auth:sanctum')
-    ->controller(DriverController::class)
     ->group(function () {
-        Route::get('/', 'show')->name('driver.show');
-        Route::post('/', 'store')->name('driver.store');
+        Route::get('/routes', [RouteController::class, 'indexForDriver'])
+            ->name('driver.routes.index');
+
+        Route::controller(DriverController::class)->group(function () {
+            Route::get('/', 'show')->name('driver.show');
+            Route::post('/', 'store')->name('driver.store');
+        });
     });
 
 Route::prefix('dispatcher')

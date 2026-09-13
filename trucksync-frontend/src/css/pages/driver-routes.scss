@@ -29,6 +29,170 @@
     box-shadow: 0 18px 48px brand.$brand-shadow;
   }
 
+  .driver-routes-current-section {
+    display: grid;
+    gap: 16px;
+  }
+
+  .driver-routes-current-card {
+    overflow: hidden;
+  }
+
+  .driver-routes-current-header {
+    background: #ffffff;
+  }
+
+  .driver-routes-current-badge,
+  .driver-routes-stop-status {
+    border-radius: brand.$brand-radius;
+    font-weight: 700;
+  }
+
+  .driver-routes-current-title {
+    line-height: 1.25;
+  }
+
+  .driver-routes-current-summary,
+  .driver-routes-stop-description,
+  .driver-routes-stop-capacity {
+    color: brand.$brand-muted;
+    line-height: 1.5;
+  }
+
+  .driver-routes-next-stop-panel {
+    display: grid;
+    gap: 4px;
+    min-width: 240px;
+    padding: 14px 16px;
+    color: #ffffff;
+    background: brand.$brand-ink;
+    border-radius: brand.$brand-radius;
+
+    strong {
+      font-size: 1rem;
+      line-height: 1.35;
+    }
+
+    span {
+      line-height: 1.4;
+    }
+  }
+
+  .driver-routes-next-stop-label {
+    color: brand.$brand-accent-light;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .driver-routes-current-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .driver-routes-current-detail {
+    display: flex;
+    gap: 12px;
+    min-width: 0;
+    padding: 12px;
+    background: brand.$brand-success-background;
+    border: 1px solid brand.$brand-border;
+    border-radius: brand.$brand-radius;
+
+    .q-icon {
+      color: brand.$brand-accent-dark;
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+
+    div {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    span {
+      color: brand.$brand-muted;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    strong {
+      color: brand.$brand-ink;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .driver-routes-stop-list {
+    overflow: hidden;
+    border-color: brand.$brand-border;
+    border-radius: brand.$brand-radius;
+  }
+
+  .driver-routes-stop-item {
+    align-items: flex-start;
+    min-height: 96px;
+    border-left: 4px solid transparent;
+
+    .q-icon {
+      color: brand.$brand-muted;
+    }
+
+    &.is-next {
+      background: brand.$brand-success-background;
+      border-left-color: brand.$brand-accent-dark;
+
+      .q-icon {
+        color: brand.$brand-accent-dark;
+      }
+    }
+
+    &.is-fulfilled {
+      .q-icon {
+        color: brand.$brand-success;
+      }
+    }
+  }
+
+  .driver-routes-stop-title {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    color: brand.$brand-ink;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .driver-routes-stop-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .driver-routes-stop-service {
+    max-width: 100%;
+    margin: 0;
+    color: brand.$brand-ink;
+    background: #ffffff;
+    border: 1px solid brand.$brand-border;
+
+    .q-chip__content {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .driver-routes-stops-empty {
+    min-height: 150px;
+    border: 1px dashed brand.$brand-border;
+    border-radius: brand.$brand-radius;
+  }
+
   .driver-routes-table-card {
     overflow: hidden;
   }

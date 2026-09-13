@@ -838,6 +838,42 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/driver/routes' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List routes assigned to the authenticated driver',
+                        'operationId' => 'listAuthenticatedDriverRoutes',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Assigned driver route list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DriverRoutesIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DriverRoutesForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DriverNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher/all' => [
                     'get' => [
                         'tags' => ['Dispatchers'],
@@ -3599,6 +3635,24 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DriverRoutesIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['routes'],
+                                'properties' => [
+                                    'routes' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteWithStops',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -4394,6 +4448,19 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can view drivers.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DriverRoutesForbidden' => [
+                        'description' => 'The authenticated user is not a driver.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only driver users can view their routes.',
                                 ],
                             ],
                         ],

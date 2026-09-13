@@ -40,6 +40,22 @@ export const useRouteStore = defineStore('route', () => {
     }
   }
 
+  async function fetchRoutesForDriver() {
+    try {
+      const { data } = await api.get('/driver/routes');
+
+      routes.value = data?.data?.routes ?? [];
+
+      return routes.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.route.fetchError'));
+
+      console.error('Driver routes request failed.', requestError.response);
+
+      return [];
+    }
+  }
+
   async function createRoute(
     origin,
     destination,
@@ -125,6 +141,7 @@ export const useRouteStore = defineStore('route', () => {
     createRoute,
     fetchRoute,
     fetchRoutesForDispatcher,
+    fetchRoutesForDriver,
     syncRouteDrivers
   };
 });

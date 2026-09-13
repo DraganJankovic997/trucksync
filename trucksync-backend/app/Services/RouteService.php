@@ -39,6 +39,34 @@ class RouteService implements RouteServiceContract
             ->get();
     }
 
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function forDriverUser(User $user): ?Collection
+    {
+        $driver = $this->driverForUser($user);
+
+        if (! $driver) {
+            return null;
+        }
+
+        return DispatcherRoute::query()
+            ->whereHas('drivers', fn ($query) => $query->whereKey($driver->id))
+            ->with([
+                'drivers.user',
+                'routeStops' => fn ($query) => $query
+                    ->withAcceptedBidPrice()
+                    ->withCount(['routeStopBids as bids_count'])
+                    ->orderBy('stop_at')
+                    ->orderBy('id'),
+                'routeStops.services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->orderByRaw('CASE WHEN closed_at IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('start_date')
+            ->orderBy('id')
+            ->get();
+    }
+
     public function createForUser(
         User $user,
         string $origin,
@@ -185,6 +213,13 @@ class RouteService implements RouteServiceContract
     private function dispatcherForUser(User $user): ?Dispatcher
     {
         return Dispatcher::query()
+            ->where('user_id', $user->id)
+            ->first();
+    }
+
+    private function driverForUser(User $user): ?Driver
+    {
+        return Driver::query()
             ->where('user_id', $user->id)
             ->first();
     }

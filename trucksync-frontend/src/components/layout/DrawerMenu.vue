@@ -75,6 +75,12 @@ const linksList = [
     driverOnly: true
   },
   {
+    labelKey: 'layout.navigation.driverMyRoutes',
+    link: '/driver/my-routes',
+    icon: 'assignment_ind',
+    driverOnly: true
+  },
+  {
     labelKey: 'layout.navigation.adminServices',
     link: '/admin/services',
     icon: 'miscellaneous_services',

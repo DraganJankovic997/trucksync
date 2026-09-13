@@ -1,5 +1,31 @@
 export default {
   emptyValue: '-',
+  bidsTable: {
+    title: 'Ponude',
+    bidCount: 'Ponude: {count}',
+    actions: {
+      refresh: 'Osvezi'
+    },
+    columns: {
+      routeStopId: 'Stajaliste rute',
+      stopAt: 'Vreme stajanja',
+      dispatcherCompany: 'Dispecer',
+      dispatcherAddress: 'Adresa dispecera',
+      contact: 'Kontakt',
+      numberOfTrucks: 'Kamioni',
+      numberOfDrivers: 'Vozaci',
+      status: 'Status',
+      originalPrice: 'Originalna cena',
+      price: 'Cena ponude'
+    },
+    status: {
+      pending: 'Na cekanju',
+      selected: 'Izabrana',
+      rejected: 'Odbijena'
+    },
+    emptyTitle: 'Nema pronadjenih ponuda',
+    emptyDescription: 'Poslate ponude ce biti prikazane ovde.'
+  },
   page: {
     ariaLabel: 'Zahtev za ponudu za stajaliste rute {id}',
     eyebrow: 'Zahtev za ponudu',
@@ -60,6 +86,8 @@ export default {
       'Ne mozete poslati ponudu dok vase odmoriste ne nudi sve trazene usluge.',
     unavailableNoServices:
       'Ne mozete poslati ponudu jer zahtev nema trazene usluge.',
+    unavailableClosedRoute:
+      'Ne mozete poslati ponudu za ovaj zahtev jer je ruta zatvorena.',
     unavailableProfile: 'Popunite profil odmorista pre slanja ponude.',
     fields: {
       customPrice: {

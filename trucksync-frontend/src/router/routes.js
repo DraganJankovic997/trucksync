@@ -26,6 +26,18 @@ const routes = [
         meta: { requiresAuth: true, requiresRestStop: true }
       },
       {
+        path: '/rest-stop/bids/active',
+        name: 'rest-stop-bids-active',
+        component: () => import('@/pages/CurrentBidsPage.vue'),
+        meta: { requiresAuth: true, requiresRestStop: true }
+      },
+      {
+        path: '/rest-stop/bids/all',
+        name: 'rest-stop-bids-all',
+        component: () => import('@/pages/AllBidsPage.vue'),
+        meta: { requiresAuth: true, requiresRestStop: true }
+      },
+      {
         path: '/route-stops',
         name: 'route-stops',
         component: () => import('@/pages/RouteStopsPage.vue'),

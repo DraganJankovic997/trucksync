@@ -141,12 +141,45 @@ export const useRouteStopStore = defineStore('route-stop', () => {
     }
   }
 
+  async function fulfillRouteStop(routeStopId, restStopId) {
+    try {
+      const { data, status } = await api.post(
+        `/dispatcher/route/route-stop/${routeStopId}/fulfill`,
+        {
+          rest_stop_id: restStopId
+        }
+      );
+
+      routeStop.value = data?.data?.route_stop ?? null;
+
+      if (status === 200 && routeStop.value?.route_id) {
+        await fetchRouteStops(routeStop.value.route_id);
+      }
+
+      if (status === 200) {
+        toast.success(i18n.global.t('messages.routeStop.fulfillSuccess'));
+      }
+
+      return status === 200 ? routeStop.value : null;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.routeStop.fulfillError'));
+
+      console.error(
+        'Route stop fulfill request failed.',
+        requestError.response
+      );
+
+      return null;
+    }
+  }
+
   return {
     clearRouteStops,
     createRouteStop,
     fetchRouteStop,
     fetchRouteStops,
     fetchUnfulfilledRouteStops,
+    fulfillRouteStop,
     routeStop,
     routeStops,
     syncRouteStopServices

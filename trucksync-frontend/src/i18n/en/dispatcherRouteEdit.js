@@ -1,7 +1,9 @@
 export default {
-  title: 'Route edit: {route_id} - Edit route',
+  title: '{origin} -> {destination}',
+  fallbackTitle: 'Route edit',
   actions: {
-    back: 'Back to routes'
+    back: 'Back to routes',
+    closeRoute: 'Close route'
   },
   details: {
     title: 'Route details',
@@ -10,6 +12,7 @@ export default {
     convoySize: 'Convoy size',
     startDate: 'Start date',
     endDate: 'End date',
+    acceptedBidsTotal: 'Accepted bids total',
     plannedTravelDetails: 'Planned travel details',
     open: 'Open',
     closed: 'Closed',
@@ -73,10 +76,37 @@ export default {
       description: 'Description',
       numberOfTrucks: 'Trucks',
       numberOfDrivers: 'Drivers',
+      bids: 'Bids',
+      acceptedBidPrice: 'Accepted bid',
+      bidsButton: 'Bids: {count}',
+      bidsAriaLabel: 'Bids for route stop {route_stop_id}: {count}',
+      fulfiled: 'Fulfiled',
       services: 'Services',
       emptyValue: '-',
       emptyTitle: 'No route stops added',
       emptyDescription: 'Route stops will appear here.'
+    },
+    bidsDialog: {
+      bidCount: 'Bids: {count}',
+      actions: {
+        close: 'Close',
+        refresh: 'Refresh bids',
+        submit: 'Submit'
+      },
+      table: {
+        contact: 'Contact',
+        email: 'Email',
+        phone: 'Phone',
+        country: 'Country',
+        city: 'City',
+        address: 'Address',
+        postCode: 'Post code',
+        originalPrice: 'Original price',
+        price: 'Bid price',
+        emptyValue: '-'
+      },
+      emptyTitle: 'No bids yet',
+      emptyDescription: 'Submitted bids will appear here.'
     }
   }
 };

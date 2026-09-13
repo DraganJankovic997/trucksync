@@ -1008,6 +1008,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Create a route stop for a route owned by the authenticated dispatcher',
+                        'description' => 'Creates a route stop only when the route is still open.',
                         'operationId' => 'createDispatcherRouteStop',
                         'security' => [
                             [
@@ -1057,6 +1058,7 @@ class OpenApiSpec
                     'put' => [
                         'tags' => ['Routes'],
                         'summary' => 'Synchronize services and quantities for a route stop owned by the authenticated dispatcher',
+                        'description' => 'Updates route stop services only when the route is still open.',
                         'operationId' => 'syncDispatcherRouteStopServices',
                         'security' => [
                             [
@@ -1107,6 +1109,116 @@ class OpenApiSpec
                             ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/dispatcher/route/route-stop/{routeStopId}/fulfill' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Fulfill a route stop with a selected rest stop',
+                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop after validating that the selected rest stop has bid on that route stop and the route is still open. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
+                        'operationId' => 'fulfillDispatcherRouteStop',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStopFulfillRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop fulfilled successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteStopFulfillResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopFulfillForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/dispatcher/route/route-stop/{routeStopId}/bids' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List bids for a route stop owned by the authenticated dispatcher',
+                        'operationId' => 'listDispatcherRouteStopBids',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop bid list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/BidIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteStopBidsForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopNotFound',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -1354,9 +1466,94 @@ class OpenApiSpec
                     ],
                 ],
                 '/api/rest-stop/bids' => [
+                    'get' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'List bids for the authenticated rest stop',
+                        'description' => 'Returns paginated bids submitted by the authenticated rest stop, sorted by created_at descending. Optionally filters by bid status and route stop date.',
+                        'operationId' => 'listAuthenticatedRestStopBids',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'status',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Filter bids by status.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'enum' => ['pending', 'selected', 'rejected'],
+                                ],
+                            ],
+                            [
+                                'name' => 'page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Page number.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'default' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'per_page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Number of bids per page.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'maximum' => 100,
+                                    'default' => 15,
+                                ],
+                            ],
+                            [
+                                'name' => 'from',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Only return bids whose route stop is scheduled on or after this date.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'format' => 'date',
+                                    'example' => '2026-10-02',
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Authenticated rest stop bid list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopBidIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/BidViewForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/BidNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
                     'post' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'Create a bid for the authenticated rest stop',
+                        'description' => 'Creates or updates a bid only when the route is still open.',
                         'operationId' => 'createAuthenticatedRestStopBid',
                         'security' => [
                             [
@@ -1462,6 +1659,7 @@ class OpenApiSpec
                     'delete' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'Delete the authenticated rest stop bid for a route stop',
+                        'description' => 'Deletes a bid only when the route is still open.',
                         'operationId' => 'deleteAuthenticatedRestStopBid',
                         'security' => [
                             [
@@ -1499,6 +1697,9 @@ class OpenApiSpec
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/BidNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -2163,8 +2364,10 @@ class OpenApiSpec
                             'stop_at',
                             'fulfiled_at',
                             'fulfiled_by',
+                            'accepted_bid_price',
                             'number_of_trucks',
                             'number_of_drivers',
+                            'bids_count',
                             'services',
                         ],
                         'properties' => [
@@ -2204,6 +2407,12 @@ class OpenApiSpec
                                 'description' => 'Rest stop ID that fulfilled this route stop.',
                                 'example' => null,
                             ],
+                            'accepted_bid_price' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'description' => 'Accepted bid price for the rest stop selected to fulfill this route stop.',
+                                'example' => '250.00',
+                            ],
                             'number_of_trucks' => [
                                 'type' => 'integer',
                                 'minimum' => 1,
@@ -2213,6 +2422,12 @@ class OpenApiSpec
                                 'type' => 'integer',
                                 'minimum' => 1,
                                 'example' => 4,
+                            ],
+                            'bids_count' => [
+                                'type' => 'integer',
+                                'minimum' => 0,
+                                'description' => 'Number of bids submitted for this route stop.',
+                                'example' => 2,
                             ],
                             'services' => [
                                 'type' => 'array',
@@ -2304,6 +2519,22 @@ class OpenApiSpec
                                 'type' => 'string',
                                 'pattern' => '^\\d{2}:\\d{2}$',
                                 'example' => '22:00',
+                            ],
+                        ],
+                    ],
+                    'RestStopWithUser' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/RestStop',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['user'],
+                                'properties' => [
+                                    'user' => [
+                                        '$ref' => '#/components/schemas/User',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -2525,6 +2756,9 @@ class OpenApiSpec
                             'rest_stop_id',
                             'original_price',
                             'price',
+                            'status',
+                            'created_at',
+                            'updated_at',
                         ],
                         'properties' => [
                             'route_stop_id' => [
@@ -2533,7 +2767,7 @@ class OpenApiSpec
                             ],
                             'rest_stop_id' => [
                                 'type' => 'integer',
-                                'description' => 'Resolved from the authenticated rest stop user.',
+                                'description' => 'Rest stop ID that submitted the bid.',
                                 'example' => 2,
                             ],
                             'original_price' => [
@@ -2547,6 +2781,136 @@ class OpenApiSpec
                                 'description' => 'Bid price stored with two decimal places.',
                                 'pattern' => '^\\d+(\\.\\d{2})$',
                                 'example' => '250.75',
+                            ],
+                            'status' => [
+                                'type' => 'string',
+                                'description' => 'Current bid status.',
+                                'enum' => ['pending', 'selected', 'rejected'],
+                                'example' => 'pending',
+                            ],
+                            'created_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'description' => 'Bid creation timestamp.',
+                                'example' => '2026-10-01T12:00:00.000000Z',
+                            ],
+                            'updated_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'description' => 'Bid last update timestamp.',
+                                'example' => '2026-10-01T12:05:00.000000Z',
+                            ],
+                        ],
+                    ],
+                    'BidWithRestStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/Bid',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['rest_stop'],
+                                'properties' => [
+                                    'rest_stop' => [
+                                        '$ref' => '#/components/schemas/RestStopWithUser',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidRouteStopDispatcher' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'company_name',
+                            'city',
+                            'address',
+                            'post_code',
+                            'user',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'company_name' => [
+                                'type' => 'string',
+                                'example' => 'Acme Dispatch',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'example' => 'Main Street 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'example' => '11000',
+                            ],
+                            'user' => [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                        ],
+                    ],
+                    'BidRouteStop' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'route_id',
+                            'stop_at',
+                            'number_of_trucks',
+                            'number_of_drivers',
+                            'dispatcher',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'route_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'stop_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'example' => '2026-10-02T10:30:00Z',
+                            ],
+                            'number_of_trucks' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'number_of_drivers' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 4,
+                            ],
+                            'dispatcher' => [
+                                '$ref' => '#/components/schemas/BidRouteStopDispatcher',
+                            ],
+                        ],
+                    ],
+                    'BidWithRouteStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/Bid',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/BidRouteStop',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -2757,6 +3121,20 @@ class OpenApiSpec
                                         ],
                                     ],
                                 ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopFulfillRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'rest_stop_id',
+                        ],
+                        'properties' => [
+                            'rest_stop_id' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'description' => 'Existing rest stop ID that has bid on and fulfilled this route stop.',
+                                'example' => 1,
                             ],
                         ],
                     ],
@@ -3182,6 +3560,28 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteStopFulfillResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route stop fulfilled successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteStop',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -3307,6 +3707,120 @@ class OpenApiSpec
                                 'properties' => [
                                     'bid' => [
                                         '$ref' => '#/components/schemas/Bid',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'BidIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bids'],
+                                'properties' => [
+                                    'bids' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/BidWithRestStop',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopBidIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data', 'links', 'meta'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bids'],
+                                'properties' => [
+                                    'bids' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/BidWithRouteStop',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'links' => [
+                                'type' => 'object',
+                                'required' => ['first', 'last', 'prev', 'next'],
+                                'properties' => [
+                                    'first' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/rest-stop/bids?page=1',
+                                    ],
+                                    'last' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/rest-stop/bids?page=3',
+                                    ],
+                                    'prev' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => null,
+                                    ],
+                                    'next' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => 'http://localhost/api/rest-stop/bids?page=2',
+                                    ],
+                                ],
+                            ],
+                            'meta' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'current_page',
+                                    'from',
+                                    'last_page',
+                                    'path',
+                                    'per_page',
+                                    'to',
+                                    'total',
+                                ],
+                                'properties' => [
+                                    'current_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 1,
+                                    ],
+                                    'from' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 1,
+                                    ],
+                                    'last_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 3,
+                                    ],
+                                    'path' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/rest-stop/bids',
+                                    ],
+                                    'per_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'maximum' => 100,
+                                        'example' => 15,
+                                    ],
+                                    'to' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 15,
+                                    ],
+                                    'total' => [
+                                        'type' => 'integer',
+                                        'minimum' => 0,
+                                        'example' => 35,
                                     ],
                                 ],
                             ],
@@ -3721,6 +4235,30 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteStopFulfillForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route stop belongs to a route created by another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can fulfill route stops.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route stop belongs to another dispatcher route',
+                                        'value' => [
+                                            'message' => 'You cannot fulfill a route stop for a route you did not create.',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'RestStopProfileForbidden' => [
                         'description' => 'The authenticated user is not a rest stop.',
                         'content' => [
@@ -3743,6 +4281,30 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only rest stop users can add rest stop services.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteStopBidsForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route stop belongs to a route created by another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can view route stop bids.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route stop belongs to another dispatcher route',
+                                        'value' => [
+                                            'message' => 'You cannot view bids for a route stop on a route you did not create.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

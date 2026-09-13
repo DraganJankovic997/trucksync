@@ -49,6 +49,8 @@ export default {
   },
   bid: {
     fetchError: 'Failed to fetch bid',
+    fetchBidsError: 'Failed to fetch bids',
+    fetchRouteStopBidsError: 'Failed to fetch route stop bids',
     saveSuccess: 'Bid saved successfully',
     saveError: 'Failed to save bid',
     deleteSuccess: 'Bid deleted successfully',
@@ -68,7 +70,9 @@ export default {
     createSuccess: 'Route stop created successfully',
     createError: 'Failed to create route stop',
     updateServicesSuccess: 'Route stop services updated successfully',
-    updateServicesError: 'Failed to update route stop services'
+    updateServicesError: 'Failed to update route stop services',
+    fulfillSuccess: 'Route stop fulfilled successfully',
+    fulfillError: 'Failed to fulfill route stop'
   },
   service: {
     fetchError: 'Failed to fetch services',

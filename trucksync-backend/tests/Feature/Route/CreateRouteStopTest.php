@@ -59,6 +59,7 @@ it('creates a route stop with needed services for a route owned by the authentic
         ->assertJsonPath('data.route_stop.fulfiled_by', null)
         ->assertJsonPath('data.route_stop.number_of_trucks', 3)
         ->assertJsonPath('data.route_stop.number_of_drivers', 4)
+        ->assertJsonPath('data.route_stop.bids_count', 0)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stop.services.0.name', 'Fuel')
         ->assertJsonPath('data.route_stop.services.0.measurement_unit', 'liter')
@@ -124,6 +125,44 @@ it('forbids creating a route stop for a route owned by another dispatcher', func
     ])
         ->assertForbidden()
         ->assertJsonPath('message', 'You cannot add route stops to a route you did not create.');
+
+    expect(RouteStop::query()->count())->toBe(0)
+        ->and(RouteStopService::query()->count())->toBe(0);
+});
+
+it('does not create a route stop for a closed route', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForRouteStopEndpointUser($user);
+    $route = createRouteForRouteStopEndpointDispatcher($dispatcher, [
+        'closed_at' => now(),
+    ]);
+    $service = Service::query()->create([
+        'name' => 'Fuel',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/dispatcher/route/route-stop', [
+        'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'stop_at' => now()->addDays(7)->toDateTimeString(),
+        'number_of_trucks' => 3,
+        'number_of_drivers' => 4,
+        'services' => [
+            [
+                'service_id' => $service->id,
+                'quantity' => 200,
+            ],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['route_id'])
+        ->assertJsonPath(
+            'errors.route_id.0',
+            'You cannot add route stops to a closed route.'
+        );
 
     expect(RouteStop::query()->count())->toBe(0)
         ->and(RouteStopService::query()->count())->toBe(0);
@@ -247,7 +286,7 @@ function createDispatcherForRouteStopEndpointUser(User $user): Dispatcher
     ]);
 }
 
-function createRouteForRouteStopEndpointDispatcher(Dispatcher $dispatcher): DispatcherRoute
+function createRouteForRouteStopEndpointDispatcher(Dispatcher $dispatcher, array $attributes = []): DispatcherRoute
 {
     return DispatcherRoute::query()->create([
         'dispatcher_id' => $dispatcher->id,
@@ -257,5 +296,6 @@ function createRouteForRouteStopEndpointDispatcher(Dispatcher $dispatcher): Disp
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        ...$attributes,
     ]);
 }

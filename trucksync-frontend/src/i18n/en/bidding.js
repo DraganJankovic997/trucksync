@@ -1,5 +1,31 @@
 export default {
   emptyValue: '-',
+  bidsTable: {
+    title: 'Bids',
+    bidCount: 'Bids: {count}',
+    actions: {
+      refresh: 'Refresh'
+    },
+    columns: {
+      routeStopId: 'Route stop',
+      stopAt: 'Stop at',
+      dispatcherCompany: 'Dispatcher',
+      dispatcherAddress: 'Dispatcher address',
+      contact: 'Contact',
+      numberOfTrucks: 'Trucks',
+      numberOfDrivers: 'Drivers',
+      status: 'Status',
+      originalPrice: 'Original price',
+      price: 'Bid price'
+    },
+    status: {
+      pending: 'Pending',
+      selected: 'Selected',
+      rejected: 'Rejected'
+    },
+    emptyTitle: 'No bids found',
+    emptyDescription: 'Submitted bids will appear here.'
+  },
   page: {
     ariaLabel: 'Route stop bidding request {id}',
     eyebrow: 'Bidding request',
@@ -60,6 +86,8 @@ export default {
       "You can't bid on this request until all required services are offered by your rest stop.",
     unavailableNoServices:
       "You can't bid on this request because it has no required services.",
+    unavailableClosedRoute:
+      "You can't bid on this request because the route is closed.",
     unavailableProfile: 'Complete your rest stop profile before bidding.',
     fields: {
       customPrice: {

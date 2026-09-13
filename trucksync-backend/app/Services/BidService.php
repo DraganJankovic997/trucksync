@@ -5,8 +5,12 @@ namespace App\Services;
 use App\Contracts\BidServiceContract;
 use App\Exceptions\RouteStopNotFoundException;
 use App\Models\RestStop;
+use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\ValidationException;
 
 class BidService implements BidServiceContract
 {
@@ -16,8 +20,18 @@ class BidService implements BidServiceContract
         string $originalPrice,
         string $price
     ): RouteStopBid {
-        if (RouteStop::query()->whereKey($routeStopId)->doesntExist()) {
+        $routeStop = RouteStop::query()
+            ->with('route')
+            ->find($routeStopId);
+
+        if (! $routeStop) {
             throw new RouteStopNotFoundException;
+        }
+
+        if ($routeStop->route?->closed_at !== null) {
+            throw ValidationException::withMessages([
+                'route_stop_id' => 'You cannot bid on a closed route.',
+            ]);
         }
 
         return RouteStopBid::query()->updateOrCreate(
@@ -28,6 +42,7 @@ class BidService implements BidServiceContract
             [
                 'original_price' => $originalPrice,
                 'price' => $price,
+                'status' => $this->statusForBid($routeStop, $restStop->id),
             ],
         );
     }
@@ -37,12 +52,71 @@ class BidService implements BidServiceContract
         return $this->bidForRestStop($restStop, $routeStopId);
     }
 
+    /**
+     * @return LengthAwarePaginator<int, RouteStopBid>
+     */
+    public function forRestStop(
+        RestStop $restStop,
+        ?string $status = null,
+        ?string $from = null,
+        int $perPage = 15,
+        int $page = 1
+    ): LengthAwarePaginator {
+        return $restStop
+            ->routeStopBids()
+            ->with('routeStop.route.dispatcher.user')
+            ->when($status !== null, fn ($query) => $query->where('status', $status))
+            ->when($from !== null, fn ($query) => $query->whereHas(
+                'routeStop',
+                fn ($query) => $query->whereDate('stop_at', '>=', $from)
+            ))
+            ->orderByDesc('created_at')
+            ->orderByDesc('route_stop_id')
+            ->paginate(perPage: $perPage, page: $page);
+    }
+
+    public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void
+    {
+        RouteStopBid::query()
+            ->where('route_stop_id', $routeStop->id)
+            ->where('rest_stop_id', $restStopId)
+            ->update([
+                'status' => RouteStopBid::STATUS_SELECTED,
+            ]);
+
+        RouteStopBid::query()
+            ->where('route_stop_id', $routeStop->id)
+            ->where('rest_stop_id', '!=', $restStopId)
+            ->update([
+                'status' => RouteStopBid::STATUS_REJECTED,
+            ]);
+    }
+
+    public function rejectUnselectedForRoute(DispatcherRoute $route): void
+    {
+        $route->load('routeStops');
+
+        foreach ($route->routeStops as $routeStop) {
+            $this->markClosedRouteStopBidStatuses($routeStop);
+        }
+    }
+
     public function deleteForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid
     {
-        $bid = $this->bidForRestStop($restStop, $routeStopId);
+        $bid = RouteStopBid::query()
+            ->with('routeStop.route')
+            ->where('route_stop_id', $routeStopId)
+            ->where('rest_stop_id', $restStop->id)
+            ->first();
 
         if (! $bid) {
             return null;
+        }
+
+        if ($bid->routeStop?->route?->closed_at !== null) {
+            throw ValidationException::withMessages([
+                'route_stop_id' => 'You cannot delete a bid on a closed route.',
+            ]);
         }
 
         RouteStopBid::query()
@@ -53,11 +127,49 @@ class BidService implements BidServiceContract
         return $bid;
     }
 
+    /**
+     * @return Collection<int, RouteStopBid>
+     */
+    public function forRouteStop(RouteStop $routeStop): Collection
+    {
+        return $routeStop
+            ->routeStopBids()
+            ->with('restStop.user')
+            ->orderBy('rest_stop_id')
+            ->get();
+    }
+
     private function bidForRestStop(RestStop $restStop, int $routeStopId): ?RouteStopBid
     {
         return RouteStopBid::query()
             ->where('route_stop_id', $routeStopId)
             ->where('rest_stop_id', $restStop->id)
             ->first();
+    }
+
+    private function markClosedRouteStopBidStatuses(RouteStop $routeStop): void
+    {
+        if ($routeStop->fulfiled_by !== null) {
+            $this->markRouteStopBidSelected($routeStop, $routeStop->fulfiled_by);
+
+            return;
+        }
+
+        RouteStopBid::query()
+            ->where('route_stop_id', $routeStop->id)
+            ->update([
+                'status' => RouteStopBid::STATUS_REJECTED,
+            ]);
+    }
+
+    private function statusForBid(RouteStop $routeStop, int $restStopId): string
+    {
+        if ($routeStop->fulfiled_by === null) {
+            return RouteStopBid::STATUS_PENDING;
+        }
+
+        return $routeStop->fulfiled_by === $restStopId
+            ? RouteStopBid::STATUS_SELECTED
+            : RouteStopBid::STATUS_REJECTED;
     }
 }

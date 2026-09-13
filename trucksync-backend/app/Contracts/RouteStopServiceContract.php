@@ -4,10 +4,13 @@ namespace App\Contracts;
 
 use App\Exceptions\RouteNotFoundException;
 use App\Exceptions\RouteNotOwnedByDispatcherException;
+use App\Exceptions\RouteStopNotFoundException;
+use App\Exceptions\RouteStopNotOwnedByDispatcherException;
 use App\Models\RouteStop;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\ValidationException;
 
 interface RouteStopServiceContract
 {
@@ -36,6 +39,7 @@ interface RouteStopServiceContract
      *
      * @throws RouteNotFoundException
      * @throws RouteNotOwnedByDispatcherException
+     * @throws ValidationException
      */
     public function createForUser(
         User $user,
@@ -50,9 +54,18 @@ interface RouteStopServiceContract
 
     /**
      * @param  array<int, array{service_id: int, quantity: int}>  $services
+     *
+     * @throws ValidationException
      */
     public function syncServicesForRouteStop(
         RouteStop $routeStop,
         array $services
     ): RouteStop;
+
+    /**
+     * @throws RouteStopNotFoundException
+     * @throws RouteStopNotOwnedByDispatcherException
+     * @throws ValidationException
+     */
+    public function fulfillForUser(User $user, int $routeStopId, int $restStopId): RouteStop;
 }

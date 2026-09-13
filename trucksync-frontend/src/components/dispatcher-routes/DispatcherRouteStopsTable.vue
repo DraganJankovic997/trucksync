@@ -10,12 +10,17 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  routeClosed: {
+    type: Boolean,
+    default: false
   }
 });
 
 const emit = defineEmits({
   add: () => true,
-  edit: routeStop => routeStop?.id !== undefined && routeStop?.id !== null
+  edit: routeStop => routeStop?.id !== undefined && routeStop?.id !== null,
+  bids: routeStop => routeStop?.id !== undefined && routeStop?.id !== null
 });
 
 const { t } = useI18n();
@@ -69,6 +74,15 @@ const columns = computed(() => [
     field: 'services',
     format: formatServiceNames,
     align: 'left'
+  },
+  {
+    name: 'bids',
+    label: props.routeClosed
+      ? t('dispatcherRouteEdit.routeStops.table.acceptedBidPrice')
+      : t('dispatcherRouteEdit.routeStops.table.bids'),
+    field: props.routeClosed ? 'acceptedBidPriceValue' : 'bidsCount',
+    align: 'left',
+    sortable: true
   }
 ]);
 
@@ -81,6 +95,11 @@ const rows = computed(() =>
     description: formatValue(routeStop.description),
     numberOfTrucks: formatValue(routeStop.number_of_trucks),
     numberOfDrivers: formatValue(routeStop.number_of_drivers),
+    bidsCount: routeStop.bids_count ?? 0,
+    acceptedBidPrice: formatPrice(routeStop.accepted_bid_price),
+    acceptedBidPriceValue: sortablePrice(routeStop.accepted_bid_price),
+    isFulfiled:
+      routeStop.fulfiled_at !== undefined && routeStop.fulfiled_at !== null,
     services: routeStop.services
   }))
 );
@@ -121,12 +140,52 @@ function formatDateTime(value) {
   }).format(dateValue);
 }
 
+function formatPrice(value) {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return t('dispatcherRouteEdit.routeStops.table.emptyValue');
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numberValue);
+}
+
+function sortablePrice(value) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) ? numberValue : -1;
+}
+
 function requestEdit(row) {
-  if (props.loading) {
+  if (props.loading || props.routeClosed) {
     return;
   }
 
   emit('edit', row.routeStop);
+}
+
+function requestBids(row) {
+  if (props.loading || props.routeClosed) {
+    return;
+  }
+
+  emit('bids', row.routeStop);
+}
+
+function bidsAriaLabel(row) {
+  return t('dispatcherRouteEdit.routeStops.table.bidsAriaLabel', {
+    route_stop_id: row.id,
+    count: row.bidsCount
+  });
+}
+
+function bidsButtonLabel(row) {
+  return t('dispatcherRouteEdit.routeStops.table.bidsButton', {
+    count: row.bidsCount
+  });
 }
 </script>
 
@@ -159,7 +218,7 @@ function requestEdit(row) {
           no-caps
           class="text-weight-bold"
           :label="t('dispatcherRouteEdit.routeStops.actions.add')"
-          :disable="props.loading"
+          :disable="props.loading || props.routeClosed"
           unelevated
           @click="emit('add')"
         />
@@ -168,6 +227,7 @@ function requestEdit(row) {
 
     <q-table
       class="dispatcher-route-stops-table"
+      :class="{ 'dispatcher-route-stops-table-closed': props.routeClosed }"
       flat
       hide-bottom
       row-key="id"
@@ -204,6 +264,37 @@ function requestEdit(row) {
       <template #body-cell-services="scope">
         <q-td :props="scope">
           <span>{{ scope.value }}</span>
+        </q-td>
+      </template>
+
+      <template #body-cell-bids="scope">
+        <q-td :props="scope">
+          <div
+            v-if="props.routeClosed"
+            class="dispatcher-route-stops-accepted-price"
+          >
+            {{ scope.row.acceptedBidPrice }}
+          </div>
+          <q-badge
+            v-else-if="scope.row.isFulfiled"
+            class="dispatcher-route-stops-fulfiled-badge"
+            color="positive"
+            outline
+            @click.stop
+          >
+            {{ t('dispatcherRouteEdit.routeStops.table.fulfiled') }}
+          </q-badge>
+          <q-btn
+            v-else
+            class="dispatcher-route-stops-bids-button text-weight-bold"
+            color="primary"
+            dense
+            outline
+            no-caps
+            :aria-label="bidsAriaLabel(scope.row)"
+            :label="bidsButtonLabel(scope.row)"
+            @click.stop="requestBids(scope.row)"
+          />
         </q-td>
       </template>
 

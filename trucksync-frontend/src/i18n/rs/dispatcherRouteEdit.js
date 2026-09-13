@@ -1,7 +1,9 @@
 export default {
-  title: 'Izmena rute: {route_id} - Izmeni rutu',
+  title: '{origin} -> {destination}',
+  fallbackTitle: 'Izmena rute',
   actions: {
-    back: 'Nazad na rute'
+    back: 'Nazad na rute',
+    closeRoute: 'Zatvori rutu'
   },
   details: {
     title: 'Detalji rute',
@@ -10,6 +12,7 @@ export default {
     convoySize: 'Velicina konvoja',
     startDate: 'Datum pocetka',
     endDate: 'Datum zavrsetka',
+    acceptedBidsTotal: 'Ukupno prihvacene ponude',
     plannedTravelDetails: 'Planirani detalji puta',
     open: 'Otvorena',
     closed: 'Zatvorena',
@@ -73,10 +76,37 @@ export default {
       description: 'Opis',
       numberOfTrucks: 'Kamioni',
       numberOfDrivers: 'Vozaci',
+      bids: 'Ponude',
+      acceptedBidPrice: 'Prihvacena ponuda',
+      bidsButton: 'Ponude: {count}',
+      bidsAriaLabel: 'Ponude za stajaliste {route_stop_id}: {count}',
+      fulfiled: 'Ispunjeno',
       services: 'Usluge',
       emptyValue: '-',
       emptyTitle: 'Nema dodatih stajalista',
       emptyDescription: 'Stajalista rute ce biti prikazana ovde.'
+    },
+    bidsDialog: {
+      bidCount: 'Ponude: {count}',
+      actions: {
+        close: 'Zatvori',
+        refresh: 'Osvezi ponude',
+        submit: 'Potvrdi'
+      },
+      table: {
+        contact: 'Kontakt',
+        email: 'Email',
+        phone: 'Telefon',
+        country: 'Drzava',
+        city: 'Grad',
+        address: 'Adresa',
+        postCode: 'Postanski broj',
+        originalPrice: 'Originalna cena',
+        price: 'Cena ponude',
+        emptyValue: '-'
+      },
+      emptyTitle: 'Jos nema ponuda',
+      emptyDescription: 'Poslate ponude ce biti prikazane ovde.'
     }
   }
 };

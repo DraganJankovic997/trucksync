@@ -43,6 +43,7 @@ it('creates a bid for the authenticated rest stop', function () {
         ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
         ->assertJsonPath('data.bid.original_price', '300.00')
         ->assertJsonPath('data.bid.price', '250.75')
+        ->assertJsonPath('data.bid.status', RouteStopBid::STATUS_PENDING)
         ->assertJsonMissingPath('data.bid.id');
 
     $this->assertDatabaseHas('route_stop_bids', [
@@ -50,6 +51,7 @@ it('creates a bid for the authenticated rest stop', function () {
         'rest_stop_id' => $restStop->id,
         'original_price' => '300.00',
         'price' => '250.75',
+        'status' => RouteStopBid::STATUS_PENDING,
     ]);
     $this->assertDatabaseMissing('route_stop_bids', [
         'route_stop_id' => $routeStop->id,
@@ -89,7 +91,8 @@ it('updates an existing bid for the same route stop and rest stop', function () 
         ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
         ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
         ->assertJsonPath('data.bid.original_price', '320.00')
-        ->assertJsonPath('data.bid.price', '260.00');
+        ->assertJsonPath('data.bid.price', '260.00')
+        ->assertJsonPath('data.bid.status', RouteStopBid::STATUS_PENDING);
 
     expect(RouteStopBid::query()->count())->toBe(1);
     $this->assertDatabaseHas('route_stop_bids', [
@@ -97,6 +100,124 @@ it('updates an existing bid for the same route stop and rest stop', function () 
         'rest_stop_id' => $restStop->id,
         'original_price' => '320.00',
         'price' => '260.00',
+    ]);
+});
+
+it('marks a bid as rejected when submitting for a route stop fulfilled by another rest stop', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForBidEndpointUser($user);
+    $selectedRestStop = createRestStopForBidEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $route = createRouteForBidEndpointDispatcher(
+        createDispatcherForBidEndpointUser(User::factory()->create([
+            'profile_type' => 'dispatcher',
+        ]))
+    );
+    $routeStop = createRouteStopForBidEndpointRoute($route);
+    createRouteStopForBidEndpointRoute($route);
+
+    $routeStop->update([
+        'fulfiled_at' => '2026-10-02 12:00:00',
+        'fulfiled_by' => $selectedRestStop->id,
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/rest-stop/bids', [
+        'route_stop_id' => $routeStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
+        ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
+        ->assertJsonPath('data.bid.status', RouteStopBid::STATUS_REJECTED);
+
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_REJECTED,
+    ]);
+});
+
+it('does not create a bid for a closed route', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    createRestStopForBidEndpointUser($user);
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ])),
+            [
+                'closed_at' => '2026-10-04 12:00:00',
+            ]
+        )
+    );
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/rest-stop/bids', [
+        'route_stop_id' => $routeStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['route_stop_id'])
+        ->assertJsonPath(
+            'errors.route_stop_id.0',
+            'You cannot bid on a closed route.'
+        );
+
+    expect(RouteStopBid::query()->count())->toBe(0);
+});
+
+it('does not update a bid for a closed route', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForBidEndpointUser($user);
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ])),
+            [
+                'closed_at' => '2026-10-04 12:00:00',
+            ]
+        )
+    );
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/rest-stop/bids', [
+        'route_stop_id' => $routeStop->id,
+        'original_price' => '320.00',
+        'price' => '260.00',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['route_stop_id'])
+        ->assertJsonPath(
+            'errors.route_stop_id.0',
+            'You cannot bid on a closed route.'
+        );
+
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
     ]);
 });
 
@@ -254,7 +375,8 @@ it('shows the authenticated rest stops bid by route stop id', function () {
         ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
         ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
         ->assertJsonPath('data.bid.original_price', '300.00')
-        ->assertJsonPath('data.bid.price', '250.75');
+        ->assertJsonPath('data.bid.price', '250.75')
+        ->assertJsonPath('data.bid.status', RouteStopBid::STATUS_PENDING);
 });
 
 it('returns not found when showing a bid the authenticated rest stop did not create', function () {
@@ -278,6 +400,7 @@ it('returns not found when showing a bid the authenticated rest stop did not cre
         'rest_stop_id' => $otherRestStop->id,
         'original_price' => '400.00',
         'price' => '350.00',
+        'status' => RouteStopBid::STATUS_REJECTED,
     ]);
 
     Sanctum::actingAs($user);
@@ -350,7 +473,8 @@ it('deletes the authenticated rest stops bid by route stop id', function () {
         ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
         ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
         ->assertJsonPath('data.bid.original_price', '300.00')
-        ->assertJsonPath('data.bid.price', '250.75');
+        ->assertJsonPath('data.bid.price', '250.75')
+        ->assertJsonPath('data.bid.status', RouteStopBid::STATUS_PENDING);
 
     $this->assertDatabaseMissing('route_stop_bids', [
         'route_stop_id' => $routeStop->id,
@@ -361,6 +485,48 @@ it('deletes the authenticated rest stops bid by route stop id', function () {
         'rest_stop_id' => $otherRestStop->id,
         'original_price' => '400.00',
         'price' => '350.00',
+        'status' => RouteStopBid::STATUS_REJECTED,
+    ]);
+});
+
+it('does not delete a bid for a closed route', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForBidEndpointUser($user);
+    $routeStop = createRouteStopForBidEndpointRoute(
+        createRouteForBidEndpointDispatcher(
+            createDispatcherForBidEndpointUser(User::factory()->create([
+                'profile_type' => 'dispatcher',
+            ])),
+            [
+                'closed_at' => '2026-10-04 12:00:00',
+            ]
+        )
+    );
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->deleteJson("/api/rest-stop/bids/{$routeStop->id}")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['route_stop_id'])
+        ->assertJsonPath(
+            'errors.route_stop_id.0',
+            'You cannot delete a bid on a closed route.'
+        );
+
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
     ]);
 });
 
@@ -434,7 +600,7 @@ function createDispatcherForBidEndpointUser(User $user): Dispatcher
     ]);
 }
 
-function createRouteForBidEndpointDispatcher(Dispatcher $dispatcher): DispatcherRoute
+function createRouteForBidEndpointDispatcher(Dispatcher $dispatcher, array $attributes = []): DispatcherRoute
 {
     return DispatcherRoute::query()->create([
         'dispatcher_id' => $dispatcher->id,
@@ -444,6 +610,7 @@ function createRouteForBidEndpointDispatcher(Dispatcher $dispatcher): Dispatcher
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+        ...$attributes,
     ]);
 }
 

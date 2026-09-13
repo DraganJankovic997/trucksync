@@ -12,6 +12,7 @@ use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class RouteStopController extends Controller
@@ -193,6 +194,8 @@ class RouteStopController extends Controller
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 403);
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (Throwable $throwable) {
             logger()->error('Unable to create route stop.', [
                 'user_id' => $authenticatedUser->id,
@@ -254,6 +257,8 @@ class RouteStopController extends Controller
             return response()->json([
                 'message' => $exception->getMessage(),
             ], 403);
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (Throwable $throwable) {
             logger()->error('Unable to update route stop services.', [
                 'user_id' => $authenticatedUser->id,
@@ -267,8 +272,59 @@ class RouteStopController extends Controller
         }
     }
 
+    public function fulfill(Request $request, int $routeStopId): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can fulfill route stops.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'rest_stop_id' => ['required', 'integer', 'min:1', Rule::exists('rest_stops', 'id')],
+        ]);
+
+        try {
+            $routeStop = $this->routeStopService->fulfillForUser(
+                $authenticatedUser,
+                $routeStopId,
+                $validated['rest_stop_id'],
+            );
+
+            return response()->json([
+                'message' => 'Route stop fulfilled successfully.',
+                'data' => [
+                    'route_stop' => $this->routeStopPayload($routeStop),
+                ],
+            ]);
+        } catch (RouteStopNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteStopNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fulfill route stop.', [
+                'user_id' => $authenticatedUser->id,
+                'route_stop_id' => $routeStopId,
+                'rest_stop_id' => $validated['rest_stop_id'],
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fulfill route stop.',
+            ], 500);
+        }
+    }
+
     /**
-     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayload(RouteStop $routeStop): array
     {
@@ -280,8 +336,10 @@ class RouteStopController extends Controller
             'stop_at' => $routeStop->stop_at->toJSON(),
             'fulfiled_at' => $routeStop->fulfiled_at?->toJSON(),
             'fulfiled_by' => $routeStop->fulfiled_by,
+            'accepted_bid_price' => $this->pricePayload($routeStop->accepted_bid_price),
             'number_of_trucks' => $routeStop->number_of_trucks,
             'number_of_drivers' => $routeStop->number_of_drivers,
+            'bids_count' => (int) ($routeStop->bids_count ?? $routeStop->routeStopBids()->count()),
             'services' => $routeStop
                 ->services
                 ->map(fn (Service $service): array => [
@@ -296,7 +354,7 @@ class RouteStopController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, number_of_trucks: int, number_of_drivers: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayloadWithDispatcher(RouteStop $routeStop): array
     {
@@ -347,5 +405,14 @@ class RouteStopController extends Controller
         }
 
         return $queryParameters;
+    }
+
+    private function pricePayload(mixed $price): ?string
+    {
+        if ($price === null) {
+            return null;
+        }
+
+        return number_format((float) $price, 2, '.', '');
     }
 }

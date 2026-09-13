@@ -27,6 +27,10 @@ const props = defineProps({
   bidDisabled: {
     type: Boolean,
     default: false
+  },
+  routeClosed: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -98,6 +102,7 @@ const unavailableServiceNames = computed(() =>
 const hasBidBlocker = computed(
   () =>
     props.bidDisabled ||
+    props.routeClosed ||
     services.value.length === 0 ||
     hasUnavailableServices.value
 );
@@ -108,6 +113,10 @@ const showBidUnavailableMessage = computed(
   () => !props.loading && hasBidBlocker.value
 );
 const bidUnavailableMessage = computed(() => {
+  if (props.routeClosed) {
+    return t('bidding.bidForm.unavailableClosedRoute');
+  }
+
   if (hasUnavailableServices.value) {
     return t('bidding.bidForm.unavailableMissingServices');
   }

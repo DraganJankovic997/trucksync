@@ -49,6 +49,8 @@ export default {
   },
   bid: {
     fetchError: 'Preuzimanje ponude nije uspelo',
+    fetchBidsError: 'Preuzimanje ponuda nije uspelo',
+    fetchRouteStopBidsError: 'Preuzimanje ponuda za stajaliste nije uspelo',
     saveSuccess: 'Ponuda je uspesno sacuvana',
     saveError: 'Cuvanje ponude nije uspelo',
     deleteSuccess: 'Ponuda je uspesno obrisana',
@@ -68,7 +70,9 @@ export default {
     createSuccess: 'Stajaliste rute je uspesno kreirano',
     createError: 'Kreiranje stajalista rute nije uspelo',
     updateServicesSuccess: 'Usluge stajalista rute su uspesno azurirane',
-    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo'
+    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo',
+    fulfillSuccess: 'Stajaliste rute je uspesno ispunjeno',
+    fulfillError: 'Ispunjavanje stajalista rute nije uspelo'
   },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',

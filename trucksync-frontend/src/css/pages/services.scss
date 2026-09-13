@@ -49,28 +49,3 @@
     color: brand.$brand-accent-dark;
   }
 }
-
-.service-delete-dialog {
-  width: min(100vw - 32px, 460px);
-  border-color: brand.$brand-border;
-  border-radius: brand.$brand-radius;
-
-  .service-muted {
-    color: brand.$brand-muted;
-    line-height: 1.55;
-  }
-
-  .service-delete-icon {
-    border-radius: brand.$brand-radius;
-    background: brand.$brand-error-background;
-    color: brand.$brand-error;
-  }
-
-  .service-delete-warning {
-    border: 1px solid rgba(brand.$brand-error, 0.24);
-    border-radius: brand.$brand-radius;
-    background: brand.$brand-error-background;
-    color: brand.$brand-error;
-    font-weight: 700;
-  }
-}

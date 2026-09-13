@@ -44,6 +44,8 @@ const dispatcher = computed(
         String(dispatcherRecord.id) === String(routeRecord.value?.dispatcher_id)
     ) ?? null
 );
+const routeClosed = computed(() => Boolean(routeRecord.value?.closed_at));
+const bidDisabled = computed(() => !restStop.value || routeClosed.value);
 
 const dispatcherTitle = computed(() => {
   const dispatcherName =
@@ -114,7 +116,7 @@ function goToRouteStops() {
 }
 
 async function handleSaveBid({ originalPrice, price }) {
-  if (!routeStop.value?.id) {
+  if (!routeStop.value?.id || routeClosed.value) {
     return;
   }
 
@@ -210,7 +212,8 @@ onMounted(() => {
           :bid="bid"
           :loading="isFetching"
           :saving-bid="isSavingBid"
-          :bid-disabled="!restStop"
+          :bid-disabled="bidDisabled"
+          :route-closed="routeClosed"
           @save-bid="handleSaveBid"
         />
       </template>

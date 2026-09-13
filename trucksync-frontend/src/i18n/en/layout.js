@@ -12,6 +12,8 @@ export default {
     profile: 'Profile',
     profileServices: 'My services',
     routeStops: 'Route stops',
+    currentBids: 'Current bids',
+    allBids: 'All bids',
     dispatcherRoutes: 'Routes',
     adminApproval: 'Approval',
     adminServices: 'Services'

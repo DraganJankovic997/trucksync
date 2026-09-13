@@ -6,9 +6,71 @@ import { ref } from 'vue';
 
 export const useBidStore = defineStore('bid', () => {
   const bid = ref(null);
+  const routeStopBids = ref([]);
 
   function clearBid() {
     bid.value = null;
+  }
+
+  function clearRouteStopBids() {
+    routeStopBids.value = [];
+  }
+
+  async function fetchDispatcherRouteStopBids(routeStopId) {
+    try {
+      const { data } = await api.get(
+        `/dispatcher/route/route-stop/${routeStopId}/bids`
+      );
+
+      routeStopBids.value = data?.data?.bids ?? [];
+
+      return routeStopBids.value;
+    } catch (requestError) {
+      routeStopBids.value = [];
+
+      toast.error(i18n.global.t('messages.bid.fetchRouteStopBidsError'));
+
+      console.error(
+        'Dispatcher route stop bids request failed.',
+        requestError.response
+      );
+
+      return [];
+    }
+  }
+
+  async function fetchRestStopBids(
+    status = null,
+    page = 1,
+    perPage = 15,
+    from = null
+  ) {
+    const params = {
+      page: page,
+      per_page: perPage
+    };
+
+    if (status !== null) {
+      params.status = status;
+    }
+
+    if (from !== null) {
+      params.from = from;
+    }
+
+    try {
+      const { data } = await api.get('/rest-stop/bids', {
+        params: params
+      });
+
+      return data ?? null;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.bid.fetchBidsError'));
+
+      console.error('Rest stop bids request failed.', requestError.response);
+
+      return null;
+    }
   }
 
   async function fetchBid(routeStopId, options = {}) {
@@ -79,8 +141,12 @@ export const useBidStore = defineStore('bid', () => {
   return {
     bid,
     clearBid,
+    clearRouteStopBids,
     deleteBid,
+    fetchDispatcherRouteStopBids,
+    fetchRestStopBids,
     fetchBid,
+    routeStopBids,
     saveBid
   };
 });

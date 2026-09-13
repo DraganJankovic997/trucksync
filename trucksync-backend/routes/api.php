@@ -86,6 +86,12 @@ Route::prefix('dispatcher')
                 Route::put('/route-stop/{routeStopId}/services', [RouteStopController::class, 'syncServices'])
                     ->whereNumber('routeStopId')
                     ->name('dispatcher.route.route-stop.services.update');
+                Route::post('/route-stop/{routeStopId}/fulfill', [RouteStopController::class, 'fulfill'])
+                    ->whereNumber('routeStopId')
+                    ->name('dispatcher.route.route-stop.fulfill');
+                Route::get('/route-stop/{routeStopId}/bids', [BidController::class, 'indexForDispatcherRouteStop'])
+                    ->whereNumber('routeStopId')
+                    ->name('dispatcher.route.route-stop.bids.index');
             });
     });
 
@@ -100,6 +106,7 @@ Route::prefix('rest-stop')
             ->name('rest-stop.bids.')
             ->controller(BidController::class)
             ->group(function () {
+                Route::get('/', 'indexForRestStop')->name('index');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{routeStopId}', 'show')
                     ->whereNumber('routeStopId')

@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Dispatcher;
+use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,6 +34,25 @@ it('shows a route stop with needed services without authentication', function ()
         $fuel->id => ['quantity' => 200],
         $tireReplacement->id => ['quantity' => 2],
     ]);
+    $firstRestStop = createRestStopForShowRouteStopEndpointBid(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $secondRestStop = createRestStopForShowRouteStopEndpointBid(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $firstRestStop->id,
+        'original_price' => '300.00',
+        'price' => '250.00',
+    ]);
+    RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $secondRestStop->id,
+        'original_price' => '325.00',
+        'price' => '275.00',
+    ]);
 
     $this->getJson("/api/route-stop/{$routeStop->id}")
         ->assertOk()
@@ -44,6 +65,7 @@ it('shows a route stop with needed services without authentication', function ()
         ->assertJsonPath('data.route_stop.fulfiled_by', null)
         ->assertJsonPath('data.route_stop.number_of_trucks', 3)
         ->assertJsonPath('data.route_stop.number_of_drivers', 4)
+        ->assertJsonPath('data.route_stop.bids_count', 2)
         ->assertJsonCount(2, 'data.route_stop.services')
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stop.services.0.name', 'Fuel')
@@ -82,5 +104,17 @@ function createRouteForShowRouteStopEndpoint(): DispatcherRoute
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+    ]);
+}
+
+function createRestStopForShowRouteStopEndpointBid(User $user): RestStop
+{
+    return RestStop::query()->create([
+        'user_id' => $user->id,
+        'city' => 'Belgrade',
+        'address' => 'Highway 1',
+        'post_code' => '11000',
+        'works_from' => '08:00',
+        'works_to' => '22:00',
     ]);
 }

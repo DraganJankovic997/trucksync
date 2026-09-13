@@ -6,6 +6,7 @@ import currentBids from './currentBids.js';
 import dispatcherRouteEdit from './dispatcherRouteEdit.js';
 import dashboard from './dashboard.js';
 import dispatcherRoutes from './dispatcherRoutes.js';
+import driverRoutes from './driverRoutes.js';
 import layout from './layout.js';
 import login from './login.js';
 import messages from './messages.js';
@@ -28,6 +29,7 @@ export default {
   dispatcherRouteEdit,
   dashboard,
   dispatcherRoutes,
+  driverRoutes,
   layout,
   login,
   messages,

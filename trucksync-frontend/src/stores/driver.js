@@ -6,6 +6,7 @@ import { ref } from 'vue';
 
 export const useDriverStore = defineStore('driver', () => {
   const driver = ref(null);
+  const drivers = ref([]);
 
   async function fetchDriver() {
     try {
@@ -20,6 +21,25 @@ export const useDriverStore = defineStore('driver', () => {
       console.error('Driver request failed.', requestError.response);
 
       return null;
+    }
+  }
+
+  async function fetchDispatcherDrivers() {
+    try {
+      const { data } = await api.get('/dispatcher/drivers');
+
+      drivers.value = data?.data?.drivers ?? [];
+
+      return drivers.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.driver.fetchDispatcherDriversError'));
+
+      console.error(
+        'Dispatcher drivers request failed.',
+        requestError.response
+      );
+
+      return [];
     }
   }
 
@@ -46,6 +66,8 @@ export const useDriverStore = defineStore('driver', () => {
 
   return {
     driver,
+    drivers,
+    fetchDispatcherDrivers,
     fetchDriver,
     saveDriver
   };

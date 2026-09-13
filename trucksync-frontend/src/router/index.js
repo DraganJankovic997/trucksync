@@ -73,6 +73,15 @@ export default defineRouter(({ store }) => {
           name: 'dashboard'
         };
       }
+
+      if (
+        to.meta.requiresDriver === true &&
+        user.value?.profile_type !== 'driver'
+      ) {
+        return {
+          name: 'dashboard'
+        };
+      }
     } else if (to.meta.guestOnly === true) {
       if (user.value) {
         return {

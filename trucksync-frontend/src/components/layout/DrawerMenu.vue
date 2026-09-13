@@ -69,6 +69,18 @@ const linksList = [
     dispatcherOnly: true
   },
   {
+    labelKey: 'layout.navigation.driverRoutes',
+    link: '/driver/routes',
+    icon: 'route',
+    driverOnly: true
+  },
+  {
+    labelKey: 'layout.navigation.driverMyRoutes',
+    link: '/driver/my-routes',
+    icon: 'assignment_ind',
+    driverOnly: true
+  },
+  {
     labelKey: 'layout.navigation.adminServices',
     link: '/admin/services',
     icon: 'miscellaneous_services',
@@ -93,6 +105,10 @@ const visibleLinksList = computed(() =>
     }
 
     if (link.dispatcherOnly && user.value?.profile_type !== 'dispatcher') {
+      return false;
+    }
+
+    if (link.driverOnly && user.value?.profile_type !== 'driver') {
       return false;
     }
 

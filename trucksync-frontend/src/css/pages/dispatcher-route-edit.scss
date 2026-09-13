@@ -21,6 +21,7 @@
   }
 
   .dispatcher-route-edit-details,
+  .dispatcher-route-drivers-card,
   .dispatcher-route-stops-card {
     border: 1px solid brand.$brand-border;
     border-radius: brand.$brand-radius;
@@ -55,6 +56,8 @@
   }
 
   .dispatcher-route-edit-detail-label,
+  .dispatcher-route-drivers-muted,
+  .dispatcher-route-drivers-empty-state,
   .dispatcher-route-stops-muted,
   .dispatcher-route-stops-empty-state {
     color: brand.$brand-muted;
@@ -62,9 +65,30 @@
   }
 
   .dispatcher-route-edit-status,
+  .dispatcher-route-drivers-leader,
   .dispatcher-route-stops-service {
     border-radius: brand.$brand-radius;
     font-weight: 700;
+  }
+
+  .dispatcher-route-drivers-row {
+    align-items: center;
+  }
+
+  .dispatcher-route-drivers-leader {
+    min-width: 156px;
+  }
+
+  .dispatcher-route-drivers-empty-state {
+    min-height: 180px;
+
+    strong {
+      color: brand.$brand-ink;
+    }
+  }
+
+  .dispatcher-route-drivers-empty-icon {
+    color: brand.$brand-accent-dark;
   }
 
   .dispatcher-route-stops-table-card {

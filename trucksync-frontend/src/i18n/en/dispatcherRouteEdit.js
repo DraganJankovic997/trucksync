@@ -18,6 +18,22 @@ export default {
     closed: 'Closed',
     emptyValue: '-'
   },
+  drivers: {
+    title: 'Drivers',
+    assignedCount: 'Assigned: {count}',
+    convoyLeader: 'Convoy leader',
+    emptyValue: '-',
+    unknownDriver: 'Unknown driver',
+    licenseNumber: 'License: {licenseNumber}',
+    assignAriaLabel: 'Assign driver {driver} to route',
+    emptyTitle: 'No drivers available',
+    emptyDescription:
+      'Drivers linked to your dispatcher profile will appear here.',
+    actions: {
+      clearLeader: 'Clear leader',
+      save: 'Save drivers'
+    }
+  },
   routeStops: {
     title: 'Route stops',
     stopCount: 'Stops: {count}',

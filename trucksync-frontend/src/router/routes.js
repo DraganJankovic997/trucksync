@@ -56,6 +56,18 @@ const routes = [
         meta: { requiresAuth: true, requiresDispatcher: true }
       },
       {
+        path: '/driver/routes',
+        name: 'driver-routes',
+        component: () => import('@/pages/DriverRoutesPage.vue'),
+        meta: { requiresAuth: true, requiresDriver: true }
+      },
+      {
+        path: '/driver/my-routes',
+        name: 'driver-my-routes',
+        component: () => import('@/pages/DriverMyRoutesPage.vue'),
+        meta: { requiresAuth: true, requiresDriver: true }
+      },
+      {
         path: '/dispatcher/routes/:routeId(\\d+)',
         name: 'dispatcher-route-edit',
         component: () => import('@/pages/DispatcherRouteEditPage.vue'),

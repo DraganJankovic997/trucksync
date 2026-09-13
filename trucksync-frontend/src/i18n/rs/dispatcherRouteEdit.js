@@ -18,6 +18,22 @@ export default {
     closed: 'Zatvorena',
     emptyValue: '-'
   },
+  drivers: {
+    title: 'Vozaci',
+    assignedCount: 'Dodeljeno: {count}',
+    convoyLeader: 'Vodja konvoja',
+    emptyValue: '-',
+    unknownDriver: 'Nepoznat vozac',
+    licenseNumber: 'Dozvola: {licenseNumber}',
+    assignAriaLabel: 'Dodeli vozaca {driver} ruti',
+    emptyTitle: 'Nema dostupnih vozaca',
+    emptyDescription:
+      'Vozaci povezani sa vasim profilom dispecera ce biti prikazani ovde.',
+    actions: {
+      clearLeader: 'Ukloni vodju',
+      save: 'Sacuvaj vozace'
+    }
+  },
   routeStops: {
     title: 'Stajalista rute',
     stopCount: 'Stajalista: {count}',

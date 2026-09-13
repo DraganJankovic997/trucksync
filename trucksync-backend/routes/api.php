@@ -57,10 +57,14 @@ Route::get('/route/route-stops/{route_id}', [RouteStopController::class, 'index'
 
 Route::prefix('driver')
     ->middleware('auth:sanctum')
-    ->controller(DriverController::class)
     ->group(function () {
-        Route::get('/', 'show')->name('driver.show');
-        Route::post('/', 'store')->name('driver.store');
+        Route::get('/routes', [RouteController::class, 'indexForDriver'])
+            ->name('driver.routes.index');
+
+        Route::controller(DriverController::class)->group(function () {
+            Route::get('/', 'show')->name('driver.show');
+            Route::post('/', 'store')->name('driver.store');
+        });
     });
 
 Route::prefix('dispatcher')
@@ -70,6 +74,8 @@ Route::prefix('dispatcher')
         Route::get('/all', 'index')->name('dispatcher.index');
         Route::get('/', 'show')->name('dispatcher.show');
         Route::post('/', 'store')->name('dispatcher.store');
+        Route::get('/drivers', [DriverController::class, 'indexForDispatcher'])
+            ->name('dispatcher.drivers.index');
 
         Route::prefix('route')
             ->controller(RouteController::class)
@@ -78,6 +84,9 @@ Route::prefix('dispatcher')
                     ->whereNumber('dispatcherId')
                     ->name('dispatcher.route.index');
                 Route::post('/', 'store')->name('dispatcher.route.store');
+                Route::put('/{routeId}/drivers', 'syncDrivers')
+                    ->whereNumber('routeId')
+                    ->name('dispatcher.route.drivers.update');
                 Route::post('/close/{routeId}', 'close')
                     ->whereNumber('routeId')
                     ->name('dispatcher.route.close');

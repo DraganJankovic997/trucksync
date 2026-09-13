@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\RouteServiceContract;
+use App\Exceptions\InvalidRouteDriverAssignmentException;
+use App\Exceptions\RouteNotFoundException;
+use App\Exceptions\RouteNotOwnedByDispatcherException;
+use App\Models\Driver;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\Service;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class RouteController extends Controller
@@ -37,6 +43,45 @@ class RouteController extends Controller
             logger()->error('Unable to fetch dispatcher routes.', [
                 'user_id' => $request->user()->id,
                 'dispatcher_id' => $dispatcherId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch routes.',
+            ], 500);
+        }
+    }
+
+    public function indexForDriver(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'driver') {
+            return response()->json([
+                'message' => 'Only driver users can view their routes.',
+            ], 403);
+        }
+
+        try {
+            $routes = $this->routeService->forDriverUser($authenticatedUser);
+
+            if (! $routes) {
+                return response()->json([
+                    'message' => 'Driver profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'routes' => $routes
+                        ->map(fn (DispatcherRoute $route): array => $this->routeWithStopsPayload($route))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch driver routes.', [
+                'user_id' => $authenticatedUser->id,
                 'exception' => $throwable,
             ]);
 
@@ -169,11 +214,91 @@ class RouteController extends Controller
         }
     }
 
+    public function syncDrivers(Request $request, int $routeId): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can assign drivers to routes.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'drivers' => ['present', 'array'],
+            'drivers.*.driver_id' => ['required', 'integer', 'distinct', 'min:1', 'exists:drivers,id'],
+            'drivers.*.is_convoy_leader' => ['required', 'boolean'],
+        ]);
+
+        $driverAssignments = $this->driverAssignmentsPayload($validated['drivers']);
+        $convoyLeaderCount = collect($driverAssignments)
+            ->where('is_convoy_leader', true)
+            ->count();
+
+        if ($convoyLeaderCount > 1) {
+            throw ValidationException::withMessages([
+                'drivers' => 'Only one driver can be the convoy leader.',
+            ]);
+        }
+
+        try {
+            $route = $this->routeService->syncDriversForUser(
+                $authenticatedUser,
+                $routeId,
+                $driverAssignments,
+            );
+
+            if (! $route) {
+                return response()->json([
+                    'message' => 'Dispatcher profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Route drivers updated successfully.',
+                'data' => [
+                    'route' => $this->routeWithStopsPayload($route),
+                ],
+            ]);
+        } catch (RouteNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
+        } catch (InvalidRouteDriverAssignmentException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => [
+                    'drivers' => [
+                        $exception->getMessage(),
+                    ],
+                ],
+            ], 422);
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to update route drivers.', [
+                'user_id' => $authenticatedUser->id,
+                'route_id' => $routeId,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to update route drivers.',
+            ], 500);
+        }
+    }
+
     /**
-     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null}
+     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null, drivers: array<int, array{id: int, user_id: int, dispatcher_id: int|null, license_number: string, is_dispatcher_approved: bool, is_convoy_leader: bool, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}>}
      */
     private function routePayload(DispatcherRoute $route): array
     {
+        $route->loadMissing('drivers.user');
+
         return [
             'id' => $route->id,
             'dispatcher_id' => $route->dispatcher_id,
@@ -184,11 +309,15 @@ class RouteController extends Controller
             'start_date' => $route->start_date->toDateString(),
             'end_date' => $route->end_date->toDateString(),
             'closed_at' => $route->closed_at?->toJSON(),
+            'drivers' => $route->drivers
+                ->map(fn (Driver $driver): array => $this->routeDriverPayload($driver))
+                ->values()
+                ->all(),
         ];
     }
 
     /**
-     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null, route_stops: array<int, array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}>}
+     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, planned_travel_details: string|null, convoy_size: int, start_date: string, end_date: string, closed_at: string|null, drivers: array<int, array{id: int, user_id: int, dispatcher_id: int|null, license_number: string, is_dispatcher_approved: bool, is_convoy_leader: bool, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}>, route_stops: array<int, array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}>}
      */
     private function routeWithStopsPayload(DispatcherRoute $route): array
     {
@@ -239,5 +368,55 @@ class RouteController extends Controller
         }
 
         return number_format((float) $price, 2, '.', '');
+    }
+
+    /**
+     * @param  array<int, array{driver_id: int|string, is_convoy_leader: bool|int|string}>  $drivers
+     * @return array<int, array{driver_id: int, is_convoy_leader: bool}>
+     */
+    private function driverAssignmentsPayload(array $drivers): array
+    {
+        return collect($drivers)
+            ->map(fn (array $driver): array => [
+                'driver_id' => (int) $driver['driver_id'],
+                'is_convoy_leader' => filter_var(
+                    $driver['is_convoy_leader'],
+                    FILTER_VALIDATE_BOOLEAN
+                ),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array{id: int, user_id: int, dispatcher_id: int|null, license_number: string, is_dispatcher_approved: bool, is_convoy_leader: bool, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}
+     */
+    private function routeDriverPayload(Driver $driver): array
+    {
+        return [
+            'id' => $driver->id,
+            'user_id' => $driver->user_id,
+            'dispatcher_id' => $driver->dispatcher_id,
+            'license_number' => $driver->license_number,
+            'is_dispatcher_approved' => $driver->is_dispatcher_approved,
+            'is_convoy_leader' => (bool) $driver->pivot?->is_convoy_leader,
+            'user' => $this->userPayload($driver->user),
+        ];
+    }
+
+    /**
+     * @return array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}
+     */
+    private function userPayload(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'country' => $user->country,
+            'phone_number' => $user->phone_number,
+            'profile_type' => $user->profile_type,
+        ];
     }
 }

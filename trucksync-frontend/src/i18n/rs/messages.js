@@ -26,6 +26,7 @@ export default {
   },
   driver: {
     fetchError: 'Preuzimanje profila vozaca nije uspelo',
+    fetchDispatcherDriversError: 'Preuzimanje vozaca nije uspelo',
     saveSuccess: 'Profil vozaca je uspesno sacuvan',
     saveError: 'Cuvanje profila vozaca nije uspelo'
   },
@@ -61,6 +62,8 @@ export default {
     fetchOneError: 'Preuzimanje rute nije uspelo',
     createSuccess: 'Ruta je uspesno kreirana',
     createError: 'Kreiranje rute nije uspelo',
+    assignDriversSuccess: 'Vozaci rute su uspesno azurirani',
+    assignDriversError: 'Azuriranje vozaca rute nije uspelo',
     closeSuccess: 'Ruta je uspesno zatvorena',
     closeError: 'Zatvaranje rute nije uspelo',
     editForbidden: 'Nemate dozvolu da izmenite ovu rutu'

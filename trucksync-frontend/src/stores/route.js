@@ -40,6 +40,22 @@ export const useRouteStore = defineStore('route', () => {
     }
   }
 
+  async function fetchRoutesForDriver() {
+    try {
+      const { data } = await api.get('/driver/routes');
+
+      routes.value = data?.data?.routes ?? [];
+
+      return routes.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.route.fetchError'));
+
+      console.error('Driver routes request failed.', requestError.response);
+
+      return [];
+    }
+  }
+
   async function createRoute(
     origin,
     destination,
@@ -98,12 +114,34 @@ export const useRouteStore = defineStore('route', () => {
     }
   }
 
+  async function syncRouteDrivers(routeId, driverAssignments) {
+    try {
+      const { data } = await api.put(`/dispatcher/route/${routeId}/drivers`, {
+        drivers: driverAssignments
+      });
+
+      route.value = data?.data?.route ?? route.value;
+
+      toast.success(i18n.global.t('messages.route.assignDriversSuccess'));
+
+      return route.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.route.assignDriversError'));
+
+      console.error('Route drivers request failed.', requestError.response);
+
+      return null;
+    }
+  }
+
   return {
     route,
     routes,
     closeRoute,
     createRoute,
     fetchRoute,
-    fetchRoutesForDispatcher
+    fetchRoutesForDispatcher,
+    fetchRoutesForDriver,
+    syncRouteDrivers
   };
 });

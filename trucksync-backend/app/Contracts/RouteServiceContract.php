@@ -13,6 +13,11 @@ interface RouteServiceContract
      */
     public function forDispatcher(int $dispatcherId): ?Collection;
 
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function forDriverUser(User $user): ?Collection;
+
     public function createForUser(
         User $user,
         string $origin,
@@ -26,4 +31,13 @@ interface RouteServiceContract
     public function closeForUser(User $user, int $routeId): ?DispatcherRoute;
 
     public function findWithStops(int $routeId): ?DispatcherRoute;
+
+    /**
+     * @param  array<int, array{driver_id: int, is_convoy_leader: bool}>  $driverAssignments
+     */
+    public function syncDriversForUser(
+        User $user,
+        int $routeId,
+        array $driverAssignments
+    ): ?DispatcherRoute;
 }

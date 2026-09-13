@@ -38,6 +38,7 @@ export default {
   },
   restStop: {
     fetchError: 'Preuzimanje profila odmorišta nije uspelo',
+    fetchAllError: 'Preuzimanje odmorišta nije uspelo',
     saveSuccess: 'Profil odmorišta je uspešno sačuvan',
     saveError: 'Čuvanje profila odmorišta nije uspelo'
   },

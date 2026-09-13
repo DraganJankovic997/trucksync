@@ -6,6 +6,29 @@ import { ref } from 'vue';
 
 export const useRestStopStore = defineStore('rest-stop', () => {
   const restStop = ref(null);
+  const restStops = ref([]);
+
+  function clearRestStops() {
+    restStops.value = [];
+  }
+
+  async function fetchAdminRestStops() {
+    try {
+      const { data } = await api.get('/admin/rest-stops');
+
+      restStops.value = data?.data?.rest_stops ?? [];
+
+      return restStops.value;
+    } catch (requestError) {
+      restStops.value = [];
+
+      toast.error(i18n.global.t('messages.restStop.fetchAllError'));
+
+      console.error('Admin rest stops request failed.', requestError.response);
+
+      return [];
+    }
+  }
 
   async function fetchRestStop() {
     try {
@@ -48,7 +71,10 @@ export const useRestStopStore = defineStore('rest-stop', () => {
   }
 
   return {
+    clearRestStops,
+    fetchAdminRestStops,
     restStop,
+    restStops,
     fetchRestStop,
     saveRestStop
   };

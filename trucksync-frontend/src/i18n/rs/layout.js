@@ -18,6 +18,7 @@ export default {
     driverRoutes: 'Sve rute',
     driverMyRoutes: 'Moje rute',
     adminApproval: 'Odobravanje',
+    adminReports: 'Prijave',
     adminServices: 'Usluge'
   }
 };

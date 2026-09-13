@@ -90,6 +90,12 @@ const routes = [
         name: 'admin-approval',
         component: () => import('@/pages/ApprovalPage.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: '/admin/reports',
+        name: 'admin-reports',
+        component: () => import('@/pages/AdminReportsPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
       }
     ]
   },

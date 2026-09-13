@@ -18,6 +18,7 @@ export default {
     driverRoutes: 'All routes',
     driverMyRoutes: 'My routes',
     adminApproval: 'Approval',
+    adminReports: 'Reports',
     adminServices: 'Services'
   }
 };

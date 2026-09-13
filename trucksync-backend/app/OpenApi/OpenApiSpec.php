@@ -751,6 +751,40 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/admin/rest-stops' => [
+                    'get' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'List rest stops',
+                        'description' => 'Returns all rest stop profiles for admin filters.',
+                        'operationId' => 'listAdminRestStops',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Rest stop list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/AdminRestStopsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/admin/ratings' => [
                     'get' => [
                         'tags' => ['Admin'],
@@ -2936,6 +2970,31 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'AdminRestStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/RestStop',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => [
+                                    'company_name',
+                                    'is_approved',
+                                ],
+                                'properties' => [
+                                    'company_name' => [
+                                        'type' => 'string',
+                                        'description' => 'Display name used for admin rest stop filters.',
+                                        'example' => 'Demo Rest Stop 01',
+                                    ],
+                                    'is_approved' => [
+                                        'type' => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'PendingDispatcherApproval' => [
                         'type' => 'object',
                         'required' => [
@@ -4279,6 +4338,24 @@ class OpenApiSpec
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/PendingRestStopApproval',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AdminRestStopsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['rest_stops'],
+                                'properties' => [
+                                    'rest_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/AdminRestStop',
                                         ],
                                     ],
                                 ],

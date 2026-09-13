@@ -15,6 +15,30 @@ class RestStopController extends Controller
 {
     public function __construct(private readonly RestStopServiceContract $restStopService) {}
 
+    public function indexForAdmin(): JsonResponse
+    {
+        try {
+            $restStops = $this->restStopService->allForAdmin();
+
+            return response()->json([
+                'data' => [
+                    'rest_stops' => $restStops
+                        ->map(fn (RestStop $restStop): array => $this->adminRestStopPayload($restStop))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch rest stops for admin.', [
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch rest stops.',
+            ], 500);
+        }
+    }
+
     public function indexServices(int $id): JsonResponse
     {
         try {
@@ -236,6 +260,29 @@ class RestStopController extends Controller
             'works_from' => $this->timePayload($restStop->works_from),
             'works_to' => $this->timePayload($restStop->works_to),
         ];
+    }
+
+    /**
+     * @return array{id: int, user_id: int, company_name: string, city: string, address: string, post_code: string, works_from: string, works_to: string, is_approved: bool}
+     */
+    private function adminRestStopPayload(RestStop $restStop): array
+    {
+        return [
+            ...$this->restStopPayload($restStop),
+            'company_name' => $this->restStopCompanyName($restStop),
+            'is_approved' => $restStop->is_approved,
+        ];
+    }
+
+    private function restStopCompanyName(RestStop $restStop): string
+    {
+        $user = $restStop->user;
+        $fullName = trim(implode(' ', array_filter([
+            $user?->first_name,
+            $user?->last_name,
+        ])));
+
+        return $fullName !== '' ? $fullName : (string) $user?->email;
     }
 
     private function timePayload(string $time): string

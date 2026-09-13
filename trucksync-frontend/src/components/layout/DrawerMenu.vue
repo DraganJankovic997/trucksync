@@ -91,6 +91,12 @@ const linksList = [
     link: '/admin/approval',
     icon: 'verified_user',
     adminOnly: true
+  },
+  {
+    labelKey: 'layout.navigation.adminReports',
+    link: '/admin/reports',
+    icon: 'report',
+    adminOnly: true
   }
 ];
 

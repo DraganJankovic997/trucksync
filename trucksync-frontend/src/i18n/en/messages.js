@@ -38,6 +38,7 @@ export default {
   },
   restStop: {
     fetchError: 'Failed to fetch rest stop profile',
+    fetchAllError: 'Failed to fetch rest stops',
     saveSuccess: 'Rest stop profile saved successfully',
     saveError: 'Failed to save rest stop profile'
   },

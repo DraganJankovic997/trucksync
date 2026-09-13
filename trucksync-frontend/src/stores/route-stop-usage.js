@@ -7,7 +7,6 @@ import { ref } from 'vue';
 export const useRouteStopUsageStore = defineStore('route-stop-usage', () => {
   const routeStopUsages = ref([]);
 
-
   async function fetchAdminRatings(
     restStopId = null,
     page = 1,
@@ -19,12 +18,14 @@ export const useRouteStopUsageStore = defineStore('route-stop-usage', () => {
       per_page: perPage
     };
 
-    if (restStopId !== null) {
+    if (restStopId !== null && restStopId !== undefined && restStopId !== '') {
       params.rest_stop_id = restStopId;
     }
 
     if (reportsOnly === true) {
       params.is_report = true;
+    } else if (reportsOnly === false) {
+      params.is_report = false;
     }
 
     try {

@@ -51,6 +51,18 @@ const linksList = [
     restStopOnly: true
   },
   {
+    labelKey: 'layout.navigation.currentBids',
+    link: '/rest-stop/bids/active',
+    icon: 'local_offer',
+    restStopOnly: true
+  },
+  {
+    labelKey: 'layout.navigation.allBids',
+    link: '/rest-stop/bids/all',
+    icon: 'receipt_long',
+    restStopOnly: true
+  },
+  {
     labelKey: 'layout.navigation.dispatcherRoutes',
     link: '/dispatcher/routes',
     icon: 'route',

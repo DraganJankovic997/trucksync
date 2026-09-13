@@ -12,6 +12,8 @@ export default {
     profile: 'Profil',
     profileServices: 'Moje usluge',
     routeStops: 'Stajalista ruta',
+    currentBids: 'Aktuelne ponude',
+    allBids: 'Sve ponude',
     dispatcherRoutes: 'Rute',
     adminApproval: 'Odobravanje',
     adminServices: 'Usluge'

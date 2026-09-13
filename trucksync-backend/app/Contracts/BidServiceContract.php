@@ -8,6 +8,7 @@ use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 interface BidServiceContract
@@ -26,9 +27,14 @@ interface BidServiceContract
     public function findForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid;
 
     /**
-     * @return Collection<int, RouteStopBid>
+     * @return LengthAwarePaginator<int, RouteStopBid>
      */
-    public function forRestStop(RestStop $restStop, ?string $status = null): Collection;
+    public function forRestStop(
+        RestStop $restStop,
+        ?string $status = null,
+        int $perPage = 15,
+        int $page = 1
+    ): LengthAwarePaginator;
 
     public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void;
 

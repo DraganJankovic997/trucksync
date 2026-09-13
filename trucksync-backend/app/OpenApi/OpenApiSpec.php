@@ -1469,7 +1469,7 @@ class OpenApiSpec
                     'get' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'List bids for the authenticated rest stop',
-                        'description' => 'Returns bids submitted by the authenticated rest stop, sorted by created_at descending. Optionally filters by bid status.',
+                        'description' => 'Returns paginated bids submitted by the authenticated rest stop, sorted by created_at descending. Optionally filters by bid status.',
                         'operationId' => 'listAuthenticatedRestStopBids',
                         'security' => [
                             [
@@ -1485,6 +1485,29 @@ class OpenApiSpec
                                 'schema' => [
                                     'type' => 'string',
                                     'enum' => ['pending', 'selected', 'rejected'],
+                                ],
+                            ],
+                            [
+                                'name' => 'page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Page number.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'default' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'per_page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Number of bids per page.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'maximum' => 100,
+                                    'default' => 15,
                                 ],
                             ],
                         ],
@@ -3602,7 +3625,7 @@ class OpenApiSpec
                     ],
                     'RestStopBidIndexResponse' => [
                         'type' => 'object',
-                        'required' => ['data'],
+                        'required' => ['data', 'links', 'meta'],
                         'properties' => [
                             'data' => [
                                 'type' => 'object',
@@ -3613,6 +3636,84 @@ class OpenApiSpec
                                         'items' => [
                                             '$ref' => '#/components/schemas/Bid',
                                         ],
+                                    ],
+                                ],
+                            ],
+                            'links' => [
+                                'type' => 'object',
+                                'required' => ['first', 'last', 'prev', 'next'],
+                                'properties' => [
+                                    'first' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/rest-stop/bids?page=1',
+                                    ],
+                                    'last' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/rest-stop/bids?page=3',
+                                    ],
+                                    'prev' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => null,
+                                    ],
+                                    'next' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => 'http://localhost/api/rest-stop/bids?page=2',
+                                    ],
+                                ],
+                            ],
+                            'meta' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'current_page',
+                                    'from',
+                                    'last_page',
+                                    'path',
+                                    'per_page',
+                                    'to',
+                                    'total',
+                                ],
+                                'properties' => [
+                                    'current_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 1,
+                                    ],
+                                    'from' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 1,
+                                    ],
+                                    'last_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 3,
+                                    ],
+                                    'path' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/rest-stop/bids',
+                                    ],
+                                    'per_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'maximum' => 100,
+                                        'example' => 15,
+                                    ],
+                                    'to' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 15,
+                                    ],
+                                    'total' => [
+                                        'type' => 'integer',
+                                        'minimum' => 0,
+                                        'example' => 35,
                                     ],
                                 ],
                             ],

@@ -9,6 +9,7 @@ use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 class BidService implements BidServiceContract
@@ -52,16 +53,20 @@ class BidService implements BidServiceContract
     }
 
     /**
-     * @return Collection<int, RouteStopBid>
+     * @return LengthAwarePaginator<int, RouteStopBid>
      */
-    public function forRestStop(RestStop $restStop, ?string $status = null): Collection
-    {
+    public function forRestStop(
+        RestStop $restStop,
+        ?string $status = null,
+        int $perPage = 15,
+        int $page = 1
+    ): LengthAwarePaginator {
         return $restStop
             ->routeStopBids()
             ->when($status !== null, fn ($query) => $query->where('status', $status))
             ->orderByDesc('created_at')
             ->orderByDesc('route_stop_id')
-            ->get();
+            ->paginate(perPage: $perPage, page: $page);
     }
 
     public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void

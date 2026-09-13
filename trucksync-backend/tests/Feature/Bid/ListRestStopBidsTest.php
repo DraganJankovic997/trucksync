@@ -60,6 +60,14 @@ it('lists authenticated rest stop bids sorted by created at descending', functio
     $this->getJson('/api/rest-stop/bids')
         ->assertOk()
         ->assertJsonCount(3, 'data.bids')
+        ->assertJsonPath('meta.current_page', 1)
+        ->assertJsonPath('meta.from', 1)
+        ->assertJsonPath('meta.last_page', 1)
+        ->assertJsonPath('meta.per_page', 15)
+        ->assertJsonPath('meta.to', 3)
+        ->assertJsonPath('meta.total', 3)
+        ->assertJsonPath('links.prev', null)
+        ->assertJsonPath('links.next', null)
         ->assertJsonPath('data.bids.0.route_stop_id', $newRouteStop->id)
         ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_REJECTED)
         ->assertJsonPath('data.bids.1.route_stop_id', $middleRouteStop->id)
@@ -109,8 +117,71 @@ it('filters authenticated rest stop bids by status', function () {
     $this->getJson('/api/rest-stop/bids?status=selected')
         ->assertOk()
         ->assertJsonCount(1, 'data.bids')
+        ->assertJsonPath('meta.total', 1)
+        ->assertJsonPath('meta.per_page', 15)
         ->assertJsonPath('data.bids.0.route_stop_id', $selectedRouteStop->id)
         ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_SELECTED);
+});
+
+it('paginates authenticated rest stop bids while preserving status filters', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForRestStopBidIndexUser($user);
+    $route = createRouteForRestStopBidIndexDispatcher(
+        createDispatcherForRestStopBidIndexUser(User::factory()->create([
+            'profile_type' => 'dispatcher',
+        ]))
+    );
+    $olderPendingRouteStop = createRouteStopForRestStopBidIndexRoute($route);
+    $selectedRouteStop = createRouteStopForRestStopBidIndexRoute($route);
+    $newerPendingRouteStop = createRouteStopForRestStopBidIndexRoute($route);
+
+    createRouteStopBidForRestStopBidIndex(
+        $olderPendingRouteStop,
+        $restStop,
+        RouteStopBid::STATUS_PENDING,
+        '2026-10-01 08:00:00'
+    );
+    createRouteStopBidForRestStopBidIndex(
+        $selectedRouteStop,
+        $restStop,
+        RouteStopBid::STATUS_SELECTED,
+        '2026-10-02 08:00:00'
+    );
+    createRouteStopBidForRestStopBidIndex(
+        $newerPendingRouteStop,
+        $restStop,
+        RouteStopBid::STATUS_PENDING,
+        '2026-10-03 08:00:00'
+    );
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/rest-stop/bids?status=pending&per_page=1&page=1')
+        ->assertOk()
+        ->assertJsonCount(1, 'data.bids')
+        ->assertJsonPath('data.bids.0.route_stop_id', $newerPendingRouteStop->id)
+        ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_PENDING)
+        ->assertJsonPath('meta.current_page', 1)
+        ->assertJsonPath('meta.from', 1)
+        ->assertJsonPath('meta.last_page', 2)
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.to', 1)
+        ->assertJsonPath('meta.total', 2)
+        ->assertJsonPath('links.prev', null);
+
+    expect($response->json('links.next'))->toContain('status=pending');
+
+    $this->getJson('/api/rest-stop/bids?status=pending&per_page=1&page=2')
+        ->assertOk()
+        ->assertJsonCount(1, 'data.bids')
+        ->assertJsonPath('data.bids.0.route_stop_id', $olderPendingRouteStop->id)
+        ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_PENDING)
+        ->assertJsonPath('meta.current_page', 2)
+        ->assertJsonPath('meta.from', 2)
+        ->assertJsonPath('meta.to', 2)
+        ->assertJsonPath('links.next', null);
 });
 
 it('validates rest stop bid status filters', function () {
@@ -124,6 +195,19 @@ it('validates rest stop bid status filters', function () {
     $this->getJson('/api/rest-stop/bids?status=accepted')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['status']);
+});
+
+it('validates rest stop bid pagination parameters', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    createRestStopForRestStopBidIndexUser($user);
+
+    Sanctum::actingAs($user);
+
+    $this->getJson('/api/rest-stop/bids?per_page=101&page=0')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['per_page', 'page']);
 });
 
 it('requires authentication to list authenticated rest stop bids', function () {
@@ -223,5 +307,8 @@ function createRouteStopBidForRestStopBidIndex(
             'updated_at' => Carbon::parse($createdAt),
         ]);
 
-    return $bid->refresh();
+    return RouteStopBid::query()
+        ->where('route_stop_id', $bid->route_stop_id)
+        ->where('rest_stop_id', $bid->rest_stop_id)
+        ->firstOrFail();
 }

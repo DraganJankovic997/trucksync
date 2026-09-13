@@ -97,17 +97,43 @@ class BidController extends Controller
                 ], 404);
             }
 
-            $validated = $request->validate([
-                'status' => ['sometimes', 'string', Rule::in(RouteStopBid::STATUSES)],
-            ]);
+            $queryParameters = $this->restStopBidsQueryParameters($request);
+
+            validator($queryParameters, [
+                'status' => ['sometimes', 'nullable', 'string', Rule::in(RouteStopBid::STATUSES)],
+                'page' => ['required', 'integer', 'min:1'],
+                'per_page' => ['required', 'integer', 'min:1', 'max:100'],
+            ])->validate();
+
+            $bids = $this->bidService->forRestStop(
+                $restStop,
+                $queryParameters['status'] ?? null,
+                (int) $queryParameters['per_page'],
+                (int) $queryParameters['page'],
+            );
+            $bids->appends($request->query());
 
             return response()->json([
                 'data' => [
-                    'bids' => $this->bidService
-                        ->forRestStop($restStop, $validated['status'] ?? null)
+                    'bids' => $bids->getCollection()
                         ->map(fn (RouteStopBid $bid): array => $this->bidPayload($bid))
                         ->values()
                         ->all(),
+                ],
+                'links' => [
+                    'first' => $bids->url(1),
+                    'last' => $bids->url($bids->lastPage()),
+                    'prev' => $bids->previousPageUrl(),
+                    'next' => $bids->nextPageUrl(),
+                ],
+                'meta' => [
+                    'current_page' => $bids->currentPage(),
+                    'from' => $bids->firstItem(),
+                    'last_page' => $bids->lastPage(),
+                    'path' => $bids->path(),
+                    'per_page' => $bids->perPage(),
+                    'to' => $bids->lastItem(),
+                    'total' => $bids->total(),
                 ],
             ]);
         } catch (ValidationException $exception) {
@@ -307,6 +333,19 @@ class BidController extends Controller
             'created_at' => $bid->created_at?->toJSON(),
             'updated_at' => $bid->updated_at?->toJSON(),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function restStopBidsQueryParameters(Request $request): array
+    {
+        $queryParameters = $request->query();
+
+        $queryParameters['page'] ??= 1;
+        $queryParameters['per_page'] ??= 15;
+
+        return $queryParameters;
     }
 
     /**

@@ -130,6 +130,8 @@ it('stores rest stop bids for a route stop', function () {
         'price',
         'original_price',
         'status',
+        'created_at',
+        'updated_at',
     ])
         ->and($routeStopBid->routeStop->is($routeStop))->toBeTrue()
         ->and($routeStopBid->restStop->is($restStop))->toBeTrue()
@@ -137,7 +139,9 @@ it('stores rest stop bids for a route stop', function () {
         ->and($restStop->routeStopBids()->first()->is($routeStopBid))->toBeTrue()
         ->and($routeStopBid->price)->toBe('250.75')
         ->and($routeStopBid->original_price)->toBe('300.00')
-        ->and($routeStopBid->status)->toBe(RouteStopBid::STATUS_PENDING);
+        ->and($routeStopBid->status)->toBe(RouteStopBid::STATUS_PENDING)
+        ->and($routeStopBid->created_at)->not->toBeNull()
+        ->and($routeStopBid->updated_at)->not->toBeNull();
 
     $this->assertDatabaseHas('route_stop_bids', [
         'route_stop_id' => $routeStop->id,

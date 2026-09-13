@@ -106,6 +106,7 @@ Route::prefix('rest-stop')
             ->name('rest-stop.bids.')
             ->controller(BidController::class)
             ->group(function () {
+                Route::get('/', 'indexForRestStop')->name('index');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{routeStopId}', 'show')
                     ->whereNumber('routeStopId')

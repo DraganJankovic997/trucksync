@@ -14,9 +14,13 @@ class RouteStopBid extends Model
 
     public const STATUS_REJECTED = 'rejected';
 
-    public $incrementing = false;
+    public const STATUSES = [
+        self::STATUS_PENDING,
+        self::STATUS_SELECTED,
+        self::STATUS_REJECTED,
+    ];
 
-    public $timestamps = false;
+    public $incrementing = false;
 
     protected $table = 'route_stop_bids';
 
@@ -55,6 +59,8 @@ class RouteStopBid extends Model
             'price' => 'decimal:2',
             'original_price' => 'decimal:2',
             'status' => 'string',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

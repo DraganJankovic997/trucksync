@@ -25,6 +25,11 @@ interface BidServiceContract
 
     public function findForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid;
 
+    /**
+     * @return Collection<int, RouteStopBid>
+     */
+    public function forRestStop(RestStop $restStop, ?string $status = null): Collection;
+
     public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void;
 
     public function rejectUnselectedForRoute(DispatcherRoute $route): void;

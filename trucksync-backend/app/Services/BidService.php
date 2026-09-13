@@ -51,6 +51,19 @@ class BidService implements BidServiceContract
         return $this->bidForRestStop($restStop, $routeStopId);
     }
 
+    /**
+     * @return Collection<int, RouteStopBid>
+     */
+    public function forRestStop(RestStop $restStop, ?string $status = null): Collection
+    {
+        return $restStop
+            ->routeStopBids()
+            ->when($status !== null, fn ($query) => $query->where('status', $status))
+            ->orderByDesc('created_at')
+            ->orderByDesc('route_stop_id')
+            ->get();
+    }
+
     public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void
     {
         RouteStopBid::query()

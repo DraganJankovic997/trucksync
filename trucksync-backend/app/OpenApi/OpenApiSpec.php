@@ -1466,6 +1466,56 @@ class OpenApiSpec
                     ],
                 ],
                 '/api/rest-stop/bids' => [
+                    'get' => [
+                        'tags' => ['Rest Stops'],
+                        'summary' => 'List bids for the authenticated rest stop',
+                        'description' => 'Returns bids submitted by the authenticated rest stop, sorted by created_at descending. Optionally filters by bid status.',
+                        'operationId' => 'listAuthenticatedRestStopBids',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'status',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Filter bids by status.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'enum' => ['pending', 'selected', 'rejected'],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Authenticated rest stop bid list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RestStopBidIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/BidViewForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/BidNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
                     'post' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'Create a bid for the authenticated rest stop',
@@ -2673,6 +2723,8 @@ class OpenApiSpec
                             'original_price',
                             'price',
                             'status',
+                            'created_at',
+                            'updated_at',
                         ],
                         'properties' => [
                             'route_stop_id' => [
@@ -2701,6 +2753,18 @@ class OpenApiSpec
                                 'description' => 'Current bid status.',
                                 'enum' => ['pending', 'selected', 'rejected'],
                                 'example' => 'pending',
+                            ],
+                            'created_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'description' => 'Bid creation timestamp.',
+                                'example' => '2026-10-01T12:00:00.000000Z',
+                            ],
+                            'updated_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'description' => 'Bid last update timestamp.',
+                                'example' => '2026-10-01T12:05:00.000000Z',
                             ],
                         ],
                     ],
@@ -3530,6 +3594,24 @@ class OpenApiSpec
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/BidWithRestStop',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RestStopBidIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['bids'],
+                                'properties' => [
+                                    'bids' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/Bid',
                                         ],
                                     ],
                                 ],

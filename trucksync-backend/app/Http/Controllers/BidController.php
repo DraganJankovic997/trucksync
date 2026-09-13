@@ -12,6 +12,7 @@ use App\Models\RouteStopBid;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -73,6 +74,52 @@ class BidController extends Controller
 
             return response()->json([
                 'message' => 'Unable to fetch route stop bids.',
+            ], 500);
+        }
+    }
+
+    public function indexForRestStop(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'rest_stop') {
+            return response()->json([
+                'message' => 'Only rest stop users can view bids.',
+            ], 403);
+        }
+
+        try {
+            $restStop = $this->restStopService->findForUser($authenticatedUser);
+
+            if (! $restStop) {
+                return response()->json([
+                    'message' => 'Rest stop profile not found.',
+                ], 404);
+            }
+
+            $validated = $request->validate([
+                'status' => ['sometimes', 'string', Rule::in(RouteStopBid::STATUSES)],
+            ]);
+
+            return response()->json([
+                'data' => [
+                    'bids' => $this->bidService
+                        ->forRestStop($restStop, $validated['status'] ?? null)
+                        ->map(fn (RouteStopBid $bid): array => $this->bidPayload($bid))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch rest stop bids.', [
+                'user_id' => $authenticatedUser->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch bids.',
             ], 500);
         }
     }
@@ -247,7 +294,7 @@ class BidController extends Controller
     }
 
     /**
-     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string}
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string, created_at: string|null, updated_at: string|null}
      */
     private function bidPayload(RouteStopBid $bid): array
     {
@@ -257,11 +304,13 @@ class BidController extends Controller
             'original_price' => $this->pricePayload($bid->original_price),
             'price' => $this->pricePayload($bid->price),
             'status' => $bid->status,
+            'created_at' => $bid->created_at?->toJSON(),
+            'updated_at' => $bid->updated_at?->toJSON(),
         ];
     }
 
     /**
-     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string, created_at: string|null, updated_at: string|null, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}
      */
     private function bidWithRestStopPayload(RouteStopBid $bid): array
     {

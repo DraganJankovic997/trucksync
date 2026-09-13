@@ -75,6 +75,12 @@ const linksList = [
     driverOnly: true
   },
   {
+    labelKey: 'layout.navigation.driverDashboard',
+    link: '/driver/dashboard',
+    icon: 'space_dashboard',
+    driverOnly: true
+  },
+  {
     labelKey: 'layout.navigation.driverMyRoutes',
     link: '/driver/my-routes',
     icon: 'assignment_ind',

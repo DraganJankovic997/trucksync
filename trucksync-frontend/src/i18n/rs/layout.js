@@ -15,6 +15,7 @@ export default {
     currentBids: 'Aktuelne ponude',
     allBids: 'Sve ponude',
     dispatcherRoutes: 'Rute',
+    driverDashboard: 'Kontrolna tabla vozača',
     driverRoutes: 'Sve rute',
     driverMyRoutes: 'Moje rute',
     adminApproval: 'Odobravanje',

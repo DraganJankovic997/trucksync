@@ -62,6 +62,12 @@ const routes = [
         meta: { requiresAuth: true, requiresDriver: true }
       },
       {
+        path: '/driver/dashboard',
+        name: 'driver-dashboard',
+        component: () => import('@/pages/DriverDashboardPage.vue'),
+        meta: { requiresAuth: true, requiresDriver: true }
+      },
+      {
         path: '/driver/my-routes',
         name: 'driver-my-routes',
         component: () => import('@/pages/DriverMyRoutesPage.vue'),

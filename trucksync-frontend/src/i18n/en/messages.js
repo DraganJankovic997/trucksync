@@ -30,6 +30,10 @@ export default {
     saveSuccess: 'Driver profile saved successfully',
     saveError: 'Failed to save driver profile'
   },
+  driverDashboard: {
+    fetchCurrentRouteError: 'Failed to fetch current route',
+    fetchUpcomingRoutesError: 'Failed to fetch upcoming routes'
+  },
   dispatcher: {
     fetchError: 'Failed to fetch dispatcher profile',
     fetchAllError: 'Failed to fetch dispatchers',

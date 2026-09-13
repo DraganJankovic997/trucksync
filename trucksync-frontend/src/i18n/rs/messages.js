@@ -30,6 +30,10 @@ export default {
     saveSuccess: 'Profil vozača je uspešno sačuvan',
     saveError: 'Čuvanje profila vozača nije uspelo'
   },
+  driverDashboard: {
+    fetchCurrentRouteError: 'Preuzimanje trenutne rute nije uspelo',
+    fetchUpcomingRoutesError: 'Preuzimanje predstojećih ruta nije uspelo'
+  },
   dispatcher: {
     fetchError: 'Preuzimanje profila dispečera nije uspelo',
     fetchAllError: 'Preuzimanje dispečera nije uspelo',

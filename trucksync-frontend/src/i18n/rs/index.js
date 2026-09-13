@@ -6,6 +6,7 @@ import countries from './countries.js';
 import currentBids from './currentBids.js';
 import dispatcherRouteEdit from './dispatcherRouteEdit.js';
 import dashboard from './dashboard.js';
+import driverDashboard from './driverDashboard.js';
 import dispatcherRoutes from './dispatcherRoutes.js';
 import driverRoutes from './driverRoutes.js';
 import layout from './layout.js';
@@ -32,6 +33,7 @@ export default {
   currentBids,
   dispatcherRouteEdit,
   dashboard,
+  driverDashboard,
   dispatcherRoutes,
   driverRoutes,
   layout,

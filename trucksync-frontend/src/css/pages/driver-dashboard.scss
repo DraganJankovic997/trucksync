@@ -1,0 +1,50 @@
+@use '../quasar.variables' as brand;
+
+.driver-dashboard-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .driver-dashboard-shell {
+    width: min(100%, 1280px);
+    margin: 0 auto;
+  }
+
+  .driver-dashboard-eyebrow {
+    color: brand.$brand-accent-dark;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .driver-dashboard-description {
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+
+  .driver-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: 16px;
+  }
+
+  .driver-dashboard-json-card {
+    overflow: hidden;
+    border-color: brand.$brand-border;
+    border-radius: brand.$brand-radius;
+    box-shadow: 0 18px 48px brand.$brand-shadow;
+  }
+
+  .driver-dashboard-json {
+    min-height: 280px;
+    max-height: 640px;
+    padding: 16px;
+    margin: 0;
+    overflow: auto;
+    color: brand.$brand-ink;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: brand.$brand-success-background;
+    border: 1px solid brand.$brand-border;
+    border-radius: brand.$brand-radius;
+  }
+}

@@ -14,6 +14,8 @@ class RouteStopUsage extends Model
 
     public const MAX_RATING = 5;
 
+    public const MAX_REPORT_LENGTH = 2000;
+
     /**
      * The model's default values for attributes.
      *

@@ -16,6 +16,13 @@
     min-width: 96px;
   }
 
+  .bids-table-text {
+    min-width: 160px;
+    max-width: 280px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .bids-table-status {
     border-radius: brand.$brand-radius;
     font-weight: 700;

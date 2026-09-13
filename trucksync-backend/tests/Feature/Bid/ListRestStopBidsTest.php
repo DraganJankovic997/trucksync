@@ -20,10 +20,16 @@ it('lists authenticated rest stop bids sorted by created at descending', functio
     $otherRestStop = createRestStopForRestStopBidIndexUser(User::factory()->create([
         'profile_type' => 'rest_stop',
     ]));
+    $dispatcherUser = User::factory()->create([
+        'profile_type' => 'dispatcher',
+        'first_name' => 'Dana',
+        'last_name' => 'Dispatcher',
+        'email' => 'dana.dispatcher@example.com',
+        'country' => 'Serbia',
+        'phone_number' => '+38160111222',
+    ]);
     $route = createRouteForRestStopBidIndexDispatcher(
-        createDispatcherForRestStopBidIndexUser(User::factory()->create([
-            'profile_type' => 'dispatcher',
-        ]))
+        createDispatcherForRestStopBidIndexUser($dispatcherUser)
     );
     $oldRouteStop = createRouteStopForRestStopBidIndexRoute($route);
     $middleRouteStop = createRouteStopForRestStopBidIndexRoute($route);
@@ -70,6 +76,16 @@ it('lists authenticated rest stop bids sorted by created at descending', functio
         ->assertJsonPath('links.next', null)
         ->assertJsonPath('data.bids.0.route_stop_id', $newRouteStop->id)
         ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_REJECTED)
+        ->assertJsonPath('data.bids.0.route_stop.id', $newRouteStop->id)
+        ->assertJsonPath('data.bids.0.route_stop.stop_at', $newRouteStop->stop_at->toJSON())
+        ->assertJsonPath('data.bids.0.route_stop.number_of_trucks', 3)
+        ->assertJsonPath('data.bids.0.route_stop.number_of_drivers', 4)
+        ->assertJsonPath('data.bids.0.route_stop.dispatcher.company_name', 'Acme Dispatch')
+        ->assertJsonPath('data.bids.0.route_stop.dispatcher.address', 'Main Street 1')
+        ->assertJsonPath('data.bids.0.route_stop.dispatcher.user.email', 'dana.dispatcher@example.com')
+        ->assertJsonPath('data.bids.0.route_stop.dispatcher.user.first_name', 'Dana')
+        ->assertJsonPath('data.bids.0.route_stop.dispatcher.user.last_name', 'Dispatcher')
+        ->assertJsonPath('data.bids.0.route_stop.dispatcher.user.phone_number', '+38160111222')
         ->assertJsonPath('data.bids.1.route_stop_id', $middleRouteStop->id)
         ->assertJsonPath('data.bids.1.status', RouteStopBid::STATUS_SELECTED)
         ->assertJsonPath('data.bids.2.route_stop_id', $oldRouteStop->id)
@@ -121,6 +137,58 @@ it('filters authenticated rest stop bids by status', function () {
         ->assertJsonPath('meta.per_page', 15)
         ->assertJsonPath('data.bids.0.route_stop_id', $selectedRouteStop->id)
         ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_SELECTED);
+});
+
+it('filters authenticated rest stop bids by route stop date from', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForRestStopBidIndexUser($user);
+    $route = createRouteForRestStopBidIndexDispatcher(
+        createDispatcherForRestStopBidIndexUser(User::factory()->create([
+            'profile_type' => 'dispatcher',
+        ]))
+    );
+    $beforeRouteStop = createRouteStopForRestStopBidIndexRoute($route, [
+        'stop_at' => '2026-10-01 23:59:00',
+    ]);
+    $fromDateRouteStop = createRouteStopForRestStopBidIndexRoute($route, [
+        'stop_at' => '2026-10-02 00:00:00',
+    ]);
+    $afterRouteStop = createRouteStopForRestStopBidIndexRoute($route, [
+        'stop_at' => '2026-10-03 08:00:00',
+    ]);
+
+    createRouteStopBidForRestStopBidIndex(
+        $beforeRouteStop,
+        $restStop,
+        RouteStopBid::STATUS_PENDING,
+        '2026-10-01 08:00:00'
+    );
+    createRouteStopBidForRestStopBidIndex(
+        $fromDateRouteStop,
+        $restStop,
+        RouteStopBid::STATUS_PENDING,
+        '2026-10-02 08:00:00'
+    );
+    createRouteStopBidForRestStopBidIndex(
+        $afterRouteStop,
+        $restStop,
+        RouteStopBid::STATUS_PENDING,
+        '2026-10-03 08:00:00'
+    );
+
+    Sanctum::actingAs($user);
+
+    $this->getJson('/api/rest-stop/bids?from=2026-10-02')
+        ->assertOk()
+        ->assertJsonCount(2, 'data.bids')
+        ->assertJsonPath('meta.total', 2)
+        ->assertJsonPath('data.bids.0.route_stop_id', $afterRouteStop->id)
+        ->assertJsonPath('data.bids.1.route_stop_id', $fromDateRouteStop->id)
+        ->assertJsonMissing([
+            'route_stop_id' => $beforeRouteStop->id,
+        ]);
 });
 
 it('paginates authenticated rest stop bids while preserving status filters', function () {
@@ -197,6 +265,19 @@ it('validates rest stop bid status filters', function () {
         ->assertJsonValidationErrors(['status']);
 });
 
+it('validates rest stop bid from filters', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    createRestStopForRestStopBidIndexUser($user);
+
+    Sanctum::actingAs($user);
+
+    $this->getJson('/api/rest-stop/bids?from=tomorrow')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['from']);
+});
+
 it('validates rest stop bid pagination parameters', function () {
     $user = User::factory()->create([
         'profile_type' => 'rest_stop',
@@ -261,7 +342,10 @@ function createRouteForRestStopBidIndexDispatcher(Dispatcher $dispatcher): Dispa
     ]);
 }
 
-function createRouteStopForRestStopBidIndexRoute(DispatcherRoute $route): RouteStop
+/**
+ * @param  array<string, mixed>  $attributes
+ */
+function createRouteStopForRestStopBidIndexRoute(DispatcherRoute $route, array $attributes = []): RouteStop
 {
     return RouteStop::query()->create([
         'route_id' => $route->id,
@@ -270,6 +354,7 @@ function createRouteStopForRestStopBidIndexRoute(DispatcherRoute $route): RouteS
         'stop_at' => '2026-10-02 10:30:00',
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
+        ...$attributes,
     ]);
 }
 

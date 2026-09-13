@@ -39,7 +39,12 @@ export const useBidStore = defineStore('bid', () => {
     }
   }
 
-  async function fetchRestStopBids(status = null, page = 1, perPage = 15) {
+  async function fetchRestStopBids(
+    status = null,
+    page = 1,
+    perPage = 15,
+    from = null
+  ) {
     const params = {
       page: page,
       per_page: perPage
@@ -47,6 +52,10 @@ export const useBidStore = defineStore('bid', () => {
 
     if (status !== null) {
       params.status = status;
+    }
+
+    if (from !== null) {
+      params.from = from;
     }
 
     try {

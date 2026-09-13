@@ -6,6 +6,7 @@ use App\Contracts\BidServiceContract;
 use App\Contracts\RestStopServiceContract;
 use App\Exceptions\RouteStopNotFoundException;
 use App\Exceptions\RouteStopNotOwnedByDispatcherException;
+use App\Models\Dispatcher;
 use App\Models\RestStop;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
@@ -101,6 +102,7 @@ class BidController extends Controller
 
             validator($queryParameters, [
                 'status' => ['sometimes', 'nullable', 'string', Rule::in(RouteStopBid::STATUSES)],
+                'from' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
                 'page' => ['required', 'integer', 'min:1'],
                 'per_page' => ['required', 'integer', 'min:1', 'max:100'],
             ])->validate();
@@ -108,6 +110,7 @@ class BidController extends Controller
             $bids = $this->bidService->forRestStop(
                 $restStop,
                 $queryParameters['status'] ?? null,
+                $queryParameters['from'] ?? null,
                 (int) $queryParameters['per_page'],
                 (int) $queryParameters['page'],
             );
@@ -116,7 +119,7 @@ class BidController extends Controller
             return response()->json([
                 'data' => [
                     'bids' => $bids->getCollection()
-                        ->map(fn (RouteStopBid $bid): array => $this->bidPayload($bid))
+                        ->map(fn (RouteStopBid $bid): array => $this->bidWithRouteStopPayload($bid))
                         ->values()
                         ->all(),
                 ],
@@ -346,6 +349,48 @@ class BidController extends Controller
         $queryParameters['per_page'] ??= 15;
 
         return $queryParameters;
+    }
+
+    /**
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string, created_at: string|null, updated_at: string|null, route_stop: array{id: int, route_id: int, stop_at: string|null, number_of_trucks: int, number_of_drivers: int, dispatcher: array{id: int, user_id: int, company_name: string, city: string, address: string, post_code: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}}
+     */
+    private function bidWithRouteStopPayload(RouteStopBid $bid): array
+    {
+        return [
+            ...$this->bidPayload($bid),
+            'route_stop' => $this->routeStopForBidPayload($bid->routeStop),
+        ];
+    }
+
+    /**
+     * @return array{id: int, route_id: int, stop_at: string|null, number_of_trucks: int, number_of_drivers: int, dispatcher: array{id: int, user_id: int, company_name: string, city: string, address: string, post_code: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}
+     */
+    private function routeStopForBidPayload(RouteStop $routeStop): array
+    {
+        return [
+            'id' => $routeStop->id,
+            'route_id' => $routeStop->route_id,
+            'stop_at' => $routeStop->stop_at?->toJSON(),
+            'number_of_trucks' => $routeStop->number_of_trucks,
+            'number_of_drivers' => $routeStop->number_of_drivers,
+            'dispatcher' => $this->dispatcherForBidPayload($routeStop->route->dispatcher),
+        ];
+    }
+
+    /**
+     * @return array{id: int, user_id: int, company_name: string, city: string, address: string, post_code: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}
+     */
+    private function dispatcherForBidPayload(Dispatcher $dispatcher): array
+    {
+        return [
+            'id' => $dispatcher->id,
+            'user_id' => $dispatcher->user_id,
+            'company_name' => $dispatcher->company_name,
+            'city' => $dispatcher->city,
+            'address' => $dispatcher->address,
+            'post_code' => $dispatcher->post_code,
+            'user' => $this->userPayload($dispatcher->user),
+        ];
     }
 
     /**

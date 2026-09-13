@@ -58,12 +58,18 @@ class BidService implements BidServiceContract
     public function forRestStop(
         RestStop $restStop,
         ?string $status = null,
+        ?string $from = null,
         int $perPage = 15,
         int $page = 1
     ): LengthAwarePaginator {
         return $restStop
             ->routeStopBids()
+            ->with('routeStop.route.dispatcher.user')
             ->when($status !== null, fn ($query) => $query->where('status', $status))
+            ->when($from !== null, fn ($query) => $query->whereHas(
+                'routeStop',
+                fn ($query) => $query->whereDate('stop_at', '>=', $from)
+            ))
             ->orderByDesc('created_at')
             ->orderByDesc('route_stop_id')
             ->paginate(perPage: $perPage, page: $page);

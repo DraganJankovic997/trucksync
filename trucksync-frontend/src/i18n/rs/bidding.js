@@ -8,11 +8,15 @@ export default {
     },
     columns: {
       routeStopId: 'Stajaliste rute',
+      stopAt: 'Vreme stajanja',
+      dispatcherCompany: 'Dispecer',
+      dispatcherAddress: 'Adresa dispecera',
+      contact: 'Kontakt',
+      numberOfTrucks: 'Kamioni',
+      numberOfDrivers: 'Vozaci',
       status: 'Status',
       originalPrice: 'Originalna cena',
-      price: 'Cena ponude',
-      createdAt: 'Kreirano',
-      updatedAt: 'Azurirano'
+      price: 'Cena ponude'
     },
     status: {
       pending: 'Na cekanju',

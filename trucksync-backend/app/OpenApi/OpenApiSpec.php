@@ -1469,7 +1469,7 @@ class OpenApiSpec
                     'get' => [
                         'tags' => ['Rest Stops'],
                         'summary' => 'List bids for the authenticated rest stop',
-                        'description' => 'Returns paginated bids submitted by the authenticated rest stop, sorted by created_at descending. Optionally filters by bid status.',
+                        'description' => 'Returns paginated bids submitted by the authenticated rest stop, sorted by created_at descending. Optionally filters by bid status and route stop date.',
                         'operationId' => 'listAuthenticatedRestStopBids',
                         'security' => [
                             [
@@ -1508,6 +1508,17 @@ class OpenApiSpec
                                     'minimum' => 1,
                                     'maximum' => 100,
                                     'default' => 15,
+                                ],
+                            ],
+                            [
+                                'name' => 'from',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Only return bids whose route stop is scheduled on or after this date.',
+                                'schema' => [
+                                    'type' => 'string',
+                                    'format' => 'date',
+                                    'example' => '2026-10-02',
                                 ],
                             ],
                         ],
@@ -2807,6 +2818,102 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'BidRouteStopDispatcher' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'user_id',
+                            'company_name',
+                            'city',
+                            'address',
+                            'post_code',
+                            'user',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'user_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'company_name' => [
+                                'type' => 'string',
+                                'example' => 'Acme Dispatch',
+                            ],
+                            'city' => [
+                                'type' => 'string',
+                                'example' => 'Belgrade',
+                            ],
+                            'address' => [
+                                'type' => 'string',
+                                'example' => 'Main Street 1',
+                            ],
+                            'post_code' => [
+                                'type' => 'string',
+                                'example' => '11000',
+                            ],
+                            'user' => [
+                                '$ref' => '#/components/schemas/User',
+                            ],
+                        ],
+                    ],
+                    'BidRouteStop' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'route_id',
+                            'stop_at',
+                            'number_of_trucks',
+                            'number_of_drivers',
+                            'dispatcher',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'route_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'stop_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'example' => '2026-10-02T10:30:00Z',
+                            ],
+                            'number_of_trucks' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'number_of_drivers' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 4,
+                            ],
+                            'dispatcher' => [
+                                '$ref' => '#/components/schemas/BidRouteStopDispatcher',
+                            ],
+                        ],
+                    ],
+                    'BidWithRouteStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/Bid',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['route_stop'],
+                                'properties' => [
+                                    'route_stop' => [
+                                        '$ref' => '#/components/schemas/BidRouteStop',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -3634,7 +3741,7 @@ class OpenApiSpec
                                     'bids' => [
                                         'type' => 'array',
                                         'items' => [
-                                            '$ref' => '#/components/schemas/Bid',
+                                            '$ref' => '#/components/schemas/BidWithRouteStop',
                                         ],
                                     ],
                                 ],

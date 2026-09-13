@@ -8,11 +8,15 @@ export default {
     },
     columns: {
       routeStopId: 'Route stop',
+      stopAt: 'Stop at',
+      dispatcherCompany: 'Dispatcher',
+      dispatcherAddress: 'Dispatcher address',
+      contact: 'Contact',
+      numberOfTrucks: 'Trucks',
+      numberOfDrivers: 'Drivers',
       status: 'Status',
       originalPrice: 'Original price',
-      price: 'Bid price',
-      createdAt: 'Created',
-      updatedAt: 'Updated'
+      price: 'Bid price'
     },
     status: {
       pending: 'Pending',

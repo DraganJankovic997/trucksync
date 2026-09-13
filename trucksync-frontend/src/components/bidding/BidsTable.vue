@@ -7,6 +7,10 @@ const props = defineProps({
   status: {
     type: String,
     default: null
+  },
+  from: {
+    type: String,
+    default: null
   }
 });
 
@@ -30,6 +34,42 @@ const columns = computed(() => [
     align: 'left'
   },
   {
+    name: 'stopAt',
+    label: t('bidding.bidsTable.columns.stopAt'),
+    field: 'stopAt',
+    align: 'left'
+  },
+  {
+    name: 'dispatcherCompany',
+    label: t('bidding.bidsTable.columns.dispatcherCompany'),
+    field: 'dispatcherCompany',
+    align: 'left'
+  },
+  {
+    name: 'dispatcherAddress',
+    label: t('bidding.bidsTable.columns.dispatcherAddress'),
+    field: 'dispatcherAddress',
+    align: 'left'
+  },
+  {
+    name: 'contact',
+    label: t('bidding.bidsTable.columns.contact'),
+    field: 'contact',
+    align: 'left'
+  },
+  {
+    name: 'numberOfTrucks',
+    label: t('bidding.bidsTable.columns.numberOfTrucks'),
+    field: 'numberOfTrucks',
+    align: 'left'
+  },
+  {
+    name: 'numberOfDrivers',
+    label: t('bidding.bidsTable.columns.numberOfDrivers'),
+    field: 'numberOfDrivers',
+    align: 'left'
+  },
+  {
     name: 'status',
     label: t('bidding.bidsTable.columns.status'),
     field: 'statusLabel',
@@ -46,33 +86,33 @@ const columns = computed(() => [
     label: t('bidding.bidsTable.columns.price'),
     field: 'price',
     align: 'left'
-  },
-  {
-    name: 'createdAt',
-    label: t('bidding.bidsTable.columns.createdAt'),
-    field: 'createdAt',
-    align: 'left'
-  },
-  {
-    name: 'updatedAt',
-    label: t('bidding.bidsTable.columns.updatedAt'),
-    field: 'updatedAt',
-    align: 'left'
   }
 ]);
 
 const rows = computed(() =>
-  bids.value.map(bid => ({
-    id: `${bid.route_stop_id}-${bid.rest_stop_id}`,
-    routeStopId: bid.route_stop_id,
-    status: bid.status,
-    statusLabel: formatStatus(bid.status),
-    statusColor: statusColor(bid.status),
-    originalPrice: formatPrice(bid.original_price),
-    price: formatPrice(bid.price),
-    createdAt: formatDateTime(bid.created_at),
-    updatedAt: formatDateTime(bid.updated_at)
-  }))
+  bids.value.map(bid => {
+    const routeStop = bid.route_stop ?? {};
+    const dispatcher = routeStop.dispatcher ?? {};
+    const dispatcherUser = dispatcher.user ?? {};
+
+    return {
+      id: `${bid.route_stop_id}-${bid.rest_stop_id}`,
+      routeStopId: bid.route_stop_id,
+      stopAt: formatDateTime(routeStop.stop_at),
+      dispatcherCompany: formatValue(dispatcher.company_name),
+      dispatcherAddress: formatAddress(dispatcher),
+      contact: formatContactName(dispatcherUser),
+      email: formatValue(dispatcherUser.email),
+      phone: formatValue(dispatcherUser.phone_number),
+      numberOfTrucks: formatValue(routeStop.number_of_trucks),
+      numberOfDrivers: formatValue(routeStop.number_of_drivers),
+      status: bid.status,
+      statusLabel: formatStatus(bid.status),
+      statusColor: statusColor(bid.status),
+      originalPrice: formatPrice(bid.original_price),
+      price: formatPrice(bid.price)
+    };
+  })
 );
 
 const bidCount = computed(() => pagination.value.rowsNumber);
@@ -90,7 +130,8 @@ async function loadBids(tableState = {}) {
     const response = await bidStore.fetchRestStopBids(
       props.status,
       requestPagination.page,
-      requestPagination.rowsPerPage
+      requestPagination.rowsPerPage,
+      props.from
     );
     const meta = response?.meta ?? {};
 
@@ -107,6 +148,28 @@ async function loadBids(tableState = {}) {
 
 function refreshBids() {
   void loadBids();
+}
+
+function formatValue(value) {
+  return value === undefined || value === null || value === ''
+    ? t('bidding.emptyValue')
+    : value;
+}
+
+function formatContactName(user) {
+  const fullName = [user.first_name, user.last_name]
+    .filter(value => Boolean(String(value ?? '').trim()))
+    .join(' ');
+
+  return formatValue(fullName);
+}
+
+function formatAddress(dispatcher) {
+  const address = [dispatcher.address, dispatcher.city, dispatcher.post_code]
+    .filter(value => Boolean(String(value ?? '').trim()))
+    .join(', ');
+
+  return formatValue(address);
 }
 
 function formatStatus(status) {
@@ -204,6 +267,38 @@ function formatDateTime(value) {
         <q-td :props="scope">
           <div class="bids-table-route-stop text-weight-bold">
             {{ scope.row.routeStopId }}
+          </div>
+        </q-td>
+      </template>
+
+      <template #body-cell-dispatcherCompany="scope">
+        <q-td :props="scope">
+          <div class="bids-table-text text-weight-bold">
+            {{ scope.row.dispatcherCompany }}
+          </div>
+        </q-td>
+      </template>
+
+      <template #body-cell-dispatcherAddress="scope">
+        <q-td :props="scope">
+          <div class="bids-table-text">
+            {{ scope.row.dispatcherAddress }}
+          </div>
+        </q-td>
+      </template>
+
+      <template #body-cell-contact="scope">
+        <q-td :props="scope">
+          <div class="bids-table-text column q-gutter-xs">
+            <div class="text-weight-bold">
+              {{ scope.row.contact }}
+            </div>
+            <div class="bids-table-muted text-caption">
+              {{ scope.row.email }}
+            </div>
+            <div class="bids-table-muted text-caption">
+              {{ scope.row.phone }}
+            </div>
           </div>
         </q-td>
       </template>

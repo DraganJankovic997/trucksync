@@ -32,6 +32,7 @@ interface BidServiceContract
     public function forRestStop(
         RestStop $restStop,
         ?string $status = null,
+        ?string $from = null,
         int $perPage = 15,
         int $page = 1
     ): LengthAwarePaginator;

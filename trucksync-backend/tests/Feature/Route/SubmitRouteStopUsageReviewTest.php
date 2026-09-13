@@ -114,7 +114,7 @@ it('updates an existing route stop usage review without changing used at', funct
     ]);
 });
 
-it('marks a route stop as used without review details', function () {
+it('marks a route stop as used with only a rating', function () {
     Carbon::setTestNow(Carbon::parse('2026-10-06 12:34:56'));
 
     $user = User::factory()->create([
@@ -132,9 +132,11 @@ it('marks a route stop as used without review details', function () {
 
     Sanctum::actingAs($user);
 
-    $this->postJson("/api/driver/route-stop/{$routeStop->id}/usage-review")
+    $this->postJson("/api/driver/route-stop/{$routeStop->id}/usage-review", [
+        'rating' => 3,
+    ])
         ->assertCreated()
-        ->assertJsonPath('data.route_stop_usage.rating', null)
+        ->assertJsonPath('data.route_stop_usage.rating', 3)
         ->assertJsonPath('data.route_stop_usage.report', null)
         ->assertJsonPath('data.route_stop_usage.is_report', false);
 
@@ -143,7 +145,7 @@ it('marks a route stop as used without review details', function () {
         'driver_id' => $driver->id,
         'rest_stop_id' => $restStop->id,
         'used_at' => '2026-10-06 12:34:56',
-        'rating' => null,
+        'rating' => 3,
         'report' => null,
         'is_report' => false,
     ]);
@@ -266,6 +268,22 @@ it('validates route stop usage review payloads', function () {
         ->assertJsonValidationErrors(['rating', 'report', 'is_report']);
 });
 
+it('requires a rating for route stop usage reviews', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'driver',
+    ]);
+
+    createDriverForRouteStopUsageReviewEndpoint(createDispatcherForRouteStopUsageReviewEndpoint(), $user, 'LEADER-123');
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/driver/route-stop/1/usage-review', [
+        'report' => 'Clean and quick service.',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['rating']);
+});
+
 it('requires report text when the review is flagged as a report', function () {
     $user = User::factory()->create([
         'profile_type' => 'driver',
@@ -276,6 +294,7 @@ it('requires report text when the review is flagged as a report', function () {
     Sanctum::actingAs($user);
 
     $this->postJson('/api/driver/route-stop/1/usage-review', [
+        'rating' => 4,
         'is_report' => true,
         'report' => '   ',
     ])

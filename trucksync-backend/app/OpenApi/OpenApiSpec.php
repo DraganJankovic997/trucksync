@@ -878,7 +878,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Submit a route stop usage review',
-                        'description' => 'Marks a route stop as used and optionally submits a rating or report for the rest stop selected for that route stop. Only the assigned convoy leader can submit the review.',
+                        'description' => 'Marks a route stop as used with a required rating and optionally submits a report for the rest stop selected for that route stop. Only the assigned convoy leader can submit the review.',
                         'operationId' => 'submitDriverRouteStopUsageReview',
                         'security' => [
                             [
@@ -898,7 +898,7 @@ class OpenApiSpec
                             ],
                         ],
                         'requestBody' => [
-                            'required' => false,
+                            'required' => true,
                             'content' => [
                                 'application/json' => [
                                     'schema' => [
@@ -2724,7 +2724,6 @@ class OpenApiSpec
                             ],
                             'rating' => [
                                 'type' => 'integer',
-                                'nullable' => true,
                                 'minimum' => 1,
                                 'maximum' => 5,
                                 'example' => 4,
@@ -3489,10 +3488,12 @@ class OpenApiSpec
                     ],
                     'RouteStopUsageReviewRequest' => [
                         'type' => 'object',
+                        'required' => [
+                            'rating',
+                        ],
                         'properties' => [
                             'rating' => [
                                 'type' => 'integer',
-                                'nullable' => true,
                                 'minimum' => 1,
                                 'maximum' => 5,
                                 'example' => 4,

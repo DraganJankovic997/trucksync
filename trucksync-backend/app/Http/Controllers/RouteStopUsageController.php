@@ -26,7 +26,7 @@ class RouteStopUsageController extends Controller
         }
 
         $validated = $request->validate([
-            'rating' => ['sometimes', 'nullable', 'integer', 'min:'.RouteStopUsage::MIN_RATING, 'max:'.RouteStopUsage::MAX_RATING],
+            'rating' => ['required', 'integer', 'min:'.RouteStopUsage::MIN_RATING, 'max:'.RouteStopUsage::MAX_RATING],
             'report' => ['sometimes', 'nullable', 'string', 'max:'.RouteStopUsage::MAX_REPORT_LENGTH],
             'is_report' => ['sometimes', 'boolean'],
         ]);
@@ -44,7 +44,7 @@ class RouteStopUsageController extends Controller
             $routeStopUsage = $this->routeStopUsageService->submitReviewForUser(
                 $authenticatedUser,
                 $routeStopId,
-                isset($validated['rating']) ? (int) $validated['rating'] : null,
+                (int) $validated['rating'],
                 $report,
                 $isReport,
             );
@@ -85,7 +85,7 @@ class RouteStopUsageController extends Controller
     }
 
     /**
-     * @return array{id: int, route_stop_id: int, driver_id: int, rest_stop_id: int|null, used_at: string, rating: int|null, report: string|null, is_report: bool, created_at: string|null, updated_at: string|null}
+     * @return array{id: int, route_stop_id: int, driver_id: int, rest_stop_id: int|null, used_at: string, rating: int, report: string|null, is_report: bool, created_at: string|null, updated_at: string|null}
      */
     private function routeStopUsagePayload(RouteStopUsage $routeStopUsage): array
     {

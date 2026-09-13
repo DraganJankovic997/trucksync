@@ -22,7 +22,7 @@ class RouteStopUsageService implements RouteStopUsageServiceContract
     public function submitReviewForUser(
         User $user,
         int $routeStopId,
-        ?int $rating,
+        int $rating,
         ?string $report,
         bool $isReport
     ): ?RouteStopUsage {

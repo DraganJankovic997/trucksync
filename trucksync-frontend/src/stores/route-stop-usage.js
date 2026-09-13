@@ -13,7 +13,7 @@ export const useRouteStopUsageStore = defineStore('route-stop-usage', () => {
 
   async function submitRouteStopUsageReview(
     routeStopId,
-    rating = null,
+    rating,
     report = null,
     isReport = false
   ) {

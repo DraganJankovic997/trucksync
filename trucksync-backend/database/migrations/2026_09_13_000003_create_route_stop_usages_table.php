@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('driver_id')->constrained()->cascadeOnDelete();
             $table->foreignId('rest_stop_id')->nullable()->constrained()->nullOnDelete();
             $table->dateTime('used_at');
-            $table->unsignedTinyInteger('rating')->nullable();
+            $table->unsignedTinyInteger('rating');
             $table->text('report')->nullable();
             $table->boolean('is_report')->default(false);
             $table->timestamps();
@@ -28,7 +28,7 @@ return new class extends Migration
         });
 
         DB::statement(
-            'ALTER TABLE route_stop_usages ADD CONSTRAINT route_stop_usages_rating_check CHECK (rating IS NULL OR rating BETWEEN 1 AND 5)'
+            'ALTER TABLE route_stop_usages ADD CONSTRAINT route_stop_usages_rating_check CHECK (rating BETWEEN 1 AND 5)'
         );
     }
 

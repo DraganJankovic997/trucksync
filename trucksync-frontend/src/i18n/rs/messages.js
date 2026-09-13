@@ -38,6 +38,7 @@ export default {
   },
   restStop: {
     fetchError: 'Preuzimanje profila odmorišta nije uspelo',
+    fetchAllError: 'Preuzimanje odmorišta nije uspelo',
     saveSuccess: 'Profil odmorišta je uspešno sačuvan',
     saveError: 'Čuvanje profila odmorišta nije uspelo'
   },
@@ -76,6 +77,11 @@ export default {
     updateServicesError: 'Ažuriranje usluga stajališta rute nije uspelo',
     fulfillSuccess: 'Stajalište rute je uspešno ispunjeno',
     fulfillError: 'Ispunjavanje stajališta rute nije uspelo'
+  },
+  routeStopUsage: {
+    fetchRatingsError: 'Preuzimanje ocena korišćenja stajališta nije uspelo',
+    saveSuccess: 'Recenzija korišćenja stajališta je uspešno poslata',
+    saveError: 'Slanje recenzije korišćenja stajališta nije uspelo'
   },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',

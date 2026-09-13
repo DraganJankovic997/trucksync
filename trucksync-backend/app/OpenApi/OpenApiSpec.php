@@ -751,6 +751,122 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/admin/rest-stops' => [
+                    'get' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'List rest stops',
+                        'description' => 'Returns all rest stop profiles for admin filters.',
+                        'operationId' => 'listAdminRestStops',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Rest stop list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/AdminRestStopsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/admin/ratings' => [
+                    'get' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'List route stop usage ratings',
+                        'description' => 'Returns paginated route stop usage entries ordered by usage date descending. Optionally filters entries by rest stop ID or to entries marked as reports.',
+                        'operationId' => 'listAdminRouteStopUsageRatings',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'rest_stop_id',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Optional rest stop ID to filter ratings for one rest stop.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'is_report',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'When true, returns only entries marked as reports. Omit or set false to return all entries.',
+                                'schema' => [
+                                    'type' => 'boolean',
+                                    'default' => false,
+                                ],
+                            ],
+                            [
+                                'name' => 'page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Page number.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'default' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'per_page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Number of usage entries per page.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'maximum' => 100,
+                                    'default' => 15,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop usage rating list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/AdminRouteStopUsageRatingsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/driver' => [
                     'get' => [
                         'tags' => ['Drivers'],
@@ -867,6 +983,78 @@ class OpenApiSpec
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/DriverNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/driver/route-stop/{routeStopId}/usage-review' => [
+                    'post' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Submit a route stop usage review',
+                        'description' => 'Marks a route stop as used with a required rating and optionally submits a report for the rest stop selected for that route stop. Only the assigned convoy leader can submit the review.',
+                        'operationId' => 'submitDriverRouteStopUsageReview',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeStopId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route stop ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/RouteStopUsageReviewRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Existing route stop usage review updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteStopUsageReviewResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '201' => [
+                                'description' => 'Route stop usage review created successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/RouteStopUsageReviewResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DriverRouteStopUsageReviewForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteStopUsageReviewNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -2612,6 +2800,75 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RouteStopUsage' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'route_stop_id',
+                            'driver_id',
+                            'rest_stop_id',
+                            'used_at',
+                            'rating',
+                            'report',
+                            'is_report',
+                            'created_at',
+                            'updated_at',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'route_stop_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'driver_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'rest_stop_id' => [
+                                'type' => 'integer',
+                                'nullable' => true,
+                                'example' => 1,
+                            ],
+                            'used_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'description' => 'Timestamp when the convoy leader first marked the route stop as used.',
+                                'example' => '2026-10-06T12:34:56Z',
+                            ],
+                            'rating' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'maximum' => 5,
+                                'example' => 4,
+                            ],
+                            'report' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 2000,
+                                'example' => 'Fuel was available, but showers were missing.',
+                            ],
+                            'is_report' => [
+                                'type' => 'boolean',
+                                'description' => 'When true, admins can include this usage review in report queues.',
+                                'example' => true,
+                            ],
+                            'created_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'nullable' => true,
+                                'example' => '2026-10-06T12:34:56Z',
+                            ],
+                            'updated_at' => [
+                                'type' => 'string',
+                                'format' => 'date-time',
+                                'nullable' => true,
+                                'example' => '2026-10-06T12:34:56Z',
+                            ],
+                        ],
+                    ],
                     'UnfulfilledRouteStop' => [
                         'allOf' => [
                             [
@@ -2708,6 +2965,31 @@ class OpenApiSpec
                                 'properties' => [
                                     'user' => [
                                         '$ref' => '#/components/schemas/User',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AdminRestStop' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/RestStop',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => [
+                                    'company_name',
+                                    'is_approved',
+                                ],
+                                'properties' => [
+                                    'company_name' => [
+                                        'type' => 'string',
+                                        'description' => 'Display name used for admin rest stop filters.',
+                                        'example' => 'Demo Rest Stop 01',
+                                    ],
+                                    'is_approved' => [
+                                        'type' => 'boolean',
+                                        'example' => true,
                                     ],
                                 ],
                             ],
@@ -3345,6 +3627,32 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'RouteStopUsageReviewRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'rating',
+                        ],
+                        'properties' => [
+                            'rating' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'maximum' => 5,
+                                'example' => 4,
+                            ],
+                            'report' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                                'maxLength' => 2000,
+                                'description' => 'Required after trimming when is_report is true.',
+                                'example' => 'Fuel was available, but showers were missing.',
+                            ],
+                            'is_report' => [
+                                'type' => 'boolean',
+                                'default' => false,
+                                'example' => true,
+                            ],
+                        ],
+                    ],
                     'RestStopUpsertRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -3653,6 +3961,124 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'AdminRouteStopUsageRatingsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data', 'links', 'meta'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop_usages'],
+                                'properties' => [
+                                    'route_stop_usages' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/RouteStopUsage',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'links' => [
+                                'type' => 'object',
+                                'required' => ['first', 'last', 'prev', 'next'],
+                                'properties' => [
+                                    'first' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/admin/ratings?page=1',
+                                    ],
+                                    'last' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/admin/ratings?page=3',
+                                    ],
+                                    'prev' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => null,
+                                    ],
+                                    'next' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => 'http://localhost/api/admin/ratings?page=2',
+                                    ],
+                                ],
+                            ],
+                            'meta' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'current_page',
+                                    'from',
+                                    'last_page',
+                                    'path',
+                                    'per_page',
+                                    'to',
+                                    'total',
+                                ],
+                                'properties' => [
+                                    'current_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 1,
+                                    ],
+                                    'from' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 1,
+                                    ],
+                                    'last_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 3,
+                                    ],
+                                    'path' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/admin/ratings',
+                                    ],
+                                    'per_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'maximum' => 100,
+                                        'example' => 15,
+                                    ],
+                                    'to' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 15,
+                                    ],
+                                    'total' => [
+                                        'type' => 'integer',
+                                        'minimum' => 0,
+                                        'example' => 42,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteStopUsageReviewResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route stop usage review submitted successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop_usage'],
+                                'properties' => [
+                                    'route_stop_usage' => [
+                                        '$ref' => '#/components/schemas/RouteStopUsage',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -3912,6 +4338,24 @@ class OpenApiSpec
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/PendingRestStopApproval',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AdminRestStopsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['rest_stops'],
+                                'properties' => [
+                                    'rest_stops' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/AdminRestStop',
                                         ],
                                     ],
                                 ],
@@ -4461,6 +4905,54 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only driver users can view their routes.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DriverRouteStopUsageReviewForbidden' => [
+                        'description' => 'The authenticated user is not a driver, or the driver is not the assigned convoy leader for the route.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_driver' => [
+                                        'summary' => 'Authenticated user is not a driver',
+                                        'value' => [
+                                            'message' => 'Only driver users can submit route stop usage reviews.',
+                                        ],
+                                    ],
+                                    'not_convoy_leader' => [
+                                        'summary' => 'Authenticated driver is not the convoy leader',
+                                        'value' => [
+                                            'message' => 'Only the convoy leader assigned to this route can submit a route stop usage review.',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteStopUsageReviewNotFound' => [
+                        'description' => 'The driver profile or route stop was not found.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'driver_profile' => [
+                                        'summary' => 'Authenticated user has no driver profile',
+                                        'value' => [
+                                            'message' => 'Driver profile not found.',
+                                        ],
+                                    ],
+                                    'route_stop' => [
+                                        'summary' => 'Route stop was not found',
+                                        'value' => [
+                                            'message' => 'Route stop not found.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

@@ -8,6 +8,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RestStopController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\RouteStopController;
+use App\Http\Controllers\RouteStopUsageController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserManagementController;
@@ -33,6 +34,8 @@ Route::prefix('admin')
     ->group(function () {
         Route::get('/approve', 'index')->name('admin.approve.index');
         Route::post('/approve/{userId}', 'approve')->whereNumber('userId')->name('admin.approve');
+        Route::get('/ratings', [RouteStopUsageController::class, 'indexForAdmin'])->name('admin.ratings.index');
+        Route::get('/rest-stops', [RestStopController::class, 'indexForAdmin'])->name('admin.rest-stops.index');
     });
 
 Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexServices'])
@@ -60,6 +63,9 @@ Route::prefix('driver')
     ->group(function () {
         Route::get('/routes', [RouteController::class, 'indexForDriver'])
             ->name('driver.routes.index');
+        Route::post('/route-stop/{routeStopId}/usage-review', [RouteStopUsageController::class, 'store'])
+            ->whereNumber('routeStopId')
+            ->name('driver.route-stop.usage-review.store');
 
         Route::controller(DriverController::class)->group(function () {
             Route::get('/', 'show')->name('driver.show');

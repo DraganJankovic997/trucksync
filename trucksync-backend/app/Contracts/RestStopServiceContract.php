@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface RestStopServiceContract
 {
+    /**
+     * @return Collection<int, RestStop>
+     */
+    public function allForAdmin(): Collection;
+
     public function findForUser(User $user): ?RestStop;
 
     /**

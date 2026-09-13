@@ -11,6 +11,17 @@ use Illuminate\Database\Eloquent\Collection;
 
 class RestStopService implements RestStopServiceContract
 {
+    /**
+     * @return Collection<int, RestStop>
+     */
+    public function allForAdmin(): Collection
+    {
+        return RestStop::query()
+            ->with('user')
+            ->orderBy('id')
+            ->get();
+    }
+
     public function findForUser(User $user): ?RestStop
     {
         return RestStop::query()

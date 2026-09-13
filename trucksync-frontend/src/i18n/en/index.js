@@ -1,4 +1,5 @@
 import approval from './approval.js';
+import adminReports from './adminReports.js';
 import allBids from './allBids.js';
 import bidding from './bidding.js';
 import countries from './countries.js';
@@ -24,6 +25,7 @@ import validation from './validation.js';
 
 export default {
   approval,
+  adminReports,
   allBids,
   bidding,
   countries,

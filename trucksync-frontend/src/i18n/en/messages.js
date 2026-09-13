@@ -38,6 +38,7 @@ export default {
   },
   restStop: {
     fetchError: 'Failed to fetch rest stop profile',
+    fetchAllError: 'Failed to fetch rest stops',
     saveSuccess: 'Rest stop profile saved successfully',
     saveError: 'Failed to save rest stop profile'
   },
@@ -76,6 +77,11 @@ export default {
     updateServicesError: 'Failed to update route stop services',
     fulfillSuccess: 'Route stop fulfilled successfully',
     fulfillError: 'Failed to fulfill route stop'
+  },
+  routeStopUsage: {
+    fetchRatingsError: 'Failed to fetch route stop usage ratings',
+    saveSuccess: 'Route stop usage review submitted successfully',
+    saveError: 'Failed to submit route stop usage review'
   },
   service: {
     fetchError: 'Failed to fetch services',

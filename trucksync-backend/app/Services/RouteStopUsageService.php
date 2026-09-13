@@ -9,11 +9,27 @@ use App\Models\Driver;
 use App\Models\RouteStop;
 use App\Models\RouteStopUsage;
 use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class RouteStopUsageService implements RouteStopUsageServiceContract
 {
+    /**
+     * @return LengthAwarePaginator<int, RouteStopUsage>
+     */
+    public function ratingsForAdmin(
+        ?int $restStopId = null,
+        int $perPage = 15,
+        int $page = 1
+    ): LengthAwarePaginator {
+        return RouteStopUsage::query()
+            ->when($restStopId !== null, fn ($query) => $query->where('rest_stop_id', $restStopId))
+            ->orderByDesc('used_at')
+            ->orderByDesc('id')
+            ->paginate(perPage: $perPage, page: $page);
+    }
+
     /**
      * @throws RouteStopNotFoundException
      * @throws RouteStopUsageNotAllowedException

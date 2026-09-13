@@ -8,12 +8,67 @@ use App\Exceptions\RouteStopUsageNotAllowedException;
 use App\Models\RouteStopUsage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class RouteStopUsageController extends Controller
 {
     public function __construct(private readonly RouteStopUsageServiceContract $routeStopUsageService) {}
+
+    public function indexForAdmin(Request $request): JsonResponse
+    {
+        $queryParameters = $this->adminRatingsQueryParameters($request);
+
+        validator($queryParameters, [
+            'rest_stop_id' => ['sometimes', 'nullable', 'integer', 'min:1', Rule::exists('rest_stops', 'id')],
+            'page' => ['required', 'integer', 'min:1'],
+            'per_page' => ['required', 'integer', 'min:1', 'max:100'],
+        ])->validate();
+
+        try {
+            $routeStopUsages = $this->routeStopUsageService->ratingsForAdmin(
+                $this->optionalRestStopId($queryParameters),
+                (int) $queryParameters['per_page'],
+                (int) $queryParameters['page'],
+            );
+            $routeStopUsages->appends($request->query());
+
+            return response()->json([
+                'data' => [
+                    'route_stop_usages' => $routeStopUsages->getCollection()
+                        ->map(fn (RouteStopUsage $routeStopUsage): array => $this->routeStopUsagePayload($routeStopUsage))
+                        ->values()
+                        ->all(),
+                ],
+                'links' => [
+                    'first' => $routeStopUsages->url(1),
+                    'last' => $routeStopUsages->url($routeStopUsages->lastPage()),
+                    'prev' => $routeStopUsages->previousPageUrl(),
+                    'next' => $routeStopUsages->nextPageUrl(),
+                ],
+                'meta' => [
+                    'current_page' => $routeStopUsages->currentPage(),
+                    'from' => $routeStopUsages->firstItem(),
+                    'last_page' => $routeStopUsages->lastPage(),
+                    'path' => $routeStopUsages->path(),
+                    'per_page' => $routeStopUsages->perPage(),
+                    'to' => $routeStopUsages->lastItem(),
+                    'total' => $routeStopUsages->total(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch route stop usage ratings.', [
+                'user_id' => $request->user()->id,
+                'rest_stop_id' => $queryParameters['rest_stop_id'] ?? null,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch route stop usage ratings.',
+            ], 500);
+        }
+    }
 
     public function store(Request $request, int $routeStopId): JsonResponse
     {
@@ -82,6 +137,35 @@ class RouteStopUsageController extends Controller
                 'message' => 'Unable to submit route stop usage review.',
             ], 500);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function adminRatingsQueryParameters(Request $request): array
+    {
+        $queryParameters = $request->query();
+
+        $queryParameters['page'] ??= 1;
+        $queryParameters['per_page'] ??= 15;
+
+        return $queryParameters;
+    }
+
+    /**
+     * @param  array<string, mixed>  $queryParameters
+     */
+    private function optionalRestStopId(array $queryParameters): ?int
+    {
+        if (
+            ! array_key_exists('rest_stop_id', $queryParameters)
+            || $queryParameters['rest_stop_id'] === null
+            || $queryParameters['rest_stop_id'] === ''
+        ) {
+            return null;
+        }
+
+        return (int) $queryParameters['rest_stop_id'];
     }
 
     /**

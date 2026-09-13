@@ -34,6 +34,7 @@ Route::prefix('admin')
     ->group(function () {
         Route::get('/approve', 'index')->name('admin.approve.index');
         Route::post('/approve/{userId}', 'approve')->whereNumber('userId')->name('admin.approve');
+        Route::get('/ratings', [RouteStopUsageController::class, 'indexForAdmin'])->name('admin.ratings.index');
     });
 
 Route::get('/rest-stop/services/{id}', [RestStopController::class, 'indexServices'])

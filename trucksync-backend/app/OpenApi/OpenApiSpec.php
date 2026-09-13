@@ -751,6 +751,78 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/admin/ratings' => [
+                    'get' => [
+                        'tags' => ['Admin'],
+                        'summary' => 'List route stop usage ratings',
+                        'description' => 'Returns paginated route stop usage entries ordered by usage date descending. Optionally filters entries by rest stop ID.',
+                        'operationId' => 'listAdminRouteStopUsageRatings',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'rest_stop_id',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Optional rest stop ID to filter ratings for one rest stop.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Page number.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'default' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'per_page',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Number of usage entries per page.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'maximum' => 100,
+                                    'default' => 15,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route stop usage rating list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/AdminRouteStopUsageRatingsIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/AdminRoleRequired',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/driver' => [
                     'get' => [
                         'tags' => ['Drivers'],
@@ -3815,6 +3887,102 @@ class OpenApiSpec
                                         'items' => [
                                             '$ref' => '#/components/schemas/DispatcherRouteWithStops',
                                         ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'AdminRouteStopUsageRatingsIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data', 'links', 'meta'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route_stop_usages'],
+                                'properties' => [
+                                    'route_stop_usages' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/RouteStopUsage',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'links' => [
+                                'type' => 'object',
+                                'required' => ['first', 'last', 'prev', 'next'],
+                                'properties' => [
+                                    'first' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/admin/ratings?page=1',
+                                    ],
+                                    'last' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/admin/ratings?page=3',
+                                    ],
+                                    'prev' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => null,
+                                    ],
+                                    'next' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'nullable' => true,
+                                        'example' => 'http://localhost/api/admin/ratings?page=2',
+                                    ],
+                                ],
+                            ],
+                            'meta' => [
+                                'type' => 'object',
+                                'required' => [
+                                    'current_page',
+                                    'from',
+                                    'last_page',
+                                    'path',
+                                    'per_page',
+                                    'to',
+                                    'total',
+                                ],
+                                'properties' => [
+                                    'current_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 1,
+                                    ],
+                                    'from' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 1,
+                                    ],
+                                    'last_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'example' => 3,
+                                    ],
+                                    'path' => [
+                                        'type' => 'string',
+                                        'format' => 'uri',
+                                        'example' => 'http://localhost/api/admin/ratings',
+                                    ],
+                                    'per_page' => [
+                                        'type' => 'integer',
+                                        'minimum' => 1,
+                                        'maximum' => 100,
+                                        'example' => 15,
+                                    ],
+                                    'to' => [
+                                        'type' => 'integer',
+                                        'nullable' => true,
+                                        'example' => 15,
+                                    ],
+                                    'total' => [
+                                        'type' => 'integer',
+                                        'minimum' => 0,
+                                        'example' => 42,
                                     ],
                                 ],
                             ],

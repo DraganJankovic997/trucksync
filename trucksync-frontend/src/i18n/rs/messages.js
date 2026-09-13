@@ -13,76 +13,76 @@ export default {
     logoutError: 'Odjava nije uspela'
   },
   profile: {
-    updateSuccess: 'Profil je uspesno azuriran',
-    updateError: 'Azuriranje profila nije uspelo'
+    updateSuccess: 'Profil je uspešno ažuriran',
+    updateError: 'Ažuriranje profila nije uspelo'
   },
   approval: {
     fetchError: 'Preuzimanje profila za odobravanje nije uspelo',
-    approveSuccess: 'Profil je uspesno odobren',
+    approveSuccess: 'Profil je uspešno odobren',
     approveError: 'Odobravanje profila nije uspelo'
   },
   country: {
     fetchError: 'Preuzimanje zemalja nije uspelo'
   },
   driver: {
-    fetchError: 'Preuzimanje profila vozaca nije uspelo',
-    fetchDispatcherDriversError: 'Preuzimanje vozaca nije uspelo',
-    saveSuccess: 'Profil vozaca je uspesno sacuvan',
-    saveError: 'Cuvanje profila vozaca nije uspelo'
+    fetchError: 'Preuzimanje profila vozača nije uspelo',
+    fetchDispatcherDriversError: 'Preuzimanje vozača nije uspelo',
+    saveSuccess: 'Profil vozača je uspešno sačuvan',
+    saveError: 'Čuvanje profila vozača nije uspelo'
   },
   dispatcher: {
-    fetchError: 'Preuzimanje profila dispecera nije uspelo',
-    fetchAllError: 'Preuzimanje dispecera nije uspelo',
-    saveSuccess: 'Profil dispecera je uspesno sacuvan',
-    saveError: 'Cuvanje profila dispecera nije uspelo'
+    fetchError: 'Preuzimanje profila dispečera nije uspelo',
+    fetchAllError: 'Preuzimanje dispečera nije uspelo',
+    saveSuccess: 'Profil dispečera je uspešno sačuvan',
+    saveError: 'Čuvanje profila dispečera nije uspelo'
   },
   restStop: {
-    fetchError: 'Preuzimanje profila odmorista nije uspelo',
-    saveSuccess: 'Profil odmorista je uspesno sacuvan',
-    saveError: 'Cuvanje profila odmorista nije uspelo'
+    fetchError: 'Preuzimanje profila odmorišta nije uspelo',
+    saveSuccess: 'Profil odmorišta je uspešno sačuvan',
+    saveError: 'Čuvanje profila odmorišta nije uspelo'
   },
   restStopService: {
-    fetchError: 'Preuzimanje usluga odmorista nije uspelo',
-    addSuccess: 'Usluga je uspesno dodata odmoristu',
-    addError: 'Dodavanje usluge odmoristu nije uspelo',
-    removeSuccess: 'Usluga je uspesno uklonjena sa odmorista',
-    removeError: 'Uklanjanje usluge sa odmorista nije uspelo'
+    fetchError: 'Preuzimanje usluga odmorišta nije uspelo',
+    addSuccess: 'Usluga je uspešno dodata odmorištu',
+    addError: 'Dodavanje usluge odmorištu nije uspelo',
+    removeSuccess: 'Usluga je uspešno uklonjena sa odmorišta',
+    removeError: 'Uklanjanje usluge sa odmorišta nije uspelo'
   },
   bid: {
     fetchError: 'Preuzimanje ponude nije uspelo',
     fetchBidsError: 'Preuzimanje ponuda nije uspelo',
-    fetchRouteStopBidsError: 'Preuzimanje ponuda za stajaliste nije uspelo',
-    saveSuccess: 'Ponuda je uspesno sacuvana',
-    saveError: 'Cuvanje ponude nije uspelo',
-    deleteSuccess: 'Ponuda je uspesno obrisana',
+    fetchRouteStopBidsError: 'Preuzimanje ponuda za stajalište nije uspelo',
+    saveSuccess: 'Ponuda je uspešno sačuvana',
+    saveError: 'Čuvanje ponude nije uspelo',
+    deleteSuccess: 'Ponuda je uspešno obrisana',
     deleteError: 'Brisanje ponude nije uspelo'
   },
   route: {
     fetchError: 'Preuzimanje ruta nije uspelo',
     fetchOneError: 'Preuzimanje rute nije uspelo',
-    createSuccess: 'Ruta je uspesno kreirana',
+    createSuccess: 'Ruta je uspešno kreirana',
     createError: 'Kreiranje rute nije uspelo',
-    assignDriversSuccess: 'Vozaci rute su uspesno azurirani',
-    assignDriversError: 'Azuriranje vozaca rute nije uspelo',
-    closeSuccess: 'Ruta je uspesno zatvorena',
+    assignDriversSuccess: 'Vozači rute su uspešno ažurirani',
+    assignDriversError: 'Ažuriranje vozača rute nije uspelo',
+    closeSuccess: 'Ruta je uspešno zatvorena',
     closeError: 'Zatvaranje rute nije uspelo',
     editForbidden: 'Nemate dozvolu da izmenite ovu rutu'
   },
   routeStop: {
-    fetchError: 'Preuzimanje stajalista rute nije uspelo',
-    createSuccess: 'Stajaliste rute je uspesno kreirano',
-    createError: 'Kreiranje stajalista rute nije uspelo',
-    updateServicesSuccess: 'Usluge stajalista rute su uspesno azurirane',
-    updateServicesError: 'Azuriranje usluga stajalista rute nije uspelo',
-    fulfillSuccess: 'Stajaliste rute je uspesno ispunjeno',
-    fulfillError: 'Ispunjavanje stajalista rute nije uspelo'
+    fetchError: 'Preuzimanje stajališta rute nije uspelo',
+    createSuccess: 'Stajalište rute je uspešno kreirano',
+    createError: 'Kreiranje stajališta rute nije uspelo',
+    updateServicesSuccess: 'Usluge stajališta rute su uspešno ažurirane',
+    updateServicesError: 'Ažuriranje usluga stajališta rute nije uspelo',
+    fulfillSuccess: 'Stajalište rute je uspešno ispunjeno',
+    fulfillError: 'Ispunjavanje stajališta rute nije uspelo'
   },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',
     fetchOneError: 'Preuzimanje usluge nije uspelo',
-    createSuccess: 'Usluga je uspesno kreirana',
+    createSuccess: 'Usluga je uspešno kreirana',
     createError: 'Kreiranje usluge nije uspelo',
-    deleteSuccess: 'Usluga je uspesno obrisana',
+    deleteSuccess: 'Usluga je uspešno obrisana',
     deleteError: 'Brisanje usluge nije uspelo'
   }
 };

@@ -1,6 +1,6 @@
 export default {
   title: 'Profil',
-  formAriaLabel: 'Azuriranje profila',
+  formAriaLabel: 'Ažuriranje profila',
   form: {
     title: 'Detalji profila'
   },
@@ -18,7 +18,7 @@ export default {
       placeholder: "name{'@'}example.com"
     },
     country: {
-      label: 'Drzava',
+      label: 'Država',
       placeholder: 'Srbija'
     },
     phoneNumber: {
@@ -30,28 +30,28 @@ export default {
     }
   },
   profileTypes: {
-    driver: 'Vozac',
-    dispatcher: 'Dispecer',
-    restStop: 'Odmoriste'
+    driver: 'Vozač',
+    dispatcher: 'Dispečer',
+    restStop: 'Odmorište'
   },
   typeForms: {
     driver: {
-      title: 'Vozac profil',
-      formAriaLabel: 'Azuriranje profila vozaca',
+      title: 'Profil vozača',
+      formAriaLabel: 'Ažuriranje profila vozača',
       fields: {
         licenseNumber: {
-          label: 'Broj vozacke dozvole',
+          label: 'Broj vozačke dozvole',
           placeholder: 'DL-123456'
         },
         dispatcherId: {
-          label: 'ID dispecera',
+          label: 'ID dispečera',
           placeholder: 'Opciono'
         }
       }
     },
     dispatcher: {
-      title: 'Dispecer profil',
-      formAriaLabel: 'Azuriranje profila dispecera',
+      title: 'Profil dispečera',
+      formAriaLabel: 'Ažuriranje profila dispečera',
       fields: {
         companyName: {
           label: 'Naziv kompanije',
@@ -66,7 +66,7 @@ export default {
           placeholder: 'Glavna ulica 1'
         },
         postCode: {
-          label: 'Postanski broj',
+          label: 'Poštanski broj',
           placeholder: '11000'
         },
         registrationNumber: {
@@ -76,8 +76,8 @@ export default {
       }
     },
     restStop: {
-      title: 'Odmoriste profil',
-      formAriaLabel: 'Azuriranje profila odmorista',
+      title: 'Profil odmorišta',
+      formAriaLabel: 'Ažuriranje profila odmorišta',
       fields: {
         city: {
           label: 'Grad',
@@ -88,7 +88,7 @@ export default {
           placeholder: 'Autoput 1'
         },
         postCode: {
-          label: 'Postanski broj',
+          label: 'Poštanski broj',
           placeholder: '11000'
         },
         worksFrom: {
@@ -100,5 +100,5 @@ export default {
       }
     }
   },
-  submit: 'Sacuvaj izmene'
+  submit: 'Sačuvaj izmene'
 };

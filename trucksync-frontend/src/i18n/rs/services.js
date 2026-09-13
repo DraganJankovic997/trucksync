@@ -4,18 +4,18 @@ export default {
   description: 'Upravljajte opcijama usluga dostupnim u TruckSync-u.',
   serviceCount: 'Ukupno usluga: {count}',
   actions: {
-    refresh: 'Osvezi'
+    refresh: 'Osveži'
   },
   form: {
     title: 'Dodaj uslugu',
     ariaLabel: 'Forma za kreiranje usluge',
     name: {
       label: 'Naziv usluge',
-      placeholder: 'Parking, tus, popravka...'
+      placeholder: 'Parking, tuš, popravka...'
     },
     measurementUnit: {
       label: 'Jedinica mere',
-      placeholder: 'kamion, guma, sat...'
+      placeholder: 'kamion, vozač, sat...'
     },
     submit: 'Dodaj uslugu'
   },
@@ -25,17 +25,17 @@ export default {
     name: 'Naziv',
     measurementUnit: 'Jedinica mere',
     actions: 'Akcije',
-    delete: 'Obrisi',
-    deleteAria: 'Obrisi {name}',
+    delete: 'Obriši',
+    deleteAria: 'Obriši {name}',
     emptyTitle: 'Nema usluga',
     emptyDescription: 'Dodajte prvu uslugu da bi bila dostupna.'
   },
   deleteDialog: {
     title: 'Obrisati uslugu?',
     message: 'Obrisati "{name}" iz liste usluga?',
-    warning: 'Ova radnja ne moze da se opozove.',
+    warning: 'Ova radnja ne može da se opozove.',
     fallbackName: 'ovu uslugu',
     cancel: 'Odustani',
-    confirm: 'Obrisi uslugu'
+    confirm: 'Obriši uslugu'
   }
 };

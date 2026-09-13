@@ -185,9 +185,14 @@ function formatServices(services) {
 }
 
 function formatServiceLabel(service) {
-  const unit = service.measurement_unit ? ` ${service.measurement_unit}` : '';
+  const unit = service.measurement_unit
+    ? ` ${t(`serviceUnits.${service.measurement_unit}`, service.measurement_unit)}`
+    : '';
+  const name = service.name
+    ? t(`serviceNames.${service.name}`, service.name)
+    : '';
 
-  return `${service.name}: ${service.quantity}${unit}`;
+  return `${name}: ${service.quantity}${unit}`;
 }
 </script>
 

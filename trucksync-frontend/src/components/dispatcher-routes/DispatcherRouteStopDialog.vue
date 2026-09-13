@@ -386,10 +386,13 @@ function isUniqueServiceSelection(serviceRow, value) {
 }
 
 function selectedMeasurementUnit(serviceRow) {
-  return (
+  const measurementUnit =
     serviceRecords.value.get(String(serviceRow.serviceId))?.measurement_unit ??
-    t('dispatcherRouteEdit.routeStops.form.fields.quantity.defaultUnit')
-  );
+    null;
+
+  return measurementUnit
+    ? t(`serviceUnits.${measurementUnit}`, measurementUnit)
+    : t('dispatcherRouteEdit.routeStops.form.fields.quantity.defaultUnit');
 }
 
 function handleServiceChange(serviceRow, serviceId) {
@@ -406,8 +409,12 @@ function servicesPayload() {
 }
 
 function formatServiceOptionLabel(service) {
-  const serviceName = service.name ?? '';
-  const measurementUnit = service.measurement_unit ?? '';
+  const serviceName = service.name
+    ? t(`serviceNames.${service.name}`, service.name)
+    : '';
+  const measurementUnit = service.measurement_unit
+    ? t(`serviceUnits.${service.measurement_unit}`, service.measurement_unit)
+    : '';
 
   return measurementUnit ? `${serviceName} (${measurementUnit})` : serviceName;
 }

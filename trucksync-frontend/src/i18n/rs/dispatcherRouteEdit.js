@@ -7,54 +7,54 @@ export default {
   },
   details: {
     title: 'Detalji rute',
-    origin: 'Polaziste',
-    destination: 'Odrediste',
-    convoySize: 'Velicina konvoja',
-    startDate: 'Datum pocetka',
-    endDate: 'Datum zavrsetka',
-    acceptedBidsTotal: 'Ukupno prihvacene ponude',
+    origin: 'Polazište',
+    destination: 'Odredište',
+    convoySize: 'Veličina konvoja',
+    startDate: 'Datum početka',
+    endDate: 'Datum završetka',
+    acceptedBidsTotal: 'Ukupno prihvaćene ponude',
     plannedTravelDetails: 'Planirani detalji puta',
     open: 'Otvorena',
     closed: 'Zatvorena',
     emptyValue: '-'
   },
   drivers: {
-    title: 'Vozaci',
+    title: 'Vozači',
     assignedCount: 'Dodeljeno: {count}',
-    convoyLeader: 'Vodja konvoja',
+    convoyLeader: 'Vođa konvoja',
     emptyValue: '-',
-    unknownDriver: 'Nepoznat vozac',
+    unknownDriver: 'Nepoznat vozač',
     licenseNumber: 'Dozvola: {licenseNumber}',
-    assignAriaLabel: 'Dodeli vozaca {driver} ruti',
-    emptyTitle: 'Nema dostupnih vozaca',
+    assignAriaLabel: 'Dodeli vozača {driver} ruti',
+    emptyTitle: 'Nema dostupnih vozača',
     emptyDescription:
-      'Vozaci povezani sa vasim profilom dispecera ce biti prikazani ovde.',
+      'Vozači povezani sa vašim profilom dispečera će biti prikazani ovde.',
     actions: {
-      clearLeader: 'Ukloni vodju',
-      save: 'Sacuvaj vozace'
+      clearLeader: 'Ukloni vođu',
+      save: 'Sačuvaj vozače'
     }
   },
   routeStops: {
-    title: 'Stajalista rute',
-    stopCount: 'Stajalista: {count}',
+    title: 'Stajališta rute',
+    stopCount: 'Stajališta: {count}',
     actions: {
       add: 'Dodaj novo'
     },
     form: {
-      createTitle: 'Kreiraj stajaliste rute',
-      editTitle: 'Izmeni stajaliste rute',
-      createAriaLabel: 'Forma za kreiranje stajalista rute',
-      editAriaLabel: 'Forma za izmenu stajalista rute',
+      createTitle: 'Kreiraj stajalište rute',
+      editTitle: 'Izmeni stajalište rute',
+      createAriaLabel: 'Forma za kreiranje stajališta rute',
+      editAriaLabel: 'Forma za izmenu stajališta rute',
       servicesTitle: 'Usluge',
       noServices: 'Nema dostupnih usluga.',
       fields: {
         location: {
           label: 'Lokacija',
-          placeholder: 'Stajaliste za gorivo u Becu'
+          placeholder: 'Stajalište za gorivo u Beču'
         },
         description: {
           label: 'Opis',
-          placeholder: 'Dodajte detalje stajalista'
+          placeholder: 'Dodajte detalje stajališta'
         },
         stopAt: {
           label: 'Vreme stajanja'
@@ -64,16 +64,16 @@ export default {
           placeholder: '3'
         },
         numberOfDrivers: {
-          label: 'Broj vozaca',
+          label: 'Broj vozača',
           placeholder: '4'
         },
         service: {
           label: 'Usluga',
           placeholder: 'Izaberite uslugu',
-          duplicate: 'Usluga je vec izabrana'
+          duplicate: 'Usluga je već izabrana'
         },
         quantity: {
-          label: 'Kolicina',
+          label: 'Količina',
           placeholder: '200',
           defaultUnit: 'komada'
         }
@@ -82,7 +82,7 @@ export default {
         close: 'Zatvori',
         addService: 'Dodaj uslugu',
         removeService: 'Ukloni uslugu',
-        save: 'Sacuvaj'
+        save: 'Sačuvaj'
       }
     },
     table: {
@@ -91,38 +91,38 @@ export default {
       stopAt: 'Vreme stajanja',
       description: 'Opis',
       numberOfTrucks: 'Kamioni',
-      numberOfDrivers: 'Vozaci',
+      numberOfDrivers: 'Vozači',
       bids: 'Ponude',
-      acceptedBidPrice: 'Prihvacena ponuda',
+      acceptedBidPrice: 'Prihvaćena ponuda',
       bidsButton: 'Ponude: {count}',
-      bidsAriaLabel: 'Ponude za stajaliste {route_stop_id}: {count}',
+      bidsAriaLabel: 'Ponude za stajalište {route_stop_id}: {count}',
       fulfilled: 'Ispunjeno',
       services: 'Usluge',
       emptyValue: '-',
-      emptyTitle: 'Nema dodatih stajalista',
-      emptyDescription: 'Stajalista rute ce biti prikazana ovde.'
+      emptyTitle: 'Nema dodatih stajališta',
+      emptyDescription: 'Stajališta rute će biti prikazana ovde.'
     },
     bidsDialog: {
       bidCount: 'Ponude: {count}',
       actions: {
         close: 'Zatvori',
-        refresh: 'Osvezi ponude',
+        refresh: 'Osveži ponude',
         submit: 'Potvrdi'
       },
       table: {
         contact: 'Kontakt',
         email: 'Email',
         phone: 'Telefon',
-        country: 'Drzava',
+        country: 'Država',
         city: 'Grad',
         address: 'Adresa',
-        postCode: 'Postanski broj',
+        postCode: 'Poštanski broj',
         originalPrice: 'Originalna cena',
         price: 'Cena ponude',
         emptyValue: '-'
       },
-      emptyTitle: 'Jos nema ponuda',
-      emptyDescription: 'Poslate ponude ce biti prikazane ovde.'
+      emptyTitle: 'Još nema ponuda',
+      emptyDescription: 'Poslate ponude će biti prikazane ovde.'
     }
   }
 };

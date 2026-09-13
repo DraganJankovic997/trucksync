@@ -78,13 +78,20 @@ const selectedService = computed(
 
 const pricePerUnitSuffix = computed(() =>
   selectedService.value?.measurement_unit
-    ? `/ ${selectedService.value.measurement_unit}`
+    ? `/ ${t(
+        `serviceUnits.${selectedService.value.measurement_unit}`,
+        selectedService.value.measurement_unit
+      )}`
     : ''
 );
 
 function formatServiceOptionLabel(service) {
-  const serviceName = service.name ?? '';
-  const measurementUnit = service.measurement_unit ?? '';
+  const serviceName = service.name
+    ? t(`serviceNames.${service.name}`, service.name)
+    : '';
+  const measurementUnit = service.measurement_unit
+    ? t(`serviceUnits.${service.measurement_unit}`, service.measurement_unit)
+    : '';
 
   return measurementUnit ? `${serviceName} (${measurementUnit})` : serviceName;
 }

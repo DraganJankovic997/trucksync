@@ -2,16 +2,16 @@ export default {
   action: 'Otvori profil',
   roles: {
     driver: {
-      title: 'Vozac profil',
-      description: 'profil vozaca'
+      title: 'Profil vozača',
+      description: 'profil vozača'
     },
     dispatcher: {
-      title: 'Dispecer profil',
-      description: 'profil dispecera'
+      title: 'Profil dispečera',
+      description: 'profil dispečera'
     },
     restStop: {
-      title: 'Odmoriste profil',
-      description: 'profil odmorista'
+      title: 'Profil odmorišta',
+      description: 'profil odmorišta'
     },
     fallback: {
       title: 'Profil uloge',
@@ -19,7 +19,7 @@ export default {
     }
   },
   missingProfileAndRole: {
-    title: 'Potrebno je podesavanje profila',
+    title: 'Potrebno je podešavanje profila',
     description: 'Popunite informacije o profilu i {roleProfile} pre nastavka.'
   },
   missingProfileInformation: {

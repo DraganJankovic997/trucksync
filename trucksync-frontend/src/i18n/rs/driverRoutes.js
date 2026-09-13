@@ -1,67 +1,67 @@
 export default {
   title: 'Sve rute',
-  eyebrow: 'Rute vozaca',
-  description: 'Rute od vaseg izabranog dispecera.',
+  eyebrow: 'Rute vozača',
+  description: 'Rute od vašeg izabranog dispečera.',
   routeCount: 'Rute: {count}',
   actions: {
-    refresh: 'Osvezi'
+    refresh: 'Osveži'
   },
   profileRequired: {
-    title: 'Dispecer nije dodeljen',
-    description: 'Izaberite dispecera u profilu da biste videli rute dispecera.'
+    title: 'Dispečer nije dodeljen',
+    description: 'Izaberite dispečera u profilu da biste videli rute dispečera.'
   },
   my: {
     title: 'Moje rute',
     eyebrow: 'Dodeljene rute',
-    description: 'Rute koje su dodeljene bas vama.',
+    description: 'Rute koje su dodeljene baš vama.',
     table: {
       title: 'Dodeljene rute',
       otherTitle: 'Ostale dodeljene rute',
       emptyTitle: 'Nema dodeljenih ruta',
-      emptyDescription: 'Rute dodeljene vama ce biti prikazane ovde.',
+      emptyDescription: 'Rute dodeljene vama će biti prikazane ovde.',
       emptyOtherTitle: 'Nema ostalih dodeljenih ruta',
-      emptyOtherDescription: 'Dodatne dodeljene rute ce biti prikazane ovde.'
+      emptyOtherDescription: 'Dodatne dodeljene rute će biti prikazane ovde.'
     }
   },
   current: {
     badge: 'Trenutna ruta',
     routeTitle: '{origin} do {destination}',
     dateRange: '{start} - {end}',
-    nextStop: 'Sledece stajaliste',
-    stopsTitle: 'Stajalista rute',
-    stopCount: 'Stajalista: {count}',
-    stopCapacity: 'Kamioni: {trucks} | Vozaci: {drivers}',
-    stopFulfilled: 'Iskorisceno',
-    stopPending: 'Na cekanju',
-    unnamedStop: 'Stajaliste #{id}',
+    nextStop: 'Sledeće stajalište',
+    stopsTitle: 'Stajališta rute',
+    stopCount: 'Stajališta: {count}',
+    stopCapacity: 'Kamioni: {trucks} | Vozači: {drivers}',
+    stopFulfilled: 'Iskorišćeno',
+    stopPending: 'Na čekanju',
+    unnamedStop: 'Stajalište #{id}',
     emptyValue: '-',
-    emptyStopsTitle: 'Nema planiranih stajalista',
-    emptyStopsDescription: 'Stajalista za ovu rutu ce biti prikazana ovde.',
+    emptyStopsTitle: 'Nema planiranih stajališta',
+    emptyStopsDescription: 'Stajališta za ovu rutu će biti prikazana ovde.',
     fields: {
       schedule: 'Vremenski plan',
-      convoySize: 'Velicina konvoja',
-      assignedDrivers: 'Dodeljeni vozaci',
-      yourRole: 'Vasa uloga'
+      convoySize: 'Veličina konvoja',
+      assignedDrivers: 'Dodeljeni vozači',
+      yourRole: 'Vaša uloga'
     },
     roles: {
-      convoyLeader: 'Vodja konvoja',
-      driver: 'Vozac'
+      convoyLeader: 'Vođa konvoja',
+      driver: 'Vozač'
     }
   },
   table: {
-    title: 'Rute dispecera',
+    title: 'Rute dispečera',
     id: 'ID',
-    origin: 'Polaziste',
-    destination: 'Odrediste',
-    convoySize: 'Velicina konvoja',
-    startDate: 'Datum pocetka',
-    endDate: 'Datum zavrsetka',
+    origin: 'Polazište',
+    destination: 'Odredište',
+    convoySize: 'Veličina konvoja',
+    startDate: 'Datum početka',
+    endDate: 'Datum završetka',
     status: 'Status',
     plannedTravelDetails: 'Planirani detalji puta',
     open: 'Otvorena',
     closed: 'Zatvorena',
     emptyValue: '-',
     emptyTitle: 'Nema dostupnih ruta',
-    emptyDescription: 'Rute vaseg dispecera ce biti prikazane ovde.'
+    emptyDescription: 'Rute vašeg dispečera će biti prikazane ovde.'
   }
 };

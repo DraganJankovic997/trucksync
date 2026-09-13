@@ -117,7 +117,15 @@ function formatServiceNames(services) {
     return t('dispatcherRouteEdit.routeStops.table.emptyValue');
   }
 
-  return services.map(service => formatValue(service.name)).join(', ');
+  return services
+    .map(service =>
+      formatValue(
+        service.name
+          ? t(`serviceNames.${service.name}`, service.name)
+          : service.name
+      )
+    )
+    .join(', ');
 }
 
 function formatDateTime(value) {

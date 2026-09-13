@@ -1,28 +1,28 @@
 export default {
-  title: 'Stajalista ruta',
+  title: 'Stajališta ruta',
   eyebrow: 'Otvoreni zahtevi',
-  description: 'Neispunjena stajalista iz ruta dispecera.',
+  description: 'Neispunjena stajališta iz ruta dispečera.',
   actions: {
-    refresh: 'Osvezi'
+    refresh: 'Osveži'
   },
   search: {
-    label: 'Pretrazi stajalista ruta',
+    label: 'Pretraži stajališta ruta',
     placeholder: 'Pretraga'
   },
   table: {
-    title: 'Dostupna stajalista',
-    routeStopCount: 'Stajalista ruta: {count}',
+    title: 'Dostupna stajališta',
+    routeStopCount: 'Stajališta ruta: {count}',
     id: 'ID',
     routeId: 'Ruta',
-    dispatcherCompanyName: 'Dispecer',
+    dispatcherCompanyName: 'Dispečer',
     location: 'Lokacija',
     stopAt: 'Vreme stajanja',
     description: 'Opis',
     numberOfTrucks: 'Kamioni',
-    numberOfDrivers: 'Vozaci',
+    numberOfDrivers: 'Vozači',
     services: 'Usluge',
     emptyValue: '-',
-    emptyTitle: 'Nema pronadjenih stajalista',
-    emptyDescription: 'Odgovarajuca stajalista ce biti prikazana ovde.'
+    emptyTitle: 'Nema pronađenih stajališta',
+    emptyDescription: 'Odgovarajuća stajališta će biti prikazana ovde.'
   }
 };

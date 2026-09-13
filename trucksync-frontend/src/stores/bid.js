@@ -39,6 +39,31 @@ export const useBidStore = defineStore('bid', () => {
     }
   }
 
+  async function fetchRestStopBids(status = null, page = 1, perPage = 15) {
+    const params = {
+      page: page,
+      per_page: perPage
+    };
+
+    if (status !== null) {
+      params.status = status;
+    }
+
+    try {
+      const { data } = await api.get('/rest-stop/bids', {
+        params: params
+      });
+
+      return data ?? null;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.bid.fetchBidsError'));
+
+      console.error('Rest stop bids request failed.', requestError.response);
+
+      return null;
+    }
+  }
+
   async function fetchBid(routeStopId, options = {}) {
     try {
       const { data } = await api.get(`/rest-stop/bids/${routeStopId}`);
@@ -110,6 +135,7 @@ export const useBidStore = defineStore('bid', () => {
     clearRouteStopBids,
     deleteBid,
     fetchDispatcherRouteStopBids,
+    fetchRestStopBids,
     fetchBid,
     routeStopBids,
     saveBid

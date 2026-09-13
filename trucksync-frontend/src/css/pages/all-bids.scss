@@ -1,0 +1,24 @@
+@use '../quasar.variables' as brand;
+
+.all-bids-page {
+  min-height: inherit;
+  background: brand.$brand-page-background;
+  color: brand.$brand-ink;
+
+  .all-bids-shell {
+    width: min(100%, 1180px);
+    margin: 0 auto;
+  }
+
+  .all-bids-eyebrow {
+    color: brand.$brand-accent-dark;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .all-bids-description {
+    max-width: 640px;
+    color: brand.$brand-muted;
+    line-height: 1.55;
+  }
+}

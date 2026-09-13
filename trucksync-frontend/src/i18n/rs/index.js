@@ -1,6 +1,8 @@
 import approval from './approval.js';
+import allBids from './allBids.js';
 import bidding from './bidding.js';
 import countries from './countries.js';
+import currentBids from './currentBids.js';
 import dispatcherRouteEdit from './dispatcherRouteEdit.js';
 import dashboard from './dashboard.js';
 import dispatcherRoutes from './dispatcherRoutes.js';
@@ -19,8 +21,10 @@ import validation from './validation.js';
 
 export default {
   approval,
+  allBids,
   bidding,
   countries,
+  currentBids,
   dispatcherRouteEdit,
   dashboard,
   dispatcherRoutes,

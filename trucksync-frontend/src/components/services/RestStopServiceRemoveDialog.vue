@@ -33,8 +33,10 @@ const dialogOpen = computed({
   }
 });
 
-const serviceName = computed(
-  () => props.service?.name ?? t('restStopServices.removeDialog.fallbackName')
+const serviceName = computed(() =>
+  props.service?.name
+    ? t(`serviceNames.${props.service.name}`, props.service.name)
+    : t('restStopServices.removeDialog.fallbackName')
 );
 </script>
 

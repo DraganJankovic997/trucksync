@@ -1,3 +1,3 @@
 export default {
-  title: '500 strana'
+  title: '500 stranica'
 };

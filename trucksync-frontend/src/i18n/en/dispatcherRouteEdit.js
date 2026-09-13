@@ -96,7 +96,7 @@ export default {
       acceptedBidPrice: 'Accepted bid',
       bidsButton: 'Bids: {count}',
       bidsAriaLabel: 'Bids for route stop {route_stop_id}: {count}',
-      fulfiled: 'Fulfiled',
+      fulfilled: 'Fulfilled',
       services: 'Services',
       emptyValue: '-',
       emptyTitle: 'No route stops added',

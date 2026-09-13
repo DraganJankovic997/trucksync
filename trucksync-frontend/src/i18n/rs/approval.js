@@ -1,8 +1,8 @@
 export default {
-  title: 'Approval page',
+  title: 'Odobravanje profila',
   eyebrow: 'Admin kontrole',
   actions: {
-    refresh: 'Osvezi'
+    refresh: 'Osveži'
   },
   table: {
     actions: 'Akcije',
@@ -16,28 +16,28 @@ export default {
     lastName: 'Prezime',
     email: 'Email',
     phoneNumber: 'Telefon',
-    country: 'Drzava',
+    country: 'Država',
     city: 'Grad',
     address: 'Adresa',
-    postCode: 'Postanski broj',
+    postCode: 'Poštanski broj',
     emptyValue: '-'
   },
   dispatchers: {
-    title: 'Dispeceri',
-    count: 'Dispecera na cekanju: {count}',
+    title: 'Dispečeri',
+    count: 'Dispečera na čekanju: {count}',
     companyName: 'Kompanija',
     registrationNumber: 'Registracioni broj',
-    emptyTitle: 'Nema dispecera za odobravanje',
+    emptyTitle: 'Nema dispečera za odobravanje',
     emptyDescription:
-      'Profili dispecera koji cekaju odobrenje ce se pojaviti ovde.'
+      'Profili dispečera koji čekaju odobrenje će se pojaviti ovde.'
   },
   restStops: {
-    title: 'Odmorista',
-    count: 'Odmorista na cekanju: {count}',
+    title: 'Odmorišta',
+    count: 'Odmorišta na čekanju: {count}',
     worksFrom: 'Radi od',
     worksTo: 'Radi do',
-    emptyTitle: 'Nema odmorista za odobravanje',
+    emptyTitle: 'Nema odmorišta za odobravanje',
     emptyDescription:
-      'Profili odmorista koji cekaju odobrenje ce se pojaviti ovde.'
+      'Profili odmorišta koji čekaju odobrenje će se pojaviti ovde.'
   }
 };

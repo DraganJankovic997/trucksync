@@ -55,8 +55,8 @@ it('creates a route stop with needed services for a route owned by the authentic
         ->assertJsonPath('data.route_stop.location', 'Vienna fuel stop')
         ->assertJsonPath('data.route_stop.description', 'Refuel and inspect tires before crossing into Germany.')
         ->assertJsonPath('data.route_stop.stop_at', $stopAt->toJSON())
-        ->assertJsonPath('data.route_stop.fulfiled_at', null)
-        ->assertJsonPath('data.route_stop.fulfiled_by', null)
+        ->assertJsonPath('data.route_stop.fulfilled_at', null)
+        ->assertJsonPath('data.route_stop.fulfilled_by', null)
         ->assertJsonPath('data.route_stop.number_of_trucks', 3)
         ->assertJsonPath('data.route_stop.number_of_drivers', 4)
         ->assertJsonPath('data.route_stop.bids_count', 0)
@@ -77,8 +77,8 @@ it('creates a route stop with needed services for a route owned by the authentic
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
         'stop_at' => $stopAt->toDateTimeString(),
-        'fulfiled_at' => null,
-        'fulfiled_by' => null,
+        'fulfilled_at' => null,
+        'fulfilled_by' => null,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);

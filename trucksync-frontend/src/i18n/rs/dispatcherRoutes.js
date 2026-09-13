@@ -1,36 +1,36 @@
 export default {
-  title: 'Rute dispecera',
+  title: 'Rute dispečera',
   eyebrow: 'Upravljanje rutama',
   routeCount: 'Rute: {count}',
   actions: {
     create: 'Nova ruta',
-    refresh: 'Osvezi'
+    refresh: 'Osveži'
   },
   form: {
-    ariaLabel: 'Kreiranje rute dispecera',
+    ariaLabel: 'Kreiranje rute dispečera',
     title: 'Nova ruta',
     actions: {
-      cancel: 'Otkazi',
+      cancel: 'Otkaži',
       create: 'Kreiraj rutu'
     },
     fields: {
       origin: {
-        label: 'Polaziste',
-        placeholder: 'Unesite polaziste rute'
+        label: 'Polazište',
+        placeholder: 'Unesite polazište rute'
       },
       destination: {
-        label: 'Odrediste',
-        placeholder: 'Unesite odrediste rute'
+        label: 'Odredište',
+        placeholder: 'Unesite odredište rute'
       },
       convoySize: {
-        label: 'Velicina konvoja',
-        placeholder: 'Unesite velicinu konvoja'
+        label: 'Veličina konvoja',
+        placeholder: 'Unesite veličinu konvoja'
       },
       startDate: {
-        label: 'Datum pocetka'
+        label: 'Datum početka'
       },
       endDate: {
-        label: 'Datum zavrsetka'
+        label: 'Datum završetka'
       },
       plannedTravelDetails: {
         label: 'Planirani detalji puta',
@@ -41,17 +41,17 @@ export default {
   table: {
     title: 'Kreirane rute',
     id: 'ID',
-    origin: 'Polaziste',
-    destination: 'Odrediste',
-    convoySize: 'Velicina konvoja',
-    startDate: 'Datum pocetka',
-    endDate: 'Datum zavrsetka',
+    origin: 'Polazište',
+    destination: 'Odredište',
+    convoySize: 'Veličina konvoja',
+    startDate: 'Datum početka',
+    endDate: 'Datum završetka',
     status: 'Status',
     plannedTravelDetails: 'Planirani detalji puta',
     open: 'Otvorena',
     closed: 'Zatvorena',
     emptyValue: '-',
     emptyTitle: 'Nema kreiranih ruta',
-    emptyDescription: 'Kreirane rute ce biti prikazane ovde.'
+    emptyDescription: 'Kreirane rute će biti prikazane ovde.'
   }
 };

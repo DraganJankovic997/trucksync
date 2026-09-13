@@ -17,6 +17,8 @@ import register from './register.js';
 import restStopServices from './restStopServices.js';
 import routeStops from './routeStops.js';
 import serverError from './serverError.js';
+import serviceNames from './serviceNames.js';
+import serviceUnits from './serviceUnits.js';
 import services from './services.js';
 import validation from './validation.js';
 
@@ -40,6 +42,8 @@ export default {
   restStopServices,
   routeStops,
   serverError,
+  serviceNames,
+  serviceUnits,
   services,
   validation
 };

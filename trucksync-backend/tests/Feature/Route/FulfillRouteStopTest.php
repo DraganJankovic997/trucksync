@@ -50,8 +50,8 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         ->assertJsonPath('message', 'Route stop fulfilled successfully.')
         ->assertJsonPath('data.route_stop.id', $routeStop->id)
         ->assertJsonPath('data.route_stop.route_id', $route->id)
-        ->assertJsonPath('data.route_stop.fulfiled_at', $fulfilledAt->toJSON())
-        ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id)
+        ->assertJsonPath('data.route_stop.fulfilled_at', $fulfilledAt->toJSON())
+        ->assertJsonPath('data.route_stop.fulfilled_by', $restStop->id)
         ->assertJsonPath('data.route_stop.accepted_bid_price', '250.00')
         ->assertJsonPath('data.route_stop.bids_count', 2)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
@@ -59,8 +59,8 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
 
     $this->assertDatabaseHas('route_stops', [
         'id' => $routeStop->id,
-        'fulfiled_at' => '2026-10-06 12:34:56',
-        'fulfiled_by' => $restStop->id,
+        'fulfilled_at' => '2026-10-06 12:34:56',
+        'fulfilled_by' => $restStop->id,
     ]);
     $this->assertDatabaseHas('route_stop_bids', [
         'route_stop_id' => $routeStop->id,
@@ -101,8 +101,8 @@ it('keeps the route open when it has unfulfilled stops and the start date has no
         'rest_stop_id' => $restStop->id,
     ])
         ->assertOk()
-        ->assertJsonPath('data.route_stop.fulfiled_at', $fulfilledAt->toJSON())
-        ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id);
+        ->assertJsonPath('data.route_stop.fulfilled_at', $fulfilledAt->toJSON())
+        ->assertJsonPath('data.route_stop.fulfilled_by', $restStop->id);
 
     expect($route->refresh()->closed_at)->toBeNull();
     $this->assertDatabaseHas('route_stop_bids', [
@@ -187,8 +187,8 @@ it('does not fulfill a route stop when the selected rest stop has not bid on it'
             'The selected rest stop has not bid on this route stop.'
         );
 
-    expect($routeStop->refresh()->fulfiled_at)->toBeNull()
-        ->and($routeStop->fulfiled_by)->toBeNull()
+    expect($routeStop->refresh()->fulfilled_at)->toBeNull()
+        ->and($routeStop->fulfilled_by)->toBeNull()
         ->and($route->refresh()->closed_at)->toBeNull();
 });
 
@@ -220,8 +220,8 @@ it('does not fulfill a route stop when the route is closed', function () {
             'You cannot select bids for a closed route.'
         );
 
-    expect($routeStop->refresh()->fulfiled_at)->toBeNull()
-        ->and($routeStop->fulfiled_by)->toBeNull()
+    expect($routeStop->refresh()->fulfilled_at)->toBeNull()
+        ->and($routeStop->fulfilled_by)->toBeNull()
         ->and($route->refresh()->closed_at->toDateTimeString())->toBe('2026-10-05 12:00:00');
 });
 
@@ -251,8 +251,8 @@ it('does not fulfill a route stop owned by another dispatcher', function () {
         ->assertForbidden()
         ->assertJsonPath('message', 'You cannot fulfill a route stop for a route you did not create.');
 
-    expect($routeStop->refresh()->fulfiled_at)->toBeNull()
-        ->and($routeStop->fulfiled_by)->toBeNull();
+    expect($routeStop->refresh()->fulfilled_at)->toBeNull()
+        ->and($routeStop->fulfilled_by)->toBeNull();
 });
 
 it('requires authentication to fulfill a route stop', function () {

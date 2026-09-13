@@ -97,7 +97,15 @@ const hasUnavailableServices = computed(
   () => unavailableServices.value.length > 0
 );
 const unavailableServiceNames = computed(() =>
-  unavailableServices.value.map(service => formatValue(service.name)).join(', ')
+  unavailableServices.value
+    .map(service =>
+      formatValue(
+        service.name
+          ? t(`serviceNames.${service.name}`, service.name)
+          : service.name
+      )
+    )
+    .join(', ')
 );
 const hasBidBlocker = computed(
   () =>

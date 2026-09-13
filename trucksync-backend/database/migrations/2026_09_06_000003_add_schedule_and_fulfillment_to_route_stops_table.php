@@ -14,10 +14,10 @@ return new class extends Migration
     {
         Schema::table('route_stops', function (Blueprint $table) {
             $table->dateTime('stop_at')->nullable()->after('route_id');
-            $table->dateTime('fulfiled_at')->nullable()->after('stop_at');
-            $table->foreignId('fulfiled_by')
+            $table->dateTime('fulfilled_at')->nullable()->after('stop_at');
+            $table->foreignId('fulfilled_by')
                 ->nullable()
-                ->after('fulfiled_at')
+                ->after('fulfilled_at')
                 ->constrained('rest_stops')
                 ->nullOnDelete();
         });
@@ -37,8 +37,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('route_stops', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('fulfiled_by');
-            $table->dropColumn(['stop_at', 'fulfiled_at']);
+            $table->dropConstrainedForeignId('fulfilled_by');
+            $table->dropColumn(['stop_at', 'fulfilled_at']);
         });
     }
 };

@@ -1,13 +1,13 @@
 export default {
-  title: 'Usluge mog odmorista',
+  title: 'Usluge mog odmorišta',
   eyebrow: 'Usluge profila',
-  description: 'Izaberite koje usluge su dostupne na vasem odmoristu.',
+  description: 'Izaberite koje usluge su dostupne na vašem odmorištu.',
   actions: {
-    refresh: 'Osvezi'
+    refresh: 'Osveži'
   },
   form: {
     title: 'Dodaj uslugu',
-    ariaLabel: 'Forma za dodavanje usluge odmorista',
+    ariaLabel: 'Forma za dodavanje usluge odmorišta',
     service: {
       label: 'Usluga',
       placeholder: 'Izaberite uslugu'
@@ -15,9 +15,9 @@ export default {
     pricePerUnit: {
       label: 'Cena po jedinici',
       placeholder: '0.00',
-      decimal: 'Cena po jedinici mora imati najvise 2 decimale'
+      decimal: 'Cena po jedinici mora imati najviše 2 decimale'
     },
-    noOptions: 'Sve dostupne usluge su vec dodate.',
+    noOptions: 'Sve dostupne usluge su već dodate.',
     submit: 'Dodaj uslugu'
   },
   table: {
@@ -31,11 +31,11 @@ export default {
     removeAria: 'Ukloni {name}',
     emptyTitle: 'Nema izabranih usluga',
     emptyDescription:
-      'Dodajte usluge koje vozaci mogu da pronadju na ovom odmoristu.'
+      'Dodajte usluge koje vozači mogu da pronađu na ovom odmorištu.'
   },
   removeDialog: {
     title: 'Ukloniti uslugu?',
-    message: 'Ukloniti "{name}" sa vaseg odmorista?',
+    message: 'Ukloniti "{name}" sa vašeg odmorišta?',
     warning: 'Usluga ostaje dostupna u katalogu.',
     fallbackName: 'ovu uslugu',
     cancel: 'Odustani',

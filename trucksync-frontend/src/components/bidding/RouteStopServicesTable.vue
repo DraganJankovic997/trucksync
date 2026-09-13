@@ -57,10 +57,21 @@ const columns = computed(() => [
 const rows = computed(() =>
   props.services.map(service => ({
     id: service.id,
-    name: formatValue(service.name),
+    name: formatValue(
+      service.name
+        ? t(`serviceNames.${service.name}`, service.name)
+        : service.name
+    ),
     quantity: formatQuantity(service.quantity),
     quantityValue: Number(service.quantity ?? 0),
-    measurementUnit: formatValue(service.measurement_unit),
+    measurementUnit: formatValue(
+      service.measurement_unit
+        ? t(
+            `serviceUnits.${service.measurement_unit}`,
+            service.measurement_unit
+          )
+        : service.measurement_unit
+    ),
     serviceAvailable: service.bid_service_available !== false,
     pricePerUnit: formatPrice(service.bid_price_per_unit),
     pricePerUnitValue: getSortablePrice(service.bid_price_per_unit),

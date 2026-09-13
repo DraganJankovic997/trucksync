@@ -1254,7 +1254,7 @@ class OpenApiSpec
                     'post' => [
                         'tags' => ['Routes'],
                         'summary' => 'Fulfill a route stop with a selected rest stop',
-                        'description' => 'Sets fulfiled_by and fulfiled_at on the route stop after validating that the selected rest stop has bid on that route stop and the route is still open. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
+                        'description' => 'Sets fulfilled_by and fulfilled_at on the route stop after validating that the selected rest stop has bid on that route stop and the route is still open. The route is closed when all of its route stops are fulfilled or when its start date has passed.',
                         'operationId' => 'fulfillDispatcherRouteStop',
                         'security' => [
                             [
@@ -2537,8 +2537,8 @@ class OpenApiSpec
                             'location',
                             'description',
                             'stop_at',
-                            'fulfiled_at',
-                            'fulfiled_by',
+                            'fulfilled_at',
+                            'fulfilled_by',
                             'accepted_bid_price',
                             'number_of_trucks',
                             'number_of_drivers',
@@ -2570,13 +2570,13 @@ class OpenApiSpec
                                 'format' => 'date-time',
                                 'example' => '2026-10-02T10:30:00Z',
                             ],
-                            'fulfiled_at' => [
+                            'fulfilled_at' => [
                                 'type' => 'string',
                                 'format' => 'date-time',
                                 'nullable' => true,
                                 'example' => null,
                             ],
-                            'fulfiled_by' => [
+                            'fulfilled_by' => [
                                 'type' => 'integer',
                                 'nullable' => true,
                                 'description' => 'Rest stop ID that fulfilled this route stop.',

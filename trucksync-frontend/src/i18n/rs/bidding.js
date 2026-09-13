@@ -4,39 +4,39 @@ export default {
     title: 'Ponude',
     bidCount: 'Ponude: {count}',
     actions: {
-      refresh: 'Osvezi'
+      refresh: 'Osveži'
     },
     columns: {
-      routeStopId: 'Stajaliste rute',
+      routeStopId: 'Stajalište rute',
       stopAt: 'Vreme stajanja',
-      dispatcherCompany: 'Dispecer',
-      dispatcherAddress: 'Adresa dispecera',
+      dispatcherCompany: 'Dispečer',
+      dispatcherAddress: 'Adresa dispečera',
       contact: 'Kontakt',
       numberOfTrucks: 'Kamioni',
-      numberOfDrivers: 'Vozaci',
+      numberOfDrivers: 'Vozači',
       status: 'Status',
       originalPrice: 'Originalna cena',
       price: 'Cena ponude'
     },
     status: {
-      pending: 'Na cekanju',
+      pending: 'Na čekanju',
       selected: 'Izabrana',
       rejected: 'Odbijena'
     },
-    emptyTitle: 'Nema pronadjenih ponuda',
-    emptyDescription: 'Poslate ponude ce biti prikazane ovde.'
+    emptyTitle: 'Nema pronađenih ponuda',
+    emptyDescription: 'Poslate ponude će biti prikazane ovde.'
   },
   page: {
-    ariaLabel: 'Zahtev za ponudu za stajaliste rute {id}',
+    ariaLabel: 'Zahtev za ponudu za stajalište rute {id}',
     eyebrow: 'Zahtev za ponudu',
     title: '{dispatcherName} ({registrationNumber})',
     description:
-      'Pregledajte rutu, dispecera i trazene usluge pre pripreme ponude.',
-    emptyTitle: 'Stajaliste rute nije dostupno',
-    emptyDescription: 'Ovaj zahtev nije moguce ucitati.',
+      'Pregledajte rutu, dispečera i tražene usluge pre pripreme ponude.',
+    emptyTitle: 'Stajalište rute nije dostupno',
+    emptyDescription: 'Ovaj zahtev nije moguće učitati.',
     actions: {
       back: 'Nazad na zahteve',
-      refresh: 'Osvezi'
+      refresh: 'Osveži'
     }
   },
   routeDetails: {
@@ -48,57 +48,57 @@ export default {
       closed: 'Zatvorena'
     },
     fields: {
-      convoySize: 'Velicina konvoja',
-      startDate: 'Datum pocetka',
-      endDate: 'Datum zavrsetka',
+      convoySize: 'Veličina konvoja',
+      startDate: 'Datum početka',
+      endDate: 'Datum završetka',
       plannedTravelDetails: 'Planirani detalji puta'
     }
   },
   routeStopServices: {
-    eyebrow: 'Stajaliste rute',
+    eyebrow: 'Stajalište rute',
     title: 'Potrebne usluge',
     serviceCount: 'Usluge: {count}',
     fields: {
       location: 'Lokacija',
       stopAt: 'Vreme stajanja',
       numberOfTrucks: 'Kamioni',
-      numberOfDrivers: 'Vozaci',
+      numberOfDrivers: 'Vozači',
       description: 'Opis'
     },
     table: {
       name: 'Usluga',
-      quantity: 'Kolicina',
+      quantity: 'Količina',
       measurementUnit: 'Jedinica mere',
-      pricePerUnit: 'Postojeca cena po jedinici',
+      pricePerUnit: 'Postojeća cena po jedinici',
       lineTotal: 'Ukupno po stavci',
       unavailable: 'Nedostupno',
       emptyTitle: 'Nema navedenih usluga',
-      emptyDescription: 'Potrebne usluge ce biti prikazane ovde.'
+      emptyDescription: 'Potrebne usluge će biti prikazane ovde.'
     }
   },
   bidForm: {
     ariaLabel: 'Forma za ponudu',
     fullPriceTotal: 'Ukupna puna cena',
     missingPrices:
-      'Dodajte ove usluge svom odmoristu pre slanja ponude: {services}',
-    unavailable: 'Trenutno ne mozete poslati ponudu za ovaj zahtev.',
+      'Dodajte ove usluge svom odmorištu pre slanja ponude: {services}',
+    unavailable: 'Trenutno ne možete poslati ponudu za ovaj zahtev.',
     unavailableMissingServices:
-      'Ne mozete poslati ponudu dok vase odmoriste ne nudi sve trazene usluge.',
+      'Ne možete poslati ponudu dok vaše odmorište ne nudi sve tražene usluge.',
     unavailableNoServices:
-      'Ne mozete poslati ponudu jer zahtev nema trazene usluge.',
+      'Ne možete poslati ponudu jer zahtev nema tražene usluge.',
     unavailableClosedRoute:
-      'Ne mozete poslati ponudu za ovaj zahtev jer je ruta zatvorena.',
-    unavailableProfile: 'Popunite profil odmorista pre slanja ponude.',
+      'Ne možete poslati ponudu za ovaj zahtev jer je ruta zatvorena.',
+    unavailableProfile: 'Popunite profil odmorišta pre slanja ponude.',
     fields: {
       customPrice: {
-        label: 'Prilagodjena cena ponude',
+        label: 'Prilagođena cena ponude',
         placeholder: '0.00',
-        decimal: 'Cena ponude mora imati najvise 2 decimale'
+        decimal: 'Cena ponude mora imati najviše 2 decimale'
       }
     },
     actions: {
-      submit: 'Posalji ponudu',
-      update: 'Azuriraj ponudu'
+      submit: 'Pošalji ponudu',
+      update: 'Ažuriraj ponudu'
     }
   }
 };

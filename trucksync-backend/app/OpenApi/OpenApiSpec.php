@@ -2672,6 +2672,7 @@ class OpenApiSpec
                             'rest_stop_id',
                             'original_price',
                             'price',
+                            'status',
                         ],
                         'properties' => [
                             'route_stop_id' => [
@@ -2694,6 +2695,11 @@ class OpenApiSpec
                                 'description' => 'Bid price stored with two decimal places.',
                                 'pattern' => '^\\d+(\\.\\d{2})$',
                                 'example' => '250.75',
+                            ],
+                            'status' => [
+                                'type' => 'string',
+                                'description' => 'Current bid status.',
+                                'example' => 'pending',
                             ],
                         ],
                     ],

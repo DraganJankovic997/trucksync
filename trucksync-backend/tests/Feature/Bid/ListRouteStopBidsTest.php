@@ -43,6 +43,7 @@ it('lists all bids for a route stop owned by the authenticated dispatcher', func
         'rest_stop_id' => $secondRestStop->id,
         'original_price' => '400.00',
         'price' => '350.00',
+        'status' => 'accepted',
     ]);
     RouteStopBid::query()->create([
         'route_stop_id' => $routeStop->id,
@@ -66,6 +67,7 @@ it('lists all bids for a route stop owned by the authenticated dispatcher', func
         ->assertJsonPath('data.bids.0.rest_stop_id', $firstRestStop->id)
         ->assertJsonPath('data.bids.0.original_price', '300.00')
         ->assertJsonPath('data.bids.0.price', '250.75')
+        ->assertJsonPath('data.bids.0.status', RouteStopBid::STATUS_PENDING)
         ->assertJsonPath('data.bids.0.rest_stop.id', $firstRestStop->id)
         ->assertJsonPath('data.bids.0.rest_stop.user_id', $firstRestStop->user_id)
         ->assertJsonPath('data.bids.0.rest_stop.city', 'Nis')
@@ -84,6 +86,7 @@ it('lists all bids for a route stop owned by the authenticated dispatcher', func
         ->assertJsonPath('data.bids.1.rest_stop_id', $secondRestStop->id)
         ->assertJsonPath('data.bids.1.original_price', '400.00')
         ->assertJsonPath('data.bids.1.price', '350.00')
+        ->assertJsonPath('data.bids.1.status', 'accepted')
         ->assertJsonPath('data.bids.1.rest_stop.id', $secondRestStop->id)
         ->assertJsonPath('data.bids.1.rest_stop.city', 'Novi Sad')
         ->assertJsonPath('data.bids.1.rest_stop.user.id', $secondRestStopUser->id)

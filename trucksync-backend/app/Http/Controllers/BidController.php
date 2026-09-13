@@ -247,7 +247,7 @@ class BidController extends Controller
     }
 
     /**
-     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string}
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string}
      */
     private function bidPayload(RouteStopBid $bid): array
     {
@@ -256,11 +256,12 @@ class BidController extends Controller
             'rest_stop_id' => $bid->rest_stop_id,
             'original_price' => $this->pricePayload($bid->original_price),
             'price' => $this->pricePayload($bid->price),
+            'status' => $bid->status,
         ];
     }
 
     /**
-     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}
+     * @return array{route_stop_id: int, rest_stop_id: int, original_price: string, price: string, status: string, rest_stop: array{id: int, user_id: int, city: string, address: string, post_code: string, works_from: string, works_to: string, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}}
      */
     private function bidWithRestStopPayload(RouteStopBid $bid): array
     {

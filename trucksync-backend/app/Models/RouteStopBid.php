@@ -8,11 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RouteStopBid extends Model
 {
+    public const STATUS_PENDING = 'pending';
+
     public $incrementing = false;
 
     public $timestamps = false;
 
     protected $table = 'route_stop_bids';
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'status' => self::STATUS_PENDING,
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +35,7 @@ class RouteStopBid extends Model
         'rest_stop_id',
         'price',
         'original_price',
+        'status',
     ];
 
     /**
@@ -38,6 +50,7 @@ class RouteStopBid extends Model
             'rest_stop_id' => 'integer',
             'price' => 'decimal:2',
             'original_price' => 'decimal:2',
+            'status' => 'string',
         ];
     }
 

@@ -98,12 +98,33 @@ export const useRouteStore = defineStore('route', () => {
     }
   }
 
+  async function syncRouteDrivers(routeId, driverAssignments) {
+    try {
+      const { data } = await api.put(`/dispatcher/route/${routeId}/drivers`, {
+        drivers: driverAssignments
+      });
+
+      route.value = data?.data?.route ?? route.value;
+
+      toast.success(i18n.global.t('messages.route.assignDriversSuccess'));
+
+      return route.value;
+    } catch (requestError) {
+      toast.error(i18n.global.t('messages.route.assignDriversError'));
+
+      console.error('Route drivers request failed.', requestError.response);
+
+      return null;
+    }
+  }
+
   return {
     route,
     routes,
     closeRoute,
     createRoute,
     fetchRoute,
-    fetchRoutesForDispatcher
+    fetchRoutesForDispatcher,
+    syncRouteDrivers
   };
 });

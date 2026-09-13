@@ -26,4 +26,13 @@ interface RouteServiceContract
     public function closeForUser(User $user, int $routeId): ?DispatcherRoute;
 
     public function findWithStops(int $routeId): ?DispatcherRoute;
+
+    /**
+     * @param  array<int, array{driver_id: int, is_convoy_leader: bool}>  $driverAssignments
+     */
+    public function syncDriversForUser(
+        User $user,
+        int $routeId,
+        array $driverAssignments
+    ): ?DispatcherRoute;
 }

@@ -5,11 +5,13 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from '@/boot/toast.js';
 import DispatcherRouteDetail from '@/components/dispatcher-routes/DispatcherRouteDetail.vue';
+import DispatcherRouteDriversCard from '@/components/dispatcher-routes/DispatcherRouteDriversCard.vue';
 import DispatcherRouteStopBidsDialog from '@/components/dispatcher-routes/DispatcherRouteStopBidsDialog.vue';
 import DispatcherRouteStopDialog from '@/components/dispatcher-routes/DispatcherRouteStopDialog.vue';
 import DispatcherRouteStopsTable from '@/components/dispatcher-routes/DispatcherRouteStopsTable.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import { useDispatcherStore } from '@/stores/dispatcher.js';
+import { useDriverStore } from '@/stores/driver.js';
 import { useRouteStore } from '@/stores/route.js';
 
 const { t } = useI18n();
@@ -17,8 +19,10 @@ const routerRoute = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const dispatcherStore = useDispatcherStore();
+const driverStore = useDriverStore();
 const routeStore = useRouteStore();
 const { user } = storeToRefs(authStore);
+const { drivers } = storeToRefs(driverStore);
 const { route: routeRecord } = storeToRefs(routeStore);
 
 const routeId = computed(() =>
@@ -27,6 +31,7 @@ const routeId = computed(() =>
     : routerRoute.params.routeId
 );
 const routeStops = computed(() => routeRecord.value?.route_stops ?? []);
+const routeDrivers = computed(() => routeRecord.value?.drivers ?? []);
 const routeClosed = computed(() => Boolean(routeRecord.value?.closed_at));
 const acceptedBidsTotal = computed(() =>
   routeStops.value.reduce(
@@ -96,6 +101,8 @@ const routeStopDialogOpen = ref(false);
 const routeStopBidsDialogOpen = ref(false);
 const selectedRouteStop = ref(null);
 const selectedBidsRouteStopId = ref(null);
+const isFetchingDrivers = ref(false);
+const isSavingDrivers = ref(false);
 
 async function redirectToDashboardWithEditError() {
   await router.replace({ name: 'dashboard' });
@@ -130,8 +137,19 @@ async function validateRouteOwnership() {
     }
 
     isRouteAllowed.value = true;
+    await loadDispatcherDrivers();
   } finally {
     isFetchingRoute.value = false;
+  }
+}
+
+async function loadDispatcherDrivers() {
+  isFetchingDrivers.value = true;
+
+  try {
+    await driverStore.fetchDispatcherDrivers();
+  } finally {
+    isFetchingDrivers.value = false;
   }
 }
 
@@ -167,6 +185,20 @@ async function closeDispatcherRoute() {
     }
   } finally {
     isClosingRoute.value = false;
+  }
+}
+
+async function saveRouteDrivers(driverAssignments) {
+  if (!routeId.value || routeClosed.value || isSavingDrivers.value) {
+    return;
+  }
+
+  isSavingDrivers.value = true;
+
+  try {
+    await routeStore.syncRouteDrivers(routeId.value, driverAssignments);
+  } finally {
+    isSavingDrivers.value = false;
   }
 }
 
@@ -286,6 +318,15 @@ onMounted(() => {
           />
         </div>
       </section>
+
+      <DispatcherRouteDriversCard
+        :drivers="drivers"
+        :assigned-drivers="routeDrivers"
+        :route-closed="routeClosed"
+        :loading="isFetchingDrivers || isFetchingRoute"
+        :saving="isSavingDrivers"
+        @save="saveRouteDrivers"
+      />
 
       <DispatcherRouteStopsTable
         :route-stops="routeStops"

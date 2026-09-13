@@ -26,6 +26,7 @@ export default {
   },
   driver: {
     fetchError: 'Failed to fetch driver profile',
+    fetchDispatcherDriversError: 'Failed to fetch drivers',
     saveSuccess: 'Driver profile saved successfully',
     saveError: 'Failed to save driver profile'
   },
@@ -61,6 +62,8 @@ export default {
     fetchOneError: 'Failed to fetch route',
     createSuccess: 'Route created successfully',
     createError: 'Failed to create route',
+    assignDriversSuccess: 'Route drivers updated successfully',
+    assignDriversError: 'Failed to update route drivers',
     closeSuccess: 'Route closed successfully',
     closeError: 'Failed to close route',
     editForbidden: 'You are not allowed to edit this route'

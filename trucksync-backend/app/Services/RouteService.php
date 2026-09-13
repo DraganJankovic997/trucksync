@@ -4,11 +4,16 @@ namespace App\Services;
 
 use App\Contracts\BidServiceContract;
 use App\Contracts\RouteServiceContract;
+use App\Exceptions\InvalidRouteDriverAssignmentException;
+use App\Exceptions\RouteNotFoundException;
+use App\Exceptions\RouteNotOwnedByDispatcherException;
 use App\Models\Dispatcher;
+use App\Models\Driver;
 use App\Models\Route as DispatcherRoute;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RouteService implements RouteServiceContract
 {
@@ -28,6 +33,7 @@ class RouteService implements RouteServiceContract
         }
 
         return $dispatcher->routes()
+            ->with('drivers.user')
             ->orderByRaw('CASE WHEN closed_at IS NULL THEN 0 ELSE 1 END')
             ->orderBy('created_at')
             ->get();
@@ -90,6 +96,7 @@ class RouteService implements RouteServiceContract
     {
         return DispatcherRoute::query()
             ->with([
+                'drivers.user',
                 'routeStops' => fn ($query) => $query
                     ->withAcceptedBidPrice()
                     ->withCount(['routeStopBids as bids_count'])
@@ -97,6 +104,82 @@ class RouteService implements RouteServiceContract
                 'routeStops.services' => fn ($query) => $query->orderBy('services.id'),
             ])
             ->find($routeId);
+    }
+
+    /**
+     * @param  array<int, array{driver_id: int, is_convoy_leader: bool}>  $driverAssignments
+     *
+     * @throws InvalidRouteDriverAssignmentException
+     * @throws RouteNotFoundException
+     * @throws RouteNotOwnedByDispatcherException
+     * @throws ValidationException
+     */
+    public function syncDriversForUser(
+        User $user,
+        int $routeId,
+        array $driverAssignments
+    ): ?DispatcherRoute {
+        $dispatcher = $this->dispatcherForUser($user);
+
+        if (! $dispatcher) {
+            return null;
+        }
+
+        $route = DispatcherRoute::query()
+            ->whereKey($routeId)
+            ->first();
+
+        if (! $route) {
+            throw new RouteNotFoundException;
+        }
+
+        if ((int) $route->dispatcher_id !== (int) $dispatcher->id) {
+            throw new RouteNotOwnedByDispatcherException(
+                'You cannot assign drivers to a route you did not create.'
+            );
+        }
+
+        if ($route->closed_at !== null) {
+            throw ValidationException::withMessages([
+                'route_id' => 'You cannot assign drivers to a closed route.',
+            ]);
+        }
+
+        $driverIds = collect($driverAssignments)
+            ->pluck('driver_id')
+            ->map(fn (int|string $driverId): int => (int) $driverId)
+            ->values();
+
+        if ($driverIds->isNotEmpty()) {
+            $dispatcherDriverCount = Driver::query()
+                ->where('dispatcher_id', $dispatcher->id)
+                ->whereIn('id', $driverIds)
+                ->count();
+
+            if ($dispatcherDriverCount !== $driverIds->count()) {
+                throw new InvalidRouteDriverAssignmentException;
+            }
+        }
+
+        return DB::transaction(function () use ($route, $driverAssignments): DispatcherRoute {
+            $syncPayload = [];
+
+            foreach ($driverAssignments as $driverAssignment) {
+                $syncPayload[(int) $driverAssignment['driver_id']] = [
+                    'is_convoy_leader' => (bool) $driverAssignment['is_convoy_leader'],
+                ];
+            }
+
+            $route->drivers()->sync($syncPayload);
+
+            $updatedRoute = $this->findWithStops($route->id);
+
+            if (! $updatedRoute) {
+                throw new RouteNotFoundException;
+            }
+
+            return $updatedRoute;
+        });
     }
 
     private function dispatcherForUser(User $user): ?Dispatcher

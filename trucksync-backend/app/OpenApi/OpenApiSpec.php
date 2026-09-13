@@ -868,6 +868,42 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/dispatcher/drivers' => [
+                    'get' => [
+                        'tags' => ['Drivers'],
+                        'summary' => 'List drivers linked to the authenticated dispatcher',
+                        'operationId' => 'listAuthenticatedDispatcherDrivers',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Dispatcher driver list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherDriversIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherDriversForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DispatcherNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/dispatcher' => [
                     'get' => [
                         'tags' => ['Dispatchers'],
@@ -994,6 +1030,68 @@ class OpenApiSpec
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/DispatcherNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/dispatcher/route/{routeId}/drivers' => [
+                    'put' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Assign drivers to a route owned by the authenticated dispatcher',
+                        'description' => 'Synchronizes the full desired driver list for the route. At most one assigned driver can be marked as the convoy leader.',
+                        'operationId' => 'syncDispatcherRouteDrivers',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'routeId',
+                                'in' => 'path',
+                                'required' => true,
+                                'description' => 'Route ID.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
+                        'requestBody' => [
+                            'required' => true,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteDriversSyncRequest',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Route drivers updated successfully.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DispatcherRouteDriversSyncResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DispatcherRouteDriversForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/RouteNotFound',
                             ],
                             '422' => [
                                 '$ref' => '#/components/responses/ValidationError',
@@ -2218,6 +2316,40 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DriverWithUser' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/Driver',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['user'],
+                                'properties' => [
+                                    'user' => [
+                                        '$ref' => '#/components/schemas/User',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'RouteDriver' => [
+                        'allOf' => [
+                            [
+                                '$ref' => '#/components/schemas/DriverWithUser',
+                            ],
+                            [
+                                'type' => 'object',
+                                'required' => ['is_convoy_leader'],
+                                'properties' => [
+                                    'is_convoy_leader' => [
+                                        'type' => 'boolean',
+                                        'description' => 'Whether this assigned driver is the convoy leader for the route.',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'Dispatcher' => [
                         'type' => 'object',
                         'required' => [
@@ -2277,6 +2409,7 @@ class OpenApiSpec
                             'start_date',
                             'end_date',
                             'closed_at',
+                            'drivers',
                         ],
                         'properties' => [
                             'id' => [
@@ -2320,6 +2453,12 @@ class OpenApiSpec
                                 'format' => 'date-time',
                                 'nullable' => true,
                                 'example' => null,
+                            ],
+                            'drivers' => [
+                                'type' => 'array',
+                                'items' => [
+                                    '$ref' => '#/components/schemas/RouteDriver',
+                                ],
                             ],
                         ],
                     ],
@@ -3021,6 +3160,38 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherRouteDriversSyncRequest' => [
+                        'type' => 'object',
+                        'required' => [
+                            'drivers',
+                        ],
+                        'properties' => [
+                            'drivers' => [
+                                'type' => 'array',
+                                'description' => 'Full desired driver list for the route. Omitted existing drivers are removed. Each driver must belong to the authenticated dispatcher.',
+                                'items' => [
+                                    'type' => 'object',
+                                    'required' => [
+                                        'driver_id',
+                                        'is_convoy_leader',
+                                    ],
+                                    'properties' => [
+                                        'driver_id' => [
+                                            'type' => 'integer',
+                                            'minimum' => 1,
+                                            'description' => 'Existing driver ID. Each driver_id must be unique in the request.',
+                                            'example' => 1,
+                                        ],
+                                        'is_convoy_leader' => [
+                                            'type' => 'boolean',
+                                            'description' => 'At most one assigned driver can be marked as the convoy leader.',
+                                            'example' => true,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DispatcherRouteStopCreateRequest' => [
                         'type' => 'object',
                         'required' => [
@@ -3410,6 +3581,24 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DispatcherDriversIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['drivers'],
+                                'properties' => [
+                                    'drivers' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DriverWithUser',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverUpsertResponse' => [
                         'type' => 'object',
                         'required' => [
@@ -3489,6 +3678,28 @@ class OpenApiSpec
                                         'items' => [
                                             '$ref' => '#/components/schemas/DispatcherRoute',
                                         ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteDriversSyncResponse' => [
+                        'type' => 'object',
+                        'required' => [
+                            'message',
+                            'data',
+                        ],
+                        'properties' => [
+                            'message' => [
+                                'type' => 'string',
+                                'example' => 'Route drivers updated successfully.',
+                            ],
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route'],
+                                'properties' => [
+                                    'route' => [
+                                        '$ref' => '#/components/schemas/DispatcherRouteWithStops',
                                     ],
                                 ],
                             ],
@@ -4170,6 +4381,43 @@ class OpenApiSpec
                                 ],
                                 'example' => [
                                     'message' => 'Only dispatcher users can create routes.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherDriversForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'example' => [
+                                    'message' => 'Only dispatcher users can view drivers.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DispatcherRouteDriversForbidden' => [
+                        'description' => 'The authenticated user is not a dispatcher, or the route belongs to another dispatcher.',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/ErrorResponse',
+                                ],
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can assign drivers to routes.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Route belongs to another dispatcher',
+                                        'value' => [
+                                            'message' => 'You cannot assign drivers to a route you did not create.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

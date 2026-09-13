@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Driver extends Model
 {
@@ -42,5 +43,13 @@ class Driver extends Model
     public function dispatcher(): BelongsTo
     {
         return $this->belongsTo(Dispatcher::class);
+    }
+
+    public function routes(): BelongsToMany
+    {
+        return $this->belongsToMany(Route::class, 'driver_route')
+            ->withPivot('is_convoy_leader')
+            ->withTimestamps()
+            ->orderBy('routes.id');
     }
 }

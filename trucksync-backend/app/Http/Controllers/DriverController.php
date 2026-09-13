@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\DriverServiceContract;
 use App\Models\Driver;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,6 +13,45 @@ use Throwable;
 class DriverController extends Controller
 {
     public function __construct(private readonly DriverServiceContract $driverService) {}
+
+    public function indexForDispatcher(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'dispatcher') {
+            return response()->json([
+                'message' => 'Only dispatcher users can view drivers.',
+            ], 403);
+        }
+
+        try {
+            $drivers = $this->driverService->forDispatcherUser($authenticatedUser);
+
+            if ($drivers === null) {
+                return response()->json([
+                    'message' => 'Dispatcher profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'drivers' => $drivers
+                        ->map(fn (Driver $driver): array => $this->driverWithUserPayload($driver))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch dispatcher drivers.', [
+                'user_id' => $authenticatedUser->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch drivers.',
+            ], 500);
+        }
+    }
 
     public function show(Request $request): JsonResponse
     {
@@ -107,6 +147,33 @@ class DriverController extends Controller
             'dispatcher_id' => $driver->dispatcher_id,
             'license_number' => $driver->license_number,
             'is_dispatcher_approved' => $driver->is_dispatcher_approved,
+        ];
+    }
+
+    /**
+     * @return array{id: int, user_id: int, dispatcher_id: int|null, license_number: string, is_dispatcher_approved: bool, user: array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}}
+     */
+    private function driverWithUserPayload(Driver $driver): array
+    {
+        return [
+            ...$this->driverPayload($driver),
+            'user' => $this->userPayload($driver->user),
+        ];
+    }
+
+    /**
+     * @return array{id: int, first_name: string|null, last_name: string|null, email: string, country: string|null, phone_number: string|null, profile_type: string|null}
+     */
+    private function userPayload(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'country' => $user->country,
+            'phone_number' => $user->phone_number,
+            'profile_type' => $user->profile_type,
         ];
     }
 }

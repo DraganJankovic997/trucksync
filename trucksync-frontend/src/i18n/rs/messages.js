@@ -78,6 +78,7 @@ export default {
     fulfillError: 'Ispunjavanje stajališta rute nije uspelo'
   },
   routeStopUsage: {
+    fetchRatingsError: 'Preuzimanje ocena korišćenja stajališta nije uspelo',
     saveSuccess: 'Recenzija korišćenja stajališta je uspešno poslata',
     saveError: 'Slanje recenzije korišćenja stajališta nije uspelo'
   },

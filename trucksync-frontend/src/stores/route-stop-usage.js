@@ -5,10 +5,48 @@ import { toast } from '@/boot/toast.js';
 import { ref } from 'vue';
 
 export const useRouteStopUsageStore = defineStore('route-stop-usage', () => {
-  const routeStopUsage = ref(null);
+  const routeStopUsages = ref([]);
 
-  function clearRouteStopUsage() {
-    routeStopUsage.value = null;
+
+  async function fetchAdminRatings(
+    restStopId = null,
+    page = 1,
+    perPage = 15,
+    reportsOnly = false
+  ) {
+    const params = {
+      page: page,
+      per_page: perPage
+    };
+
+    if (restStopId !== null) {
+      params.rest_stop_id = restStopId;
+    }
+
+    if (reportsOnly === true) {
+      params.is_report = true;
+    }
+
+    try {
+      const { data } = await api.get('/admin/ratings', {
+        params: params
+      });
+
+      routeStopUsages.value = data?.data?.route_stop_usages ?? [];
+
+      return data ?? null;
+    } catch (requestError) {
+      routeStopUsages.value = [];
+
+      toast.error(i18n.global.t('messages.routeStopUsage.fetchRatingsError'));
+
+      console.error(
+        'Route stop usage ratings request failed.',
+        requestError.response
+      );
+
+      return null;
+    }
   }
 
   async function submitRouteStopUsageReview(
@@ -27,11 +65,9 @@ export const useRouteStopUsageStore = defineStore('route-stop-usage', () => {
         }
       );
 
-      routeStopUsage.value = data?.data?.route_stop_usage ?? null;
-
       toast.success(i18n.global.t('messages.routeStopUsage.saveSuccess'));
 
-      return routeStopUsage.value;
+      return data?.data?.route_stop_usage ?? null;
     } catch (requestError) {
       toast.error(i18n.global.t('messages.routeStopUsage.saveError'));
 
@@ -45,8 +81,8 @@ export const useRouteStopUsageStore = defineStore('route-stop-usage', () => {
   }
 
   return {
-    clearRouteStopUsage,
-    routeStopUsage,
+    fetchAdminRatings,
+    routeStopUsages,
     submitRouteStopUsageReview
   };
 });

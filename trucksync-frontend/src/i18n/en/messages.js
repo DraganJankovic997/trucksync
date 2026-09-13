@@ -78,6 +78,7 @@ export default {
     fulfillError: 'Failed to fulfill route stop'
   },
   routeStopUsage: {
+    fetchRatingsError: 'Failed to fetch route stop usage ratings',
     saveSuccess: 'Route stop usage review submitted successfully',
     saveError: 'Failed to submit route stop usage review'
   },

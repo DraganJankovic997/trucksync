@@ -755,7 +755,7 @@ class OpenApiSpec
                     'get' => [
                         'tags' => ['Admin'],
                         'summary' => 'List route stop usage ratings',
-                        'description' => 'Returns paginated route stop usage entries ordered by usage date descending. Optionally filters entries by rest stop ID.',
+                        'description' => 'Returns paginated route stop usage entries ordered by usage date descending. Optionally filters entries by rest stop ID or to entries marked as reports.',
                         'operationId' => 'listAdminRouteStopUsageRatings',
                         'security' => [
                             [
@@ -771,6 +771,16 @@ class OpenApiSpec
                                 'schema' => [
                                     'type' => 'integer',
                                     'minimum' => 1,
+                                ],
+                            ],
+                            [
+                                'name' => 'is_report',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'When true, returns only entries marked as reports. Omit or set false to return all entries.',
+                                'schema' => [
+                                    'type' => 'boolean',
+                                    'default' => false,
                                 ],
                             ],
                             [

@@ -22,6 +22,11 @@ class RouteStopUsageController extends Controller
 
         validator($queryParameters, [
             'rest_stop_id' => ['sometimes', 'nullable', 'integer', 'min:1', Rule::exists('rest_stops', 'id')],
+            'is_report' => ['sometimes', 'nullable', function (string $attribute, mixed $value, callable $fail): void {
+                if ($value !== null && $value !== '' && filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === null) {
+                    $fail("The {$attribute} field must be true or false.");
+                }
+            }],
             'page' => ['required', 'integer', 'min:1'],
             'per_page' => ['required', 'integer', 'min:1', 'max:100'],
         ])->validate();
@@ -31,6 +36,7 @@ class RouteStopUsageController extends Controller
                 $this->optionalRestStopId($queryParameters),
                 (int) $queryParameters['per_page'],
                 (int) $queryParameters['page'],
+                $this->reportsOnly($queryParameters),
             );
             $routeStopUsages->appends($request->query());
 
@@ -61,6 +67,7 @@ class RouteStopUsageController extends Controller
             logger()->error('Unable to fetch route stop usage ratings.', [
                 'user_id' => $request->user()->id,
                 'rest_stop_id' => $queryParameters['rest_stop_id'] ?? null,
+                'is_report' => $queryParameters['is_report'] ?? null,
                 'exception' => $throwable,
             ]);
 
@@ -166,6 +173,22 @@ class RouteStopUsageController extends Controller
         }
 
         return (int) $queryParameters['rest_stop_id'];
+    }
+
+    /**
+     * @param  array<string, mixed>  $queryParameters
+     */
+    private function reportsOnly(array $queryParameters): bool
+    {
+        if (
+            ! array_key_exists('is_report', $queryParameters)
+            || $queryParameters['is_report'] === null
+            || $queryParameters['is_report'] === ''
+        ) {
+            return false;
+        }
+
+        return filter_var($queryParameters['is_report'], FILTER_VALIDATE_BOOLEAN);
     }
 
     /**

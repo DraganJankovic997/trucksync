@@ -21,10 +21,12 @@ class RouteStopUsageService implements RouteStopUsageServiceContract
     public function ratingsForAdmin(
         ?int $restStopId = null,
         int $perPage = 15,
-        int $page = 1
+        int $page = 1,
+        bool $reportsOnly = false
     ): LengthAwarePaginator {
         return RouteStopUsage::query()
             ->when($restStopId !== null, fn ($query) => $query->where('rest_stop_id', $restStopId))
+            ->when($reportsOnly, fn ($query) => $query->where('is_report', true))
             ->orderByDesc('used_at')
             ->orderByDesc('id')
             ->paginate(perPage: $perPage, page: $page);

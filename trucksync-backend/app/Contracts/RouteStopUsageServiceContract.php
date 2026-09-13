@@ -17,7 +17,8 @@ interface RouteStopUsageServiceContract
     public function ratingsForAdmin(
         ?int $restStopId = null,
         int $perPage = 15,
-        int $page = 1
+        int $page = 1,
+        bool $reportsOnly = false
     ): LengthAwarePaginator;
 
     /**

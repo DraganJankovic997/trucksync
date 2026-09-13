@@ -67,6 +67,45 @@ it('filters route stop usage ratings by rest stop id for an admin user', functio
         ]);
 });
 
+it('filters route stop usage ratings to reports when requested by an admin user', function () {
+    $admin = createAdminUserForRouteStopUsageRatings();
+    $restStop = createRestStopForRouteStopUsageRatings();
+    $otherRestStop = createRestStopForRouteStopUsageRatings();
+    $oldReport = createRouteStopUsageForAdminRatings($restStop, '2026-10-01 08:00:00', 2, true);
+    $review = createRouteStopUsageForAdminRatings($restStop, '2026-10-02 08:00:00', 5);
+    $newReport = createRouteStopUsageForAdminRatings($otherRestStop, '2026-10-03 08:00:00', 1, true);
+
+    Sanctum::actingAs($admin);
+
+    $this->getJson('/api/admin/ratings?is_report=true')
+        ->assertOk()
+        ->assertJsonCount(2, 'data.route_stop_usages')
+        ->assertJsonPath('meta.total', 2)
+        ->assertJsonPath('data.route_stop_usages.0.id', $newReport->id)
+        ->assertJsonPath('data.route_stop_usages.0.is_report', true)
+        ->assertJsonPath('data.route_stop_usages.1.id', $oldReport->id)
+        ->assertJsonPath('data.route_stop_usages.1.is_report', true)
+        ->assertJsonMissing([
+            'id' => $review->id,
+        ]);
+});
+
+it('returns all route stop usage ratings when the report filter is false', function () {
+    $admin = createAdminUserForRouteStopUsageRatings();
+    $restStop = createRestStopForRouteStopUsageRatings();
+    $report = createRouteStopUsageForAdminRatings($restStop, '2026-10-01 08:00:00', 2, true);
+    $review = createRouteStopUsageForAdminRatings($restStop, '2026-10-02 08:00:00', 5);
+
+    Sanctum::actingAs($admin);
+
+    $this->getJson('/api/admin/ratings?is_report=false')
+        ->assertOk()
+        ->assertJsonCount(2, 'data.route_stop_usages')
+        ->assertJsonPath('meta.total', 2)
+        ->assertJsonPath('data.route_stop_usages.0.id', $review->id)
+        ->assertJsonPath('data.route_stop_usages.1.id', $report->id);
+});
+
 it('paginates route stop usage ratings while preserving rest stop filters', function () {
     $admin = createAdminUserForRouteStopUsageRatings();
     $restStop = createRestStopForRouteStopUsageRatings();
@@ -99,14 +138,40 @@ it('paginates route stop usage ratings while preserving rest stop filters', func
         ->assertJsonPath('links.next', null);
 });
 
+it('paginates route stop usage report filters while preserving query parameters', function () {
+    $admin = createAdminUserForRouteStopUsageRatings();
+    $restStop = createRestStopForRouteStopUsageRatings();
+    $olderUsage = createRouteStopUsageForAdminRatings($restStop, '2026-10-01 08:00:00', 3, true);
+    $newerUsage = createRouteStopUsageForAdminRatings($restStop, '2026-10-02 08:00:00', 4, true);
+    createRouteStopUsageForAdminRatings($restStop, '2026-10-03 08:00:00', 5);
+
+    Sanctum::actingAs($admin);
+
+    $response = $this->getJson("/api/admin/ratings?rest_stop_id={$restStop->id}&is_report=true&per_page=1&page=1")
+        ->assertOk()
+        ->assertJsonCount(1, 'data.route_stop_usages')
+        ->assertJsonPath('data.route_stop_usages.0.id', $newerUsage->id)
+        ->assertJsonPath('meta.total', 2);
+
+    expect($response->json('links.next'))
+        ->toContain("rest_stop_id={$restStop->id}")
+        ->toContain('is_report=true');
+
+    $this->getJson("/api/admin/ratings?rest_stop_id={$restStop->id}&is_report=true&per_page=1&page=2")
+        ->assertOk()
+        ->assertJsonCount(1, 'data.route_stop_usages')
+        ->assertJsonPath('data.route_stop_usages.0.id', $olderUsage->id)
+        ->assertJsonPath('meta.total', 2);
+});
+
 it('validates admin rating query parameters', function () {
     $admin = createAdminUserForRouteStopUsageRatings();
 
     Sanctum::actingAs($admin);
 
-    $this->getJson('/api/admin/ratings?rest_stop_id=999&page=0&per_page=101')
+    $this->getJson('/api/admin/ratings?rest_stop_id=999&is_report=maybe&page=0&per_page=101')
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['rest_stop_id', 'page', 'per_page']);
+        ->assertJsonValidationErrors(['rest_stop_id', 'is_report', 'page', 'per_page']);
 });
 
 it('forbids non-admin users from listing route stop usage ratings', function () {

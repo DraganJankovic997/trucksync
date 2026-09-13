@@ -15,6 +15,7 @@ export default {
     currentBids: 'Current bids',
     allBids: 'All bids',
     dispatcherRoutes: 'Routes',
+    driverRoutes: 'My routes',
     adminApproval: 'Approval',
     adminServices: 'Services'
   }

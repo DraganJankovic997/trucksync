@@ -77,6 +77,10 @@ export default {
     fulfillSuccess: 'Route stop fulfilled successfully',
     fulfillError: 'Failed to fulfill route stop'
   },
+  routeStopUsage: {
+    saveSuccess: 'Route stop usage review submitted successfully',
+    saveError: 'Failed to submit route stop usage review'
+  },
   service: {
     fetchError: 'Failed to fetch services',
     fetchOneError: 'Failed to fetch service',

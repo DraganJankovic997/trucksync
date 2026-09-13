@@ -77,6 +77,10 @@ export default {
     fulfillSuccess: 'Stajalište rute je uspešno ispunjeno',
     fulfillError: 'Ispunjavanje stajališta rute nije uspelo'
   },
+  routeStopUsage: {
+    saveSuccess: 'Recenzija korišćenja stajališta je uspešno poslata',
+    saveError: 'Slanje recenzije korišćenja stajališta nije uspelo'
+  },
   service: {
     fetchError: 'Preuzimanje usluga nije uspelo',
     fetchOneError: 'Preuzimanje usluge nije uspelo',

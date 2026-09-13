@@ -1,5 +1,27 @@
 export default {
   emptyValue: '-',
+  bidsTable: {
+    title: 'Bids',
+    bidCount: 'Bids: {count}',
+    actions: {
+      refresh: 'Refresh'
+    },
+    columns: {
+      routeStopId: 'Route stop',
+      status: 'Status',
+      originalPrice: 'Original price',
+      price: 'Bid price',
+      createdAt: 'Created',
+      updatedAt: 'Updated'
+    },
+    status: {
+      pending: 'Pending',
+      selected: 'Selected',
+      rejected: 'Rejected'
+    },
+    emptyTitle: 'No bids found',
+    emptyDescription: 'Submitted bids will appear here.'
+  },
   page: {
     ariaLabel: 'Route stop bidding request {id}',
     eyebrow: 'Bidding request',

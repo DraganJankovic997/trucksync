@@ -1,5 +1,27 @@
 export default {
   emptyValue: '-',
+  bidsTable: {
+    title: 'Ponude',
+    bidCount: 'Ponude: {count}',
+    actions: {
+      refresh: 'Osvezi'
+    },
+    columns: {
+      routeStopId: 'Stajaliste rute',
+      status: 'Status',
+      originalPrice: 'Originalna cena',
+      price: 'Cena ponude',
+      createdAt: 'Kreirano',
+      updatedAt: 'Azurirano'
+    },
+    status: {
+      pending: 'Na cekanju',
+      selected: 'Izabrana',
+      rejected: 'Odbijena'
+    },
+    emptyTitle: 'Nema pronadjenih ponuda',
+    emptyDescription: 'Poslate ponude ce biti prikazane ovde.'
+  },
   page: {
     ariaLabel: 'Zahtev za ponudu za stajaliste rute {id}',
     eyebrow: 'Zahtev za ponudu',

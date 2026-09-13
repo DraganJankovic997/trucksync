@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n';
+import BidsTable from '@/components/bidding/BidsTable.vue';
 
 const { t } = useI18n();
 </script>
@@ -18,6 +19,8 @@ const { t } = useI18n();
           {{ t('allBids.description') }}
         </p>
       </header>
+
+      <BidsTable :status="null" />
     </div>
   </q-page>
 </template>

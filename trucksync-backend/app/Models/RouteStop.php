@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RouteStop extends Model
 {
@@ -87,6 +88,11 @@ class RouteStop extends Model
     public function routeStopBids(): HasMany
     {
         return $this->hasMany(RouteStopBid::class);
+    }
+
+    public function usage(): HasOne
+    {
+        return $this->hasOne(RouteStopUsage::class);
     }
 
     public function services(): BelongsToMany

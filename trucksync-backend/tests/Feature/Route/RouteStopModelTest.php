@@ -1,11 +1,13 @@
 <?php
 
 use App\Models\Dispatcher;
+use App\Models\Driver;
 use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use App\Models\RouteStopService;
+use App\Models\RouteStopUsage;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -152,6 +154,69 @@ it('stores rest stop bids for a route stop', function () {
     ]);
 });
 
+it('stores convoy leader usage feedback for a route stop', function () {
+    $route = createRouteForRouteStopTest();
+    $routeStop = RouteStop::query()->create([
+        'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => null,
+        'stop_at' => '2026-10-02 10:30:00',
+        'number_of_trucks' => 3,
+        'number_of_drivers' => 4,
+    ]);
+    $driver = createDriverForRouteStopUsageTest();
+    $restStop = createRestStopForRouteStopTest();
+
+    $route->drivers()->attach($driver->id, [
+        'is_convoy_leader' => true,
+    ]);
+
+    $routeStopUsage = RouteStopUsage::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'driver_id' => $driver->id,
+        'rest_stop_id' => $restStop->id,
+        'used_at' => '2026-10-02 11:20:00',
+        'rating' => 4,
+        'report' => 'Fuel was available, but showers were missing.',
+    ]);
+
+    expect(Schema::getColumnListing('route_stop_usages'))->toBe([
+        'id',
+        'route_stop_id',
+        'driver_id',
+        'rest_stop_id',
+        'used_at',
+        'rating',
+        'report',
+        'is_report',
+        'created_at',
+        'updated_at',
+    ])
+        ->and(RouteStopUsage::MIN_RATING)->toBe(1)
+        ->and(RouteStopUsage::MAX_RATING)->toBe(5)
+        ->and($routeStopUsage->routeStop->is($routeStop))->toBeTrue()
+        ->and($routeStopUsage->driver->is($driver))->toBeTrue()
+        ->and($routeStopUsage->restStop->is($restStop))->toBeTrue()
+        ->and($routeStop->usage->is($routeStopUsage))->toBeTrue()
+        ->and($driver->routeStopUsages()->first()->is($routeStopUsage))->toBeTrue()
+        ->and($restStop->routeStopUsages()->first()->is($routeStopUsage))->toBeTrue()
+        ->and($routeStopUsage->used_at->toDateTimeString())->toBe('2026-10-02 11:20:00')
+        ->and($routeStopUsage->rating)->toBe(4)
+        ->and($routeStopUsage->report)->toBe('Fuel was available, but showers were missing.')
+        ->and($routeStopUsage->is_report)->toBeFalse();
+
+    $this->assertDatabaseHas('route_stop_usages', [
+        'id' => $routeStopUsage->id,
+        'route_stop_id' => $routeStop->id,
+        'driver_id' => $driver->id,
+        'rest_stop_id' => $restStop->id,
+        'used_at' => '2026-10-02 11:20:00',
+        'rating' => 4,
+        'report' => 'Fuel was available, but showers were missing.',
+        'is_report' => false,
+    ]);
+});
+
 function createRouteForRouteStopTest(): DispatcherRoute
 {
     $dispatcher = Dispatcher::query()->create([
@@ -187,5 +252,16 @@ function createRestStopForRouteStopTest(): RestStop
         'post_code' => '1010',
         'works_from' => '08:00',
         'works_to' => '22:00',
+    ]);
+}
+
+function createDriverForRouteStopUsageTest(): Driver
+{
+    return Driver::query()->create([
+        'user_id' => User::factory()->create([
+            'profile_type' => 'driver',
+        ])->id,
+        'license_number' => fake()->unique()->bothify('DRV-####'),
+        'is_dispatcher_approved' => true,
     ]);
 }

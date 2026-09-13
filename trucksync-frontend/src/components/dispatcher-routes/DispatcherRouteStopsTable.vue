@@ -98,8 +98,8 @@ const rows = computed(() =>
     bidsCount: routeStop.bids_count ?? 0,
     acceptedBidPrice: formatPrice(routeStop.accepted_bid_price),
     acceptedBidPriceValue: sortablePrice(routeStop.accepted_bid_price),
-    isFulfiled:
-      routeStop.fulfiled_at !== undefined && routeStop.fulfiled_at !== null,
+    isFulfilled:
+      routeStop.fulfilled_at !== undefined && routeStop.fulfilled_at !== null,
     services: routeStop.services
   }))
 );
@@ -276,13 +276,13 @@ function bidsButtonLabel(row) {
             {{ scope.row.acceptedBidPrice }}
           </div>
           <q-badge
-            v-else-if="scope.row.isFulfiled"
-            class="dispatcher-route-stops-fulfiled-badge"
+            v-else-if="scope.row.isFulfilled"
+            class="dispatcher-route-stops-fulfilled-badge"
             color="positive"
             outline
             @click.stop
           >
-            {{ t('dispatcherRouteEdit.routeStops.table.fulfiled') }}
+            {{ t('dispatcherRouteEdit.routeStops.table.fulfilled') }}
           </q-badge>
           <q-btn
             v-else

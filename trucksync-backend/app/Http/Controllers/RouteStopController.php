@@ -324,7 +324,7 @@ class RouteStopController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, location: string|null, description: string|null, stop_at: string, fulfilled_at: string|null, fulfilled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayload(RouteStop $routeStop): array
     {
@@ -334,8 +334,8 @@ class RouteStopController extends Controller
             'location' => $routeStop->location,
             'description' => $routeStop->description,
             'stop_at' => $routeStop->stop_at->toJSON(),
-            'fulfiled_at' => $routeStop->fulfiled_at?->toJSON(),
-            'fulfiled_by' => $routeStop->fulfiled_by,
+            'fulfilled_at' => $routeStop->fulfilled_at?->toJSON(),
+            'fulfilled_by' => $routeStop->fulfilled_by,
             'accepted_bid_price' => $this->pricePayload($routeStop->accepted_bid_price),
             'number_of_trucks' => $routeStop->number_of_trucks,
             'number_of_drivers' => $routeStop->number_of_drivers,
@@ -354,7 +354,7 @@ class RouteStopController extends Controller
     }
 
     /**
-     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfiled_at: string|null, fulfiled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
+     * @return array{id: int, route_id: int, dispatcher_company_name: string|null, location: string|null, description: string|null, stop_at: string, fulfilled_at: string|null, fulfilled_by: int|null, accepted_bid_price: string|null, number_of_trucks: int, number_of_drivers: int, bids_count: int, services: array<int, array{id: int, name: string, measurement_unit: string|null, quantity: int}>}
      */
     private function routeStopPayloadWithDispatcher(RouteStop $routeStop): array
     {

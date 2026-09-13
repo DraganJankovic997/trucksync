@@ -22,7 +22,7 @@ return new class extends Migration
             ->select([
                 'route_stop_bids.route_stop_id',
                 'route_stop_bids.rest_stop_id',
-                'route_stops.fulfiled_by',
+                'route_stops.fulfilled_by',
                 'routes.closed_at',
             ])
             ->orderBy('route_stop_bids.route_stop_id')
@@ -49,13 +49,13 @@ return new class extends Migration
 
     private function statusForBid(object $bid): string
     {
-        if ($bid->fulfiled_by === null) {
+        if ($bid->fulfilled_by === null) {
             return $bid->closed_at === null
                 ? self::STATUS_PENDING
                 : self::STATUS_REJECTED;
         }
 
-        return (int) $bid->fulfiled_by === (int) $bid->rest_stop_id
+        return (int) $bid->fulfilled_by === (int) $bid->rest_stop_id
             ? self::STATUS_SELECTED
             : self::STATUS_REJECTED;
     }

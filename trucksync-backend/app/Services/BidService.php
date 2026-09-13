@@ -149,8 +149,8 @@ class BidService implements BidServiceContract
 
     private function markClosedRouteStopBidStatuses(RouteStop $routeStop): void
     {
-        if ($routeStop->fulfiled_by !== null) {
-            $this->markRouteStopBidSelected($routeStop, $routeStop->fulfiled_by);
+        if ($routeStop->fulfilled_by !== null) {
+            $this->markRouteStopBidSelected($routeStop, $routeStop->fulfilled_by);
 
             return;
         }
@@ -164,11 +164,11 @@ class BidService implements BidServiceContract
 
     private function statusForBid(RouteStop $routeStop, int $restStopId): string
     {
-        if ($routeStop->fulfiled_by === null) {
+        if ($routeStop->fulfilled_by === null) {
             return RouteStopBid::STATUS_PENDING;
         }
 
-        return $routeStop->fulfiled_by === $restStopId
+        return $routeStop->fulfilled_by === $restStopId
             ? RouteStopBid::STATUS_SELECTED
             : RouteStopBid::STATUS_REJECTED;
     }

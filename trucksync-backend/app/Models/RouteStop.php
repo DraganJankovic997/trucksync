@@ -21,8 +21,8 @@ class RouteStop extends Model
     protected $fillable = [
         'route_id',
         'stop_at',
-        'fulfiled_at',
-        'fulfiled_by',
+        'fulfilled_at',
+        'fulfilled_by',
         'number_of_trucks',
         'number_of_drivers',
         'location',
@@ -39,8 +39,8 @@ class RouteStop extends Model
         return [
             'route_id' => 'integer',
             'stop_at' => 'datetime',
-            'fulfiled_at' => 'datetime',
-            'fulfiled_by' => 'integer',
+            'fulfilled_at' => 'datetime',
+            'fulfilled_by' => 'integer',
             'number_of_trucks' => 'integer',
             'number_of_drivers' => 'integer',
             'bids_count' => 'integer',
@@ -64,7 +64,7 @@ class RouteStop extends Model
             'accepted_bid_price' => RouteStopBid::query()
                 ->select('price')
                 ->whereColumn('route_stop_bids.route_stop_id', "{$table}.id")
-                ->whereColumn('route_stop_bids.rest_stop_id', "{$table}.fulfiled_by")
+                ->whereColumn('route_stop_bids.rest_stop_id', "{$table}.fulfilled_by")
                 ->limit(1),
         ]);
     }
@@ -74,9 +74,9 @@ class RouteStop extends Model
         return $this->belongsTo(Route::class);
     }
 
-    public function fulfiledBy(): BelongsTo
+    public function fulfilledBy(): BelongsTo
     {
-        return $this->belongsTo(RestStop::class, 'fulfiled_by');
+        return $this->belongsTo(RestStop::class, 'fulfilled_by');
     }
 
     public function routeStopServices(): HasMany

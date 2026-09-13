@@ -120,8 +120,8 @@ it('marks a bid as rejected when submitting for a route stop fulfilled by anothe
     createRouteStopForBidEndpointRoute($route);
 
     $routeStop->update([
-        'fulfiled_at' => '2026-10-02 12:00:00',
-        'fulfiled_by' => $selectedRestStop->id,
+        'fulfilled_at' => '2026-10-02 12:00:00',
+        'fulfilled_by' => $selectedRestStop->id,
     ]);
 
     Sanctum::actingAs($user);

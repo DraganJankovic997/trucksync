@@ -96,8 +96,8 @@ it('lists unfulfilled route stops with services and dispatcher company names for
         ->assertJsonPath('data.route_stops.0.location', 'Vienna fuel stop')
         ->assertJsonPath('data.route_stops.0.description', 'Refuel and inspect tires before crossing into Germany.')
         ->assertJsonPath('data.route_stops.0.stop_at', $newerRouteStop->stop_at->toJSON())
-        ->assertJsonPath('data.route_stops.0.fulfiled_at', null)
-        ->assertJsonPath('data.route_stops.0.fulfiled_by', null)
+        ->assertJsonPath('data.route_stops.0.fulfilled_at', null)
+        ->assertJsonPath('data.route_stops.0.fulfilled_by', null)
         ->assertJsonPath('data.route_stops.0.accepted_bid_price', null)
         ->assertJsonPath('data.route_stops.0.number_of_trucks', 3)
         ->assertJsonPath('data.route_stops.0.number_of_drivers', 4)
@@ -339,14 +339,14 @@ function createRouteStopForUnfulfilledRouteStopsEndpoint(
     string $location,
     ?string $description,
     string $stopAt,
-    ?string $fulfiledAt
+    ?string $fulfilledAt
 ): RouteStop {
     return RouteStop::query()->create([
         'route_id' => $route->id,
         'location' => $location,
         'description' => $description,
         'stop_at' => $stopAt,
-        'fulfiled_at' => $fulfiledAt,
+        'fulfilled_at' => $fulfilledAt,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);

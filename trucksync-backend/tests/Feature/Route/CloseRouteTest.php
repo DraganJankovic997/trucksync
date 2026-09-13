@@ -66,8 +66,8 @@ it('marks route bids selected or rejected when closing a route', function () {
     ]));
 
     $fulfilledRouteStop->update([
-        'fulfiled_at' => '2026-10-05 10:00:00',
-        'fulfiled_by' => $selectedRestStop->id,
+        'fulfilled_at' => '2026-10-05 10:00:00',
+        'fulfilled_by' => $selectedRestStop->id,
     ]);
 
     createRouteStopBidForCloseRoute($fulfilledRouteStop, $selectedRestStop);

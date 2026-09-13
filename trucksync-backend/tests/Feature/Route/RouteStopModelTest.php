@@ -22,8 +22,8 @@ it('stores route stops for a route', function () {
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
         'stop_at' => '2026-10-02 10:30:00',
-        'fulfiled_at' => '2026-10-02 11:15:00',
-        'fulfiled_by' => $restStop->id,
+        'fulfilled_at' => '2026-10-02 11:15:00',
+        'fulfilled_by' => $restStop->id,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);
@@ -32,8 +32,8 @@ it('stores route stops for a route', function () {
         'id',
         'route_id',
         'stop_at',
-        'fulfiled_at',
-        'fulfiled_by',
+        'fulfilled_at',
+        'fulfilled_by',
         'number_of_trucks',
         'number_of_drivers',
         'created_at',
@@ -43,12 +43,12 @@ it('stores route stops for a route', function () {
     ])
         ->and($route->routeStops()->first()->is($routeStop))->toBeTrue()
         ->and($routeStop->route->is($route))->toBeTrue()
-        ->and($routeStop->fulfiledBy->is($restStop))->toBeTrue()
+        ->and($routeStop->fulfilledBy->is($restStop))->toBeTrue()
         ->and($routeStop->location)->toBe('Vienna fuel stop')
         ->and($routeStop->description)->toBe('Refuel and inspect tires before crossing into Germany.')
         ->and($routeStop->stop_at->toDateTimeString())->toBe('2026-10-02 10:30:00')
-        ->and($routeStop->fulfiled_at->toDateTimeString())->toBe('2026-10-02 11:15:00')
-        ->and($routeStop->fulfiled_by)->toBe($restStop->id)
+        ->and($routeStop->fulfilled_at->toDateTimeString())->toBe('2026-10-02 11:15:00')
+        ->and($routeStop->fulfilled_by)->toBe($restStop->id)
         ->and($routeStop->number_of_trucks)->toBe(3)
         ->and($routeStop->number_of_drivers)->toBe(4);
 
@@ -58,8 +58,8 @@ it('stores route stops for a route', function () {
         'location' => 'Vienna fuel stop',
         'description' => 'Refuel and inspect tires before crossing into Germany.',
         'stop_at' => '2026-10-02 10:30:00',
-        'fulfiled_at' => '2026-10-02 11:15:00',
-        'fulfiled_by' => $restStop->id,
+        'fulfilled_at' => '2026-10-02 11:15:00',
+        'fulfilled_by' => $restStop->id,
         'number_of_trucks' => 3,
         'number_of_drivers' => 4,
     ]);

@@ -108,7 +108,7 @@ function parseDateTime(value) {
 }
 
 function isStopFulfilled(routeStop) {
-  return Boolean(routeStop?.fulfiled_at);
+  return Boolean(routeStop?.fulfilled_at);
 }
 
 function isNextRouteStop(routeStop) {

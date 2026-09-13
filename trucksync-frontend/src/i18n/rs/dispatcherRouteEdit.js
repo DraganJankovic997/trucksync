@@ -96,7 +96,7 @@ export default {
       acceptedBidPrice: 'Prihvacena ponuda',
       bidsButton: 'Ponude: {count}',
       bidsAriaLabel: 'Ponude za stajaliste {route_stop_id}: {count}',
-      fulfiled: 'Ispunjeno',
+      fulfilled: 'Ispunjeno',
       services: 'Usluge',
       emptyValue: '-',
       emptyTitle: 'Nema dodatih stajalista',

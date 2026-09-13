@@ -87,7 +87,7 @@ class RouteStopService implements RouteStopServiceContract
                 'services' => fn ($query) => $query->orderBy('services.id'),
             ])
             ->withCount(['routeStopBids as bids_count'])
-            ->whereNull('route_stops.fulfiled_at')
+            ->whereNull('route_stops.fulfilled_at')
             ->whereHas('route', fn ($query) => $query->whereNull('closed_at'))
             ->when($search !== null, fn ($query) => $query
                 ->where(fn ($query) => $query
@@ -218,8 +218,8 @@ class RouteStopService implements RouteStopServiceContract
                 ]);
             }
 
-            $routeStop->fulfiled_by = $restStopId;
-            $routeStop->fulfiled_at = now();
+            $routeStop->fulfilled_by = $restStopId;
+            $routeStop->fulfilled_at = now();
             $routeStop->save();
 
             $this->bidService->markRouteStopBidSelected($routeStop, $restStopId);
@@ -243,7 +243,7 @@ class RouteStopService implements RouteStopServiceContract
         }
 
         $allRouteStopsFulfilled = $route->routeStops()->exists()
-            && $route->routeStops()->whereNull('fulfiled_at')->doesntExist();
+            && $route->routeStops()->whereNull('fulfilled_at')->doesntExist();
         $startDateHasPassed = $route->start_date->isPast();
 
         if (! $allRouteStopsFulfilled && ! $startDateHasPassed) {

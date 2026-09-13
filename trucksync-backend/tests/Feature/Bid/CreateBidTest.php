@@ -485,7 +485,7 @@ it('deletes the authenticated rest stops bid by route stop id', function () {
         'rest_stop_id' => $otherRestStop->id,
         'original_price' => '400.00',
         'price' => '350.00',
-        'status' => RouteStopBid::STATUS_REJECTED,
+        'status' => RouteStopBid::STATUS_PENDING,
     ]);
 });
 

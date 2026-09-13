@@ -2,14 +2,20 @@
 
 namespace App\Services;
 
+use App\Contracts\BidServiceContract;
 use App\Contracts\RouteServiceContract;
 use App\Models\Dispatcher;
 use App\Models\Route as DispatcherRoute;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class RouteService implements RouteServiceContract
 {
+    public function __construct(
+        private readonly BidServiceContract $bidService
+    ) {}
+
     /**
      * @return Collection<int, DispatcherRoute>|null
      */
@@ -70,10 +76,14 @@ class RouteService implements RouteServiceContract
             return null;
         }
 
-        $route->closed_at = now();
-        $route->save();
+        return DB::transaction(function () use ($route): DispatcherRoute {
+            $route->closed_at = now();
+            $route->save();
 
-        return $route->refresh();
+            $this->bidService->rejectUnselectedForRoute($route);
+
+            return $route->refresh();
+        });
     }
 
     public function findWithStops(int $routeId): ?DispatcherRoute

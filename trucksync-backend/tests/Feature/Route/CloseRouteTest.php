@@ -1,7 +1,10 @@
 <?php
 
 use App\Models\Dispatcher;
+use App\Models\RestStop;
 use App\Models\Route as DispatcherRoute;
+use App\Models\RouteStop;
+use App\Models\RouteStopBid;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -42,6 +45,54 @@ it('closes a route for the authenticated dispatcher owner', function () {
         'id' => $route->id,
         'dispatcher_id' => $dispatcher->id,
         'closed_at' => '2026-10-06 12:34:56',
+    ]);
+});
+
+it('marks route bids selected or rejected when closing a route', function () {
+    Carbon::setTestNow(Carbon::parse('2026-10-06 12:34:56'));
+
+    $user = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForCloseRouteUser($user);
+    $route = createRouteForCloseRouteDispatcher($dispatcher);
+    $fulfilledRouteStop = createRouteStopForCloseRoute($route);
+    $unfulfilledRouteStop = createRouteStopForCloseRoute($route);
+    $selectedRestStop = createRestStopForCloseRouteUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $rejectedRestStop = createRestStopForCloseRouteUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+
+    $fulfilledRouteStop->update([
+        'fulfiled_at' => '2026-10-05 10:00:00',
+        'fulfiled_by' => $selectedRestStop->id,
+    ]);
+
+    createRouteStopBidForCloseRoute($fulfilledRouteStop, $selectedRestStop);
+    createRouteStopBidForCloseRoute($fulfilledRouteStop, $rejectedRestStop);
+    createRouteStopBidForCloseRoute($unfulfilledRouteStop, $rejectedRestStop);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson("/api/dispatcher/route/close/{$route->id}")
+        ->assertOk();
+
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $fulfilledRouteStop->id,
+        'rest_stop_id' => $selectedRestStop->id,
+        'status' => RouteStopBid::STATUS_SELECTED,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $fulfilledRouteStop->id,
+        'rest_stop_id' => $rejectedRestStop->id,
+        'status' => RouteStopBid::STATUS_REJECTED,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $unfulfilledRouteStop->id,
+        'rest_stop_id' => $rejectedRestStop->id,
+        'status' => RouteStopBid::STATUS_REJECTED,
     ]);
 });
 
@@ -118,5 +169,39 @@ function createRouteForCloseRouteDispatcher(Dispatcher $dispatcher): DispatcherR
         'convoy_size' => 3,
         'start_date' => '2026-10-01',
         'end_date' => '2026-10-05',
+    ]);
+}
+
+function createRouteStopForCloseRoute(DispatcherRoute $route): RouteStop
+{
+    return RouteStop::query()->create([
+        'route_id' => $route->id,
+        'location' => 'Vienna fuel stop',
+        'description' => 'Refuel and inspect tires before crossing into Germany.',
+        'stop_at' => '2026-10-02 10:30:00',
+        'number_of_trucks' => 3,
+        'number_of_drivers' => 4,
+    ]);
+}
+
+function createRestStopForCloseRouteUser(User $user): RestStop
+{
+    return RestStop::query()->create([
+        'user_id' => $user->id,
+        'city' => 'Nis',
+        'address' => 'Highway 1',
+        'post_code' => fake()->unique()->postcode(),
+        'works_from' => '08:00',
+        'works_to' => '22:00',
+    ]);
+}
+
+function createRouteStopBidForCloseRoute(RouteStop $routeStop, RestStop $restStop): RouteStopBid
+{
+    return RouteStopBid::query()->create([
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'original_price' => '300.00',
+        'price' => '250.00',
     ]);
 }

@@ -4,6 +4,7 @@ namespace App\Contracts;
 
 use App\Exceptions\RouteStopNotFoundException;
 use App\Models\RestStop;
+use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,6 +24,10 @@ interface BidServiceContract
     ): RouteStopBid;
 
     public function findForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid;
+
+    public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void;
+
+    public function rejectUnselectedForRoute(DispatcherRoute $route): void;
 
     /**
      * @throws ValidationException

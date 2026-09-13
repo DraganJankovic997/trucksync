@@ -103,6 +103,46 @@ it('updates an existing bid for the same route stop and rest stop', function () 
     ]);
 });
 
+it('marks a bid as rejected when submitting for a route stop fulfilled by another rest stop', function () {
+    $user = User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]);
+    $restStop = createRestStopForBidEndpointUser($user);
+    $selectedRestStop = createRestStopForBidEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
+    $route = createRouteForBidEndpointDispatcher(
+        createDispatcherForBidEndpointUser(User::factory()->create([
+            'profile_type' => 'dispatcher',
+        ]))
+    );
+    $routeStop = createRouteStopForBidEndpointRoute($route);
+    createRouteStopForBidEndpointRoute($route);
+
+    $routeStop->update([
+        'fulfiled_at' => '2026-10-02 12:00:00',
+        'fulfiled_by' => $selectedRestStop->id,
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/rest-stop/bids', [
+        'route_stop_id' => $routeStop->id,
+        'original_price' => '300.00',
+        'price' => '250.75',
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.bid.route_stop_id', $routeStop->id)
+        ->assertJsonPath('data.bid.rest_stop_id', $restStop->id)
+        ->assertJsonPath('data.bid.status', RouteStopBid::STATUS_REJECTED);
+
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_REJECTED,
+    ]);
+});
+
 it('does not create a bid for a closed route', function () {
     $user = User::factory()->create([
         'profile_type' => 'rest_stop',
@@ -360,7 +400,7 @@ it('returns not found when showing a bid the authenticated rest stop did not cre
         'rest_stop_id' => $otherRestStop->id,
         'original_price' => '400.00',
         'price' => '350.00',
-        'status' => 'accepted',
+        'status' => RouteStopBid::STATUS_REJECTED,
     ]);
 
     Sanctum::actingAs($user);
@@ -445,7 +485,7 @@ it('deletes the authenticated rest stops bid by route stop id', function () {
         'rest_stop_id' => $otherRestStop->id,
         'original_price' => '400.00',
         'price' => '350.00',
-        'status' => 'accepted',
+        'status' => RouteStopBid::STATUS_REJECTED,
     ]);
 });
 

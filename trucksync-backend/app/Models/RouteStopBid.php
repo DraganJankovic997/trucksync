@@ -10,6 +10,10 @@ class RouteStopBid extends Model
 {
     public const STATUS_PENDING = 'pending';
 
+    public const STATUS_SELECTED = 'selected';
+
+    public const STATUS_REJECTED = 'rejected';
+
     public $incrementing = false;
 
     public $timestamps = false;

@@ -2699,6 +2699,7 @@ class OpenApiSpec
                             'status' => [
                                 'type' => 'string',
                                 'description' => 'Current bid status.',
+                                'enum' => ['pending', 'selected', 'rejected'],
                                 'example' => 'pending',
                             ],
                         ],

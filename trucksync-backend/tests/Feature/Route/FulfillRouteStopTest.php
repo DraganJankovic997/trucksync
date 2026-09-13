@@ -30,12 +30,16 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
     $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
         'profile_type' => 'rest_stop',
     ]));
+    $otherRestStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
+        'profile_type' => 'rest_stop',
+    ]));
     $fuel = Service::query()->create([
         'name' => 'Fuel',
         'measurement_unit' => 'liter',
     ]);
     $routeStop->services()->attach($fuel->id, ['quantity' => 200]);
     createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
+    createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $otherRestStop);
 
     Sanctum::actingAs($user);
 
@@ -49,7 +53,7 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         ->assertJsonPath('data.route_stop.fulfiled_at', $fulfilledAt->toJSON())
         ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id)
         ->assertJsonPath('data.route_stop.accepted_bid_price', '250.00')
-        ->assertJsonPath('data.route_stop.bids_count', 1)
+        ->assertJsonPath('data.route_stop.bids_count', 2)
         ->assertJsonPath('data.route_stop.services.0.id', $fuel->id)
         ->assertJsonPath('data.route_stop.services.0.quantity', 200);
 
@@ -57,6 +61,16 @@ it('fulfills a route stop owned by the authenticated dispatcher', function () {
         'id' => $routeStop->id,
         'fulfiled_at' => '2026-10-06 12:34:56',
         'fulfiled_by' => $restStop->id,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_SELECTED,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $otherRestStop->id,
+        'status' => RouteStopBid::STATUS_REJECTED,
     ]);
     $this->assertDatabaseHas('routes', [
         'id' => $route->id,
@@ -74,11 +88,12 @@ it('keeps the route open when it has unfulfilled stops and the start date has no
     $dispatcher = createDispatcherForFulfillRouteStopEndpointUser($user);
     $route = createRouteForFulfillRouteStopEndpointDispatcher($dispatcher);
     $routeStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
-    createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $unfulfilledRouteStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
     $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
         'profile_type' => 'rest_stop',
     ]));
     createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
+    createRouteStopBidForFulfillRouteStopEndpoint($unfulfilledRouteStop, $restStop);
 
     Sanctum::actingAs($user);
 
@@ -90,6 +105,16 @@ it('keeps the route open when it has unfulfilled stops and the start date has no
         ->assertJsonPath('data.route_stop.fulfiled_by', $restStop->id);
 
     expect($route->refresh()->closed_at)->toBeNull();
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_SELECTED,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $unfulfilledRouteStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_PENDING,
+    ]);
 });
 
 it('closes the route when its start date has passed after fulfilling a stop', function () {
@@ -105,11 +130,12 @@ it('closes the route when its start date has passed after fulfilling a stop', fu
         'end_date' => '2026-10-09',
     ]);
     $routeStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
-    createRouteStopForFulfillRouteStopEndpointRoute($route);
+    $unfulfilledRouteStop = createRouteStopForFulfillRouteStopEndpointRoute($route);
     $restStop = createRestStopForFulfillRouteStopEndpointUser(User::factory()->create([
         'profile_type' => 'rest_stop',
     ]));
     createRouteStopBidForFulfillRouteStopEndpoint($routeStop, $restStop);
+    createRouteStopBidForFulfillRouteStopEndpoint($unfulfilledRouteStop, $restStop);
 
     Sanctum::actingAs($user);
 
@@ -121,6 +147,16 @@ it('closes the route when its start date has passed after fulfilling a stop', fu
     $this->assertDatabaseHas('routes', [
         'id' => $route->id,
         'closed_at' => '2026-10-06 12:34:56',
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $routeStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_SELECTED,
+    ]);
+    $this->assertDatabaseHas('route_stop_bids', [
+        'route_stop_id' => $unfulfilledRouteStop->id,
+        'rest_stop_id' => $restStop->id,
+        'status' => RouteStopBid::STATUS_REJECTED,
     ]);
 });
 

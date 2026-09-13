@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\BidServiceContract;
 use App\Contracts\RouteStopServiceContract;
 use App\Exceptions\RouteNotFoundException;
 use App\Exceptions\RouteNotOwnedByDispatcherException;
@@ -18,6 +19,10 @@ use Illuminate\Validation\ValidationException;
 
 class RouteStopService implements RouteStopServiceContract
 {
+    public function __construct(
+        private readonly BidServiceContract $bidService
+    ) {}
+
     /**
      * @var array<string, string>
      */
@@ -217,6 +222,7 @@ class RouteStopService implements RouteStopServiceContract
             $routeStop->fulfiled_at = now();
             $routeStop->save();
 
+            $this->bidService->markRouteStopBidSelected($routeStop, $restStopId);
             $this->closeRouteIfReady($routeStop->route);
 
             $routeStop->refresh();
@@ -246,6 +252,7 @@ class RouteStopService implements RouteStopServiceContract
 
         $route->closed_at = now();
         $route->save();
+        $this->bidService->rejectUnselectedForRoute($route);
     }
 
     /**

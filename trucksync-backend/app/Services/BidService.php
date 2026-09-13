@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\BidServiceContract;
 use App\Exceptions\RouteStopNotFoundException;
 use App\Models\RestStop;
+use App\Models\Route as DispatcherRoute;
 use App\Models\RouteStop;
 use App\Models\RouteStopBid;
 use Illuminate\Database\Eloquent\Collection;
@@ -40,6 +41,7 @@ class BidService implements BidServiceContract
             [
                 'original_price' => $originalPrice,
                 'price' => $price,
+                'status' => $this->statusForBid($routeStop, $restStop->id),
             ],
         );
     }
@@ -47,6 +49,32 @@ class BidService implements BidServiceContract
     public function findForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid
     {
         return $this->bidForRestStop($restStop, $routeStopId);
+    }
+
+    public function markRouteStopBidSelected(RouteStop $routeStop, int $restStopId): void
+    {
+        RouteStopBid::query()
+            ->where('route_stop_id', $routeStop->id)
+            ->where('rest_stop_id', $restStopId)
+            ->update([
+                'status' => RouteStopBid::STATUS_SELECTED,
+            ]);
+
+        RouteStopBid::query()
+            ->where('route_stop_id', $routeStop->id)
+            ->where('rest_stop_id', '!=', $restStopId)
+            ->update([
+                'status' => RouteStopBid::STATUS_REJECTED,
+            ]);
+    }
+
+    public function rejectUnselectedForRoute(DispatcherRoute $route): void
+    {
+        $route->load('routeStops');
+
+        foreach ($route->routeStops as $routeStop) {
+            $this->markClosedRouteStopBidStatuses($routeStop);
+        }
     }
 
     public function deleteForRestStopByRouteStop(RestStop $restStop, int $routeStopId): ?RouteStopBid
@@ -93,5 +121,31 @@ class BidService implements BidServiceContract
             ->where('route_stop_id', $routeStopId)
             ->where('rest_stop_id', $restStop->id)
             ->first();
+    }
+
+    private function markClosedRouteStopBidStatuses(RouteStop $routeStop): void
+    {
+        if ($routeStop->fulfiled_by !== null) {
+            $this->markRouteStopBidSelected($routeStop, $routeStop->fulfiled_by);
+
+            return;
+        }
+
+        RouteStopBid::query()
+            ->where('route_stop_id', $routeStop->id)
+            ->update([
+                'status' => RouteStopBid::STATUS_REJECTED,
+            ]);
+    }
+
+    private function statusForBid(RouteStop $routeStop, int $restStopId): string
+    {
+        if ($routeStop->fulfiled_by === null) {
+            return RouteStopBid::STATUS_PENDING;
+        }
+
+        return $routeStop->fulfiled_by === $restStopId
+            ? RouteStopBid::STATUS_SELECTED
+            : RouteStopBid::STATUS_REJECTED;
     }
 }

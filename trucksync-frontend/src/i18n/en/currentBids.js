@@ -1,5 +1,9 @@
 export default {
   title: 'Current bids',
   eyebrow: 'Active bids',
-  description: 'Bids that are still pending a dispatcher decision.'
+  description: 'Successful and pending bids from yesterday onward.',
+  tables: {
+    success: 'Successful bids',
+    pending: 'Pending bids'
+  }
 };

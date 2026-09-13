@@ -11,6 +11,10 @@ const props = defineProps({
   from: {
     type: String,
     default: null
+  },
+  title: {
+    type: String,
+    default: null
   }
 });
 
@@ -116,6 +120,7 @@ const rows = computed(() =>
 );
 
 const bidCount = computed(() => pagination.value.rowsNumber);
+const tableTitle = computed(() => props.title ?? t('bidding.bidsTable.title'));
 
 onMounted(() => {
   void loadBids();
@@ -242,7 +247,7 @@ function formatDateTime(value) {
       <template #top-left>
         <div>
           <h2 class="text-h6 text-weight-bold q-my-none">
-            {{ t('bidding.bidsTable.title') }}
+            {{ tableTitle }}
           </h2>
           <div class="bids-table-muted text-caption text-weight-bold">
             {{ t('bidding.bidsTable.bidCount', { count: bidCount }) }}

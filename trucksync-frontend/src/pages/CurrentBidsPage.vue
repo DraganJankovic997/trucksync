@@ -3,9 +3,12 @@ import { useI18n } from 'vue-i18n';
 import BidsTable from '@/components/bidding/BidsTable.vue';
 
 const { t } = useI18n();
-const todayDate = formatDateParam(new Date());
+const yesterdayDate = dateParamForDaysAgo(1);
 
-function formatDateParam(date) {
+function dateParamForDaysAgo(days) {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -32,7 +35,18 @@ function formatDateParam(date) {
         </p>
       </header>
 
-      <BidsTable status="pending" :from="todayDate" />
+      <BidsTable
+        class="q-mb-lg"
+        status="selected"
+        :from="yesterdayDate"
+        :title="t('currentBids.tables.success')"
+      />
+
+      <BidsTable
+        status="pending"
+        :from="yesterdayDate"
+        :title="t('currentBids.tables.pending')"
+      />
     </div>
   </q-page>
 </template>

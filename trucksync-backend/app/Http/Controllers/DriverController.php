@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\DriverServiceContract;
+use App\Exceptions\RouteNotFoundException;
+use App\Exceptions\RouteNotOwnedByDispatcherException;
 use App\Models\Driver;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -24,8 +26,18 @@ class DriverController extends Controller
             ], 403);
         }
 
+        $validated = $request->validate([
+            'available_for_route' => ['nullable', 'integer', 'min:1', Rule::exists('routes', 'id')],
+        ]);
+        $availableForRouteId = isset($validated['available_for_route'])
+            ? (int) $validated['available_for_route']
+            : null;
+
         try {
-            $drivers = $this->driverService->forDispatcherUser($authenticatedUser);
+            $drivers = $this->driverService->forDispatcherUser(
+                $authenticatedUser,
+                $availableForRouteId
+            );
 
             if ($drivers === null) {
                 return response()->json([
@@ -41,6 +53,14 @@ class DriverController extends Controller
                         ->all(),
                 ],
             ]);
+        } catch (RouteNotFoundException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 404);
+        } catch (RouteNotOwnedByDispatcherException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 403);
         } catch (Throwable $throwable) {
             logger()->error('Unable to fetch dispatcher drivers.', [
                 'user_id' => $authenticatedUser->id,
@@ -155,10 +175,16 @@ class DriverController extends Controller
      */
     private function driverWithUserPayload(Driver $driver): array
     {
-        return [
+        $payload = [
             ...$this->driverPayload($driver),
             'user' => $this->userPayload($driver->user),
         ];
+
+        if ($driver->getAttribute('is_available') !== null) {
+            $payload['is_available'] = (bool) $driver->getAttribute('is_available');
+        }
+
+        return $payload;
     }
 
     /**

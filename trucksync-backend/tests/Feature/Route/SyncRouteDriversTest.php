@@ -145,6 +145,97 @@ it('rejects drivers that do not belong to the authenticated dispatcher', functio
         ->assertJsonValidationErrors(['drivers']);
 });
 
+it('rejects drivers assigned to overlapping open routes', function () {
+    $dispatcherUser = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForSyncRouteDrivers($dispatcherUser);
+    $route = createRouteForSyncRouteDrivers(
+        $dispatcher,
+        '2026-10-01',
+        '2026-10-05'
+    );
+    $overlappingRoute = createRouteForSyncRouteDrivers(
+        $dispatcher,
+        '2026-10-03',
+        '2026-10-06'
+    );
+    $busyDriver = createDriverForSyncRouteDrivers($dispatcher, 'BUSY-123');
+    $overlappingRoute->drivers()->attach($busyDriver->id, [
+        'is_convoy_leader' => false,
+    ]);
+
+    Sanctum::actingAs($dispatcherUser);
+
+    $this->putJson("/api/dispatcher/route/{$route->id}/drivers", [
+        'drivers' => [
+            [
+                'driver_id' => $busyDriver->id,
+                'is_convoy_leader' => true,
+            ],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonPath('message', 'Selected drivers must be available for this route schedule.')
+        ->assertJsonValidationErrors(['drivers']);
+
+    $this->assertDatabaseMissing('driver_route', [
+        'route_id' => $route->id,
+        'driver_id' => $busyDriver->id,
+    ]);
+});
+
+it('allows drivers assigned only to closed or non-overlapping routes', function () {
+    $dispatcherUser = User::factory()->create([
+        'profile_type' => 'dispatcher',
+    ]);
+    $dispatcher = createDispatcherForSyncRouteDrivers($dispatcherUser);
+    $route = createRouteForSyncRouteDrivers(
+        $dispatcher,
+        '2026-10-01',
+        '2026-10-05'
+    );
+    $closedOverlappingRoute = createRouteForSyncRouteDrivers(
+        $dispatcher,
+        '2026-10-03',
+        '2026-10-06'
+    );
+    $closedOverlappingRoute->forceFill([
+        'closed_at' => '2026-09-25 12:00:00',
+    ])->save();
+    $nonOverlappingRoute = createRouteForSyncRouteDrivers(
+        $dispatcher,
+        '2026-10-06',
+        '2026-10-08'
+    );
+    $closedRouteDriver = createDriverForSyncRouteDrivers($dispatcher, 'CLOSED-123');
+    $futureRouteDriver = createDriverForSyncRouteDrivers($dispatcher, 'FUTURE-456');
+
+    $closedOverlappingRoute->drivers()->attach($closedRouteDriver->id, [
+        'is_convoy_leader' => false,
+    ]);
+    $nonOverlappingRoute->drivers()->attach($futureRouteDriver->id, [
+        'is_convoy_leader' => false,
+    ]);
+
+    Sanctum::actingAs($dispatcherUser);
+
+    $this->putJson("/api/dispatcher/route/{$route->id}/drivers", [
+        'drivers' => [
+            [
+                'driver_id' => $closedRouteDriver->id,
+                'is_convoy_leader' => true,
+            ],
+            [
+                'driver_id' => $futureRouteDriver->id,
+                'is_convoy_leader' => false,
+            ],
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonCount(2, 'data.route.drivers');
+});
+
 it('rejects route driver assignment for a route owned by another dispatcher', function () {
     $dispatcherUser = User::factory()->create([
         'profile_type' => 'dispatcher',
@@ -243,16 +334,19 @@ function createDispatcherForSyncRouteDrivers(User $user): Dispatcher
     ]);
 }
 
-function createRouteForSyncRouteDrivers(Dispatcher $dispatcher): DispatcherRoute
-{
+function createRouteForSyncRouteDrivers(
+    Dispatcher $dispatcher,
+    string $startDate = '2026-10-01',
+    string $endDate = '2026-10-05'
+): DispatcherRoute {
     return DispatcherRoute::query()->create([
         'dispatcher_id' => $dispatcher->id,
         'origin' => 'Belgrade warehouse',
         'destination' => 'Berlin logistics hub',
         'planned_travel_details' => 'Take the A3 corridor and stop near Vienna.',
         'convoy_size' => 3,
-        'start_date' => '2026-10-01',
-        'end_date' => '2026-10-05',
+        'start_date' => $startDate,
+        'end_date' => $endDate,
     ]);
 }
 

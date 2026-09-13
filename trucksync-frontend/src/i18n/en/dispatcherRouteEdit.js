@@ -25,6 +25,7 @@ export default {
     emptyValue: '-',
     unknownDriver: 'Unknown driver',
     licenseNumber: 'License: {licenseNumber}',
+    unavailable: 'Assigned to another route',
     assignAriaLabel: 'Assign driver {driver} to route',
     emptyTitle: 'No drivers available',
     emptyDescription:

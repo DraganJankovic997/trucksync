@@ -24,9 +24,17 @@ export const useDriverStore = defineStore('driver', () => {
     }
   }
 
-  async function fetchDispatcherDrivers() {
+  async function fetchDispatcherDrivers(availableForRouteId = null) {
     try {
-      const { data } = await api.get('/dispatcher/drivers');
+      const requestConfig =
+        availableForRouteId === null || availableForRouteId === undefined
+          ? {}
+          : {
+              params: {
+                available_for_route: availableForRouteId
+              }
+            };
+      const { data } = await api.get('/dispatcher/drivers', requestConfig);
 
       drivers.value = data?.data?.drivers ?? [];
 

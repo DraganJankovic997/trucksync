@@ -25,6 +25,7 @@ export default {
     emptyValue: '-',
     unknownDriver: 'Nepoznat vozač',
     licenseNumber: 'Dozvola: {licenseNumber}',
+    unavailable: 'Dodeljen drugoj ruti',
     assignAriaLabel: 'Dodeli vozača {driver} ruti',
     emptyTitle: 'Nema dostupnih vozača',
     emptyDescription:

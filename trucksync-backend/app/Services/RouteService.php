@@ -187,6 +187,21 @@ class RouteService implements RouteServiceContract
             if ($dispatcherDriverCount !== $driverIds->count()) {
                 throw new InvalidRouteDriverAssignmentException;
             }
+
+            $unavailableDriverCount = Driver::query()
+                ->whereIn('drivers.id', $driverIds)
+                ->whereHas('routes', fn ($query) => $query
+                    ->where('routes.id', '<>', $route->id)
+                    ->whereNull('routes.closed_at')
+                    ->whereDate('routes.start_date', '<=', $route->end_date->toDateString())
+                    ->whereDate('routes.end_date', '>=', $route->start_date->toDateString()))
+                ->count();
+
+            if ($unavailableDriverCount > 0) {
+                throw new InvalidRouteDriverAssignmentException(
+                    'Selected drivers must be available for this route schedule.'
+                );
+            }
         }
 
         return DB::transaction(function () use ($route, $driverAssignments): DispatcherRoute {

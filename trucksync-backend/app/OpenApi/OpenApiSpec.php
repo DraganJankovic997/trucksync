@@ -1102,6 +1102,18 @@ class OpenApiSpec
                                 'sanctumBearer' => [],
                             ],
                         ],
+                        'parameters' => [
+                            [
+                                'name' => 'available_for_route',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Route ID used to mark drivers unavailable when they are assigned to another open route with overlapping dates.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                ],
+                            ],
+                        ],
                         'responses' => [
                             '200' => [
                                 'description' => 'Dispatcher driver list.',
@@ -1121,6 +1133,9 @@ class OpenApiSpec
                             ],
                             '404' => [
                                 '$ref' => '#/components/responses/DispatcherNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
                             ],
                             '500' => [
                                 '$ref' => '#/components/responses/ServerError',
@@ -2537,6 +2552,11 @@ class OpenApiSpec
                             'is_dispatcher_approved' => [
                                 'type' => 'boolean',
                                 'example' => false,
+                            ],
+                            'is_available' => [
+                                'type' => 'boolean',
+                                'description' => 'Present when listing dispatcher drivers for a route. False means the driver is assigned to another open route with overlapping dates.',
+                                'example' => true,
                             ],
                         ],
                     ],
@@ -4884,14 +4904,25 @@ class OpenApiSpec
                         ],
                     ],
                     'DispatcherDriversForbidden' => [
-                        'description' => 'The authenticated user is not a dispatcher.',
+                        'description' => 'The authenticated user is not a dispatcher, or the availability route belongs to another dispatcher.',
                         'content' => [
                             'application/json' => [
                                 'schema' => [
                                     '$ref' => '#/components/schemas/ErrorResponse',
                                 ],
-                                'example' => [
-                                    'message' => 'Only dispatcher users can view drivers.',
+                                'examples' => [
+                                    'non_dispatcher' => [
+                                        'summary' => 'Authenticated user is not a dispatcher',
+                                        'value' => [
+                                            'message' => 'Only dispatcher users can view drivers.',
+                                        ],
+                                    ],
+                                    'route_owner' => [
+                                        'summary' => 'Availability route belongs to another dispatcher',
+                                        'value' => [
+                                            'message' => 'You cannot view driver availability for a route you did not create.',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

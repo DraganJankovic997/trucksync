@@ -147,7 +147,7 @@ async function loadDispatcherDrivers() {
   isFetchingDrivers.value = true;
 
   try {
-    await driverStore.fetchDispatcherDrivers();
+    await driverStore.fetchDispatcherDrivers(routeId.value);
   } finally {
     isFetchingDrivers.value = false;
   }

@@ -37,9 +37,18 @@ const hasDrivers = computed(() => props.drivers.length > 0);
 const hasChanges = computed(
   () => assignmentSignature(currentAssignments()) !== originalSignature.value
 );
+const hasUnavailableSelected = computed(() =>
+  props.drivers.some(
+    driver => !isDriverAvailable(driver) && isDriverSelected(driver.id)
+  )
+);
 const canSave = computed(
   () =>
-    !props.routeClosed && !props.loading && !props.saving && hasChanges.value
+    !props.routeClosed &&
+    !props.loading &&
+    !props.saving &&
+    hasChanges.value &&
+    !hasUnavailableSelected.value
 );
 
 watch(
@@ -95,6 +104,19 @@ function driverLicense(driver) {
 
 function isDriverSelected(driverId) {
   return selectedDriverIds.value.map(Number).includes(Number(driverId));
+}
+
+function isDriverAvailable(driver) {
+  return driver.is_available !== false;
+}
+
+function isDriverSelectionDisabled(driver) {
+  return (
+    props.routeClosed ||
+    props.loading ||
+    props.saving ||
+    (!isDriverAvailable(driver) && !isDriverSelected(driver.id))
+  );
 }
 
 function currentAssignments() {
@@ -181,7 +203,7 @@ function clearConvoyLeader() {
             <q-checkbox
               v-model="selectedDriverIds"
               :val="driver.id"
-              :disable="routeClosed || loading || saving"
+              :disable="isDriverSelectionDisabled(driver)"
               :aria-label="
                 t('dispatcherRouteEdit.drivers.assignAriaLabel', {
                   driver: driverName(driver)
@@ -200,6 +222,11 @@ function clearConvoyLeader() {
             <q-item-label caption>
               {{ driverLicense(driver) }}
             </q-item-label>
+            <q-item-label v-if="!isDriverAvailable(driver)" caption>
+              <q-badge color="negative" outline>
+                {{ t('dispatcherRouteEdit.drivers.unavailable') }}
+              </q-badge>
+            </q-item-label>
           </q-item-section>
 
           <q-item-section class="dispatcher-route-drivers-leader" side>
@@ -207,7 +234,11 @@ function clearConvoyLeader() {
               v-model="convoyLeaderId"
               :val="driver.id"
               :disable="
-                routeClosed || loading || saving || !isDriverSelected(driver.id)
+                routeClosed ||
+                loading ||
+                saving ||
+                !isDriverSelected(driver.id) ||
+                !isDriverAvailable(driver)
               "
               :label="t('dispatcherRouteEdit.drivers.convoyLeader')"
             />

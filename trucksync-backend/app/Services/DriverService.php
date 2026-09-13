@@ -100,7 +100,6 @@ class DriverService implements DriverServiceContract
             ->whereIn('drivers.id', $driverIds)
             ->whereHas('routes', fn ($query) => $query
                 ->where('routes.id', '<>', $route->id)
-                ->whereNull('routes.closed_at')
                 ->whereDate('routes.start_date', '<=', $route->end_date->toDateString())
                 ->whereDate('routes.end_date', '>=', $route->start_date->toDateString()))
             ->pluck('drivers.id')

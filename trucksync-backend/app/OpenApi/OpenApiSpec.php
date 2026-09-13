@@ -954,6 +954,97 @@ class OpenApiSpec
                         ],
                     ],
                 ],
+                '/api/driver/current-route' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'Show the authenticated driver current route',
+                        'description' => 'Returns the first route assigned to the authenticated driver whose date range includes today, plus the next route stop by stop_at timestamp.',
+                        'operationId' => 'showAuthenticatedDriverCurrentRoute',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Current driver route details.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DriverCurrentRouteResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DriverRoutesForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DriverNotFound',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
+                '/api/driver/routes/upcoming' => [
+                    'get' => [
+                        'tags' => ['Routes'],
+                        'summary' => 'List upcoming routes assigned to the authenticated driver',
+                        'description' => 'Returns future routes assigned to the authenticated driver ordered by start date for dashboard widgets.',
+                        'operationId' => 'listAuthenticatedDriverUpcomingRoutes',
+                        'security' => [
+                            [
+                                'sanctumBearer' => [],
+                            ],
+                        ],
+                        'parameters' => [
+                            [
+                                'name' => 'limit',
+                                'in' => 'query',
+                                'required' => false,
+                                'description' => 'Maximum number of upcoming routes to return.',
+                                'schema' => [
+                                    'type' => 'integer',
+                                    'minimum' => 1,
+                                    'maximum' => 10,
+                                    'default' => 3,
+                                ],
+                            ],
+                        ],
+                        'responses' => [
+                            '200' => [
+                                'description' => 'Upcoming driver route list.',
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => [
+                                            '$ref' => '#/components/schemas/DriverUpcomingRoutesIndexResponse',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            '401' => [
+                                '$ref' => '#/components/responses/Unauthenticated',
+                            ],
+                            '403' => [
+                                '$ref' => '#/components/responses/DriverRoutesForbidden',
+                            ],
+                            '404' => [
+                                '$ref' => '#/components/responses/DriverNotFound',
+                            ],
+                            '422' => [
+                                '$ref' => '#/components/responses/ValidationError',
+                            ],
+                            '500' => [
+                                '$ref' => '#/components/responses/ServerError',
+                            ],
+                        ],
+                    ],
+                ],
                 '/api/driver/routes' => [
                     'get' => [
                         'tags' => ['Routes'],
@@ -1107,7 +1198,7 @@ class OpenApiSpec
                                 'name' => 'available_for_route',
                                 'in' => 'query',
                                 'required' => false,
-                                'description' => 'Route ID used to mark drivers unavailable when they are assigned to another open route with overlapping dates.',
+                                'description' => 'Route ID used to mark drivers unavailable when they are assigned to another route with overlapping dates.',
                                 'schema' => [
                                     'type' => 'integer',
                                     'minimum' => 1,
@@ -2555,7 +2646,7 @@ class OpenApiSpec
                             ],
                             'is_available' => [
                                 'type' => 'boolean',
-                                'description' => 'Present when listing dispatcher drivers for a route. False means the driver is assigned to another open route with overlapping dates.',
+                                'description' => 'Present when listing dispatcher drivers for a route. False means the driver is assigned to another route with overlapping dates.',
                                 'example' => true,
                             ],
                         ],
@@ -2703,6 +2794,51 @@ class OpenApiSpec
                                 'items' => [
                                     '$ref' => '#/components/schemas/RouteDriver',
                                 ],
+                            ],
+                        ],
+                    ],
+                    'DriverUpcomingRoute' => [
+                        'type' => 'object',
+                        'required' => [
+                            'id',
+                            'dispatcher_id',
+                            'origin',
+                            'destination',
+                            'convoy_size',
+                            'start_date',
+                            'end_date',
+                        ],
+                        'properties' => [
+                            'id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'dispatcher_id' => [
+                                'type' => 'integer',
+                                'example' => 1,
+                            ],
+                            'origin' => [
+                                'type' => 'string',
+                                'example' => 'Belgrade warehouse',
+                            ],
+                            'destination' => [
+                                'type' => 'string',
+                                'example' => 'Berlin logistics hub',
+                            ],
+                            'convoy_size' => [
+                                'type' => 'integer',
+                                'minimum' => 1,
+                                'example' => 3,
+                            ],
+                            'start_date' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'example' => '2026-10-01',
+                            ],
+                            'end_date' => [
+                                'type' => 'string',
+                                'format' => 'date',
+                                'example' => '2026-10-05',
                             ],
                         ],
                     ],
@@ -3963,6 +4099,34 @@ class OpenApiSpec
                             ],
                         ],
                     ],
+                    'DriverCurrentRouteResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['route', 'next_route_stop'],
+                                'properties' => [
+                                    'route' => [
+                                        'nullable' => true,
+                                        'allOf' => [
+                                            [
+                                                '$ref' => '#/components/schemas/DispatcherRouteWithStops',
+                                            ],
+                                        ],
+                                    ],
+                                    'next_route_stop' => [
+                                        'nullable' => true,
+                                        'allOf' => [
+                                            [
+                                                '$ref' => '#/components/schemas/DispatcherRouteStop',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     'DriverRoutesIndexResponse' => [
                         'type' => 'object',
                         'required' => ['data'],
@@ -3975,6 +4139,24 @@ class OpenApiSpec
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/DispatcherRouteWithStops',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'DriverUpcomingRoutesIndexResponse' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                'type' => 'object',
+                                'required' => ['routes'],
+                                'properties' => [
+                                    'routes' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/DriverUpcomingRoute',
                                         ],
                                     ],
                                 ],

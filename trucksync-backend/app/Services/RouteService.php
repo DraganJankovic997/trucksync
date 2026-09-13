@@ -11,6 +11,7 @@ use App\Models\Dispatcher;
 use App\Models\Driver;
 use App\Models\Route as DispatcherRoute;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -64,6 +65,56 @@ class RouteService implements RouteServiceContract
             ->orderByRaw('CASE WHEN closed_at IS NULL THEN 0 ELSE 1 END')
             ->orderBy('start_date')
             ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function currentForDriverUser(User $user): ?Collection
+    {
+        $driver = $this->driverForUser($user);
+
+        if (! $driver) {
+            return null;
+        }
+
+        $today = now()->toDateString();
+
+        return $this->assignedRoutesForDriver($driver)
+            ->with([
+                'drivers.user',
+                'routeStops' => fn ($query) => $query
+                    ->withAcceptedBidPrice()
+                    ->withCount(['routeStopBids as bids_count'])
+                    ->orderBy('stop_at')
+                    ->orderBy('id'),
+                'routeStops.services' => fn ($query) => $query->orderBy('services.id'),
+            ])
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->orderBy('start_date')
+            ->orderBy('id')
+            ->limit(1)
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function upcomingForDriverUser(User $user, int $limit): ?Collection
+    {
+        $driver = $this->driverForUser($user);
+
+        if (! $driver) {
+            return null;
+        }
+
+        return $this->assignedRoutesForDriver($driver)
+            ->whereDate('start_date', '>', now()->toDateString())
+            ->orderBy('start_date')
+            ->orderBy('id')
+            ->limit($limit)
             ->get();
     }
 
@@ -192,7 +243,6 @@ class RouteService implements RouteServiceContract
                 ->whereIn('drivers.id', $driverIds)
                 ->whereHas('routes', fn ($query) => $query
                     ->where('routes.id', '<>', $route->id)
-                    ->whereNull('routes.closed_at')
                     ->whereDate('routes.start_date', '<=', $route->end_date->toDateString())
                     ->whereDate('routes.end_date', '>=', $route->start_date->toDateString()))
                 ->count();
@@ -237,5 +287,14 @@ class RouteService implements RouteServiceContract
         return Driver::query()
             ->where('user_id', $user->id)
             ->first();
+    }
+
+    /**
+     * @return Builder<DispatcherRoute>
+     */
+    private function assignedRoutesForDriver(Driver $driver): Builder
+    {
+        return DispatcherRoute::query()
+            ->whereHas('drivers', fn ($query) => $query->whereKey($driver->id));
     }
 }

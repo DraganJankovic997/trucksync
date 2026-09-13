@@ -18,6 +18,16 @@ interface RouteServiceContract
      */
     public function forDriverUser(User $user): ?Collection;
 
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function currentForDriverUser(User $user): ?Collection;
+
+    /**
+     * @return Collection<int, DispatcherRoute>|null
+     */
+    public function upcomingForDriverUser(User $user, int $limit): ?Collection;
+
     public function createForUser(
         User $user,
         string $origin,

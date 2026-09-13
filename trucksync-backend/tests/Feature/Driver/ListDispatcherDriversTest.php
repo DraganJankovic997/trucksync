@@ -51,7 +51,7 @@ it('lists drivers linked to the authenticated dispatcher', function () {
         ->assertJsonPath('data.drivers.1.user.first_name', 'Grace');
 });
 
-it('marks dispatcher drivers unavailable when assigned to overlapping open routes', function () {
+it('marks dispatcher drivers unavailable when assigned to overlapping routes', function () {
     $dispatcherUser = User::factory()->create([
         'profile_type' => 'dispatcher',
     ]);
@@ -140,7 +140,7 @@ it('marks dispatcher drivers unavailable when assigned to overlapping open route
     expect($drivers->get($availableDriver->id)['is_available'])->toBeTrue()
         ->and($drivers->get($busyDriver->id)['is_available'])->toBeFalse()
         ->and($drivers->get($currentRouteDriver->id)['is_available'])->toBeTrue()
-        ->and($drivers->get($closedRouteDriver->id)['is_available'])->toBeTrue()
+        ->and($drivers->get($closedRouteDriver->id)['is_available'])->toBeFalse()
         ->and($drivers->get($futureDriver->id)['is_available'])->toBeTrue();
 });
 

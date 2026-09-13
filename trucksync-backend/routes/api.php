@@ -61,6 +61,10 @@ Route::get('/route/route-stops/{route_id}', [RouteStopController::class, 'index'
 Route::prefix('driver')
     ->middleware('auth:sanctum')
     ->group(function () {
+        Route::get('/current-route', [RouteController::class, 'currentForDriver'])
+            ->name('driver.current-route.show');
+        Route::get('/routes/upcoming', [RouteController::class, 'upcomingForDriver'])
+            ->name('driver.routes.upcoming.index');
         Route::get('/routes', [RouteController::class, 'indexForDriver'])
             ->name('driver.routes.index');
         Route::post('/route-stop/{routeStopId}/usage-review', [RouteStopUsageController::class, 'store'])

@@ -145,7 +145,7 @@ it('rejects drivers that do not belong to the authenticated dispatcher', functio
         ->assertJsonValidationErrors(['drivers']);
 });
 
-it('rejects drivers assigned to overlapping open routes', function () {
+it('rejects drivers assigned to overlapping routes', function () {
     $dispatcherUser = User::factory()->create([
         'profile_type' => 'dispatcher',
     ]);
@@ -160,6 +160,9 @@ it('rejects drivers assigned to overlapping open routes', function () {
         '2026-10-03',
         '2026-10-06'
     );
+    $overlappingRoute->forceFill([
+        'closed_at' => '2026-09-25 12:00:00',
+    ])->save();
     $busyDriver = createDriverForSyncRouteDrivers($dispatcher, 'BUSY-123');
     $overlappingRoute->drivers()->attach($busyDriver->id, [
         'is_convoy_leader' => false,
@@ -185,7 +188,7 @@ it('rejects drivers assigned to overlapping open routes', function () {
     ]);
 });
 
-it('allows drivers assigned only to closed or non-overlapping routes', function () {
+it('allows drivers assigned to non-overlapping routes', function () {
     $dispatcherUser = User::factory()->create([
         'profile_type' => 'dispatcher',
     ]);
@@ -195,25 +198,13 @@ it('allows drivers assigned only to closed or non-overlapping routes', function 
         '2026-10-01',
         '2026-10-05'
     );
-    $closedOverlappingRoute = createRouteForSyncRouteDrivers(
-        $dispatcher,
-        '2026-10-03',
-        '2026-10-06'
-    );
-    $closedOverlappingRoute->forceFill([
-        'closed_at' => '2026-09-25 12:00:00',
-    ])->save();
     $nonOverlappingRoute = createRouteForSyncRouteDrivers(
         $dispatcher,
         '2026-10-06',
         '2026-10-08'
     );
-    $closedRouteDriver = createDriverForSyncRouteDrivers($dispatcher, 'CLOSED-123');
     $futureRouteDriver = createDriverForSyncRouteDrivers($dispatcher, 'FUTURE-456');
 
-    $closedOverlappingRoute->drivers()->attach($closedRouteDriver->id, [
-        'is_convoy_leader' => false,
-    ]);
     $nonOverlappingRoute->drivers()->attach($futureRouteDriver->id, [
         'is_convoy_leader' => false,
     ]);
@@ -223,17 +214,13 @@ it('allows drivers assigned only to closed or non-overlapping routes', function 
     $this->putJson("/api/dispatcher/route/{$route->id}/drivers", [
         'drivers' => [
             [
-                'driver_id' => $closedRouteDriver->id,
-                'is_convoy_leader' => true,
-            ],
-            [
                 'driver_id' => $futureRouteDriver->id,
-                'is_convoy_leader' => false,
+                'is_convoy_leader' => true,
             ],
         ],
     ])
         ->assertOk()
-        ->assertJsonCount(2, 'data.route.drivers');
+        ->assertJsonCount(1, 'data.route.drivers');
 });
 
 it('rejects route driver assignment for a route owned by another dispatcher', function () {

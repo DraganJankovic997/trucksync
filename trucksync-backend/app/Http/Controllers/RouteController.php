@@ -91,6 +91,91 @@ class RouteController extends Controller
         }
     }
 
+    public function currentForDriver(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'driver') {
+            return response()->json([
+                'message' => 'Only driver users can view their routes.',
+            ], 403);
+        }
+
+        try {
+            $routes = $this->routeService->currentForDriverUser($authenticatedUser);
+
+            if (! $routes) {
+                return response()->json([
+                    'message' => 'Driver profile not found.',
+                ], 404);
+            }
+
+            $route = $routes->first();
+            $nextRouteStop = $route?->routeStops
+                ->first(fn (RouteStop $routeStop): bool => $routeStop->stop_at->greaterThanOrEqualTo(now()));
+
+            return response()->json([
+                'data' => [
+                    'route' => $route ? $this->routeWithStopsPayload($route) : null,
+                    'next_route_stop' => $nextRouteStop ? $this->routeStopPayload($nextRouteStop) : null,
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch current driver route.', [
+                'user_id' => $authenticatedUser->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch current route.',
+            ], 500);
+        }
+    }
+
+    public function upcomingForDriver(Request $request): JsonResponse
+    {
+        $authenticatedUser = $request->user();
+
+        if ($authenticatedUser->profile_type !== 'driver') {
+            return response()->json([
+                'message' => 'Only driver users can view their routes.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'limit' => ['nullable', 'integer', 'min:1', 'max:10'],
+        ]);
+        $limit = isset($validated['limit']) ? (int) $validated['limit'] : 3;
+
+        try {
+            $routes = $this->routeService->upcomingForDriverUser($authenticatedUser, $limit);
+
+            if (! $routes) {
+                return response()->json([
+                    'message' => 'Driver profile not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'data' => [
+                    'routes' => $routes
+                        ->map(fn (DispatcherRoute $route): array => $this->routeSummaryPayload($route))
+                        ->values()
+                        ->all(),
+                ],
+            ]);
+        } catch (Throwable $throwable) {
+            logger()->error('Unable to fetch upcoming driver routes.', [
+                'user_id' => $authenticatedUser->id,
+                'exception' => $throwable,
+            ]);
+
+            return response()->json([
+                'message' => 'Unable to fetch upcoming routes.',
+            ], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $authenticatedUser = $request->user();
@@ -313,6 +398,22 @@ class RouteController extends Controller
                 ->map(fn (Driver $driver): array => $this->routeDriverPayload($driver))
                 ->values()
                 ->all(),
+        ];
+    }
+
+    /**
+     * @return array{id: int, dispatcher_id: int, origin: string, destination: string, convoy_size: int, start_date: string, end_date: string}
+     */
+    private function routeSummaryPayload(DispatcherRoute $route): array
+    {
+        return [
+            'id' => $route->id,
+            'dispatcher_id' => $route->dispatcher_id,
+            'origin' => $route->origin,
+            'destination' => $route->destination,
+            'convoy_size' => $route->convoy_size,
+            'start_date' => $route->start_date->toDateString(),
+            'end_date' => $route->end_date->toDateString(),
         ];
     }
 
